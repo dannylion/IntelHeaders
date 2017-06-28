@@ -19,6 +19,7 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\apic.h" />
     <ClInclude Include="include\cr64.h" />
     <ClInclude Include="include\Faults.h" />
     <ClInclude Include="include\msr64.h" />

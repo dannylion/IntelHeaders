@@ -397,18 +397,38 @@ typedef enum _MSR_CODE
 	MSR_CODE_IA32_TSC_AUX = 0xC0000103,
 } MSR_CODE, *PMSR_CODE;
 
+// MSR_CODE_IA32_APIC_BASE = 0x1B
+typedef union _IA32_APIC_BASE
+{
+	UINT64 qwValue;
+	struct
+	{
+		UINT64 reserved0 : 8;			// 0-7
+		UINT64 Bsp : 1;					// 8		Is this the bootstrap processor
+		UINT64 reserved1 : 2;			// 9-10
+		UINT64 ApicGlobalEnable : 1;	// 11		Enables or disables the local APIC
+		UINT64 ApicBase : 24;			// 12-35	Base address of the APIC registers. After a
+										//			power-up or reset, this is set to 0xFEE00000
+		UINT64 reserved2 : 28;			// 36-63
+	};
+} IA32_APIC_BASE, *PIA32_APIC_BASE;
+
 // MSR_CODE_IA32_FEATURE_CONTROL = 0x3A
 // Table 5-1. Layout of IA32_FEATURE_CONTROL
 typedef union _IA32_FEATURE_CONTROL
 {
-	UINT64 LockBit : 1;			// 0		If the lock bit is clear, an attempt to execute
-								//			VMXON will cause a #GP fault
-	UINT64 VmxInSmx : 1;		// 1		Enables VMX in SMX operation
-	UINT64 VmxOutsideSmx : 1;	// 2		Enables VMX outside SMX operation
-	UINT64 reserved0 : 5;		// 3-7
-	UINT64 SenterLocals : 7;	// 8-14		Enabled functionality of the SENTER leaf function
-	UINT64 SenterGlobal : 1;	// 15		Global enable of all SENTER functionalities
-	UINT64 reserved1 : 48;		// 16-63
+	UINT64 qwValue;
+	struct
+	{
+		UINT64 LockBit : 1;			// 0		If the lock bit is clear, an attempt to execute
+									//			VMXON will cause a #GP fault
+		UINT64 VmxInSmx : 1;		// 1		Enables VMX in SMX operation
+		UINT64 VmxOutsideSmx : 1;	// 2		Enables VMX outside SMX operation
+		UINT64 reserved0 : 5;		// 3-7
+		UINT64 SenterLocals : 7;	// 8-14		Enabled functionality of the SENTER leaf function
+		UINT64 SenterGlobal : 1;	// 15		Global enable of all SENTER functionalities
+		UINT64 reserved1 : 48;		// 16-63
+	};
 } IA32_FEATURE_CONTROL, *PIA32_FEATURE_CONTROL;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_FEATURE_CONTROL));
 
