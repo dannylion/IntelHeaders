@@ -61,7 +61,7 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
-    <IncludePath>$(SolutionDir)\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(ProjectDir)\include;$(IncludePath)</IncludePath>
     <OutDir>$(SolutionDir)bin\$(ConfigurationName)\$(Platform)\</OutDir>
     <IntDir>$(SolutionDir)bin\int\$(ConfigurationName)\$(Platform)\</IntDir>
   </PropertyGroup>
