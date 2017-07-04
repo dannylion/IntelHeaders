@@ -35,7 +35,6 @@ static LPCSTR g_VmInstructionErrorMessages[VM_INSTRUCTION_ERROR_MAX] = {
 };
 
 LPCSTR
-__inline
 VTX_GetVmInstructionErrorMsg(
 	IN const VM_INSTRUCTION_ERROR eVmError
 )
@@ -44,8 +43,7 @@ VTX_GetVmInstructionErrorMsg(
 }
 
 VOID
-__inline
-VmxAdjustCr0(
+VTX_AdjustCr0(
 	OUT PCR0_REG ptCr0
 )
 {
@@ -62,8 +60,7 @@ VmxAdjustCr0(
 }
 
 VOID
-__inline
-VmxAdjustCr4(
+VTX_AdjustCr4(
 	OUT PCR4_REG ptCr4
 )
 {
@@ -80,8 +77,7 @@ VmxAdjustCr4(
 }
 
 VOID
-__inline
-VmxAdjustCtl(
+VTX_AdjustCtl(
 	IN	const UINT32	dwAdjustMsrCode,
 	OUT	PUINT32			pdwCtlValue
 )

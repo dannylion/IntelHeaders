@@ -158,22 +158,22 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_HOST_PERF_GLOBAL_CTRL_HIGH = 0x00002c05,
 
 	// Table H-8. Encodings for 32-Bit Control Fields (0100_00xx_xxxx_xxx0B)
-	VMCS_FIELD_PIN_BASED_VM_EXEC_CONTROL = 0x00004000,
-	VMCS_FIELD_CPU_BASED_VM_EXEC_CONTROL = 0x00004002,
+	VMCS_FIELD_PINBASED_CTLS = 0x00004000,
+	VMCS_FIELD_PROCBASED_CTLS = 0x00004002,
 	VMCS_FIELD_EXCEPTION_BITMAP = 0x00004004,
 	VMCS_FIELD_PAGE_FAULT_ERROR_CODE_MASK = 0x00004006,
 	VMCS_FIELD_PAGE_FAULT_ERROR_CODE_MATCH = 0x00004008,
 	VMCS_FIELD_CR3_TARGET_COUNT = 0x0000400a,
-	VMCS_FIELD_VM_EXIT_CONTROLS = 0x0000400c,
+	VMCS_FIELD_VMEXIT_CTLS = 0x0000400c,
 	VMCS_FIELD_VM_EXIT_MSR_STORE_COUNT = 0x0000400e,
 	VMCS_FIELD_VM_EXIT_MSR_LOAD_COUNT = 0x00004010,
-	VMCS_FIELD_VM_ENTRY_CONTROLS = 0x00004012,
+	VMCS_FIELD_VMENTRY_CTLS = 0x00004012,
 	VMCS_FIELD_VM_ENTRY_MSR_LOAD_COUNT = 0x00004014,
 	VMCS_FIELD_VM_ENTRY_INTR_INFO = 0x00004016,
 	VMCS_FIELD_VM_ENTRY_EXCEPTION_ERROR_CODE = 0x00004018,
 	VMCS_FIELD_VM_ENTRY_INSTRUCTION_LEN = 0x0000401a,
 	VMCS_FIELD_TPR_THRESHOLD = 0x0000401c,
-	VMCS_FIELD_SECONDARY_VM_EXEC_CONTROL = 0x0000401e,
+	VMCS_FIELD_PROCBASED_CTLS2 = 0x0000401e,
 	VMCS_FIELD_PLE_GAP = 0x00004020,
 	VMCS_FIELD_PLE_WINDOW = 0x00004022,
 
@@ -337,141 +337,159 @@ typedef enum _VMEXIT_REASON
 } VMEXIT_REASON, *PVMEXIT_REASON;
 
 //! Vol 3B, Table 21-5. Definitions of Pin-Based VM-Execution Controls
-typedef struct _VMX_PINBASED_CTLS
+typedef union _VMX_PINBASED_CTLS
 {
-	UINT32 ExternalIntExit : 1;		//!< 0	External interrupts cause VM exits
-	UINT32 Reserved0 : 2;			//!< 1-2
-	UINT32 NmiExit : 1;				//!< 3	Non-maskable interrupts (NMIs) cause VM exits
-	UINT32 Reserved1 : 1;			//!< 4
-	UINT32 VirtNmiExit : 1;			//!< 5	NMIs are never blocked and the "blocking by NMI"
-									//		bit(bit 3) in the interruptibility - state field 
-									//		indicates "virtual - NMI blocking"
-	UINT32 PreemptionTimer : 1;		//!< 6	Use VMX-preemption timer counts down in VMX non-root operation
-	UINT32 Reserved2 : 25;			//!< 7-31
+	UINT32 dwValue;
+	struct {
+		UINT32 ExternalIntExit : 1;		//!< 0	External interrupts cause VM exits
+		UINT32 Reserved0 : 2;			//!< 1-2
+		UINT32 NmiExit : 1;				//!< 3	Non-maskable interrupts (NMIs) cause VM exits
+		UINT32 Reserved1 : 1;			//!< 4
+		UINT32 VirtNmiExit : 1;			//!< 5	NMIs are never blocked and the "blocking by NMI"
+										//		bit(bit 3) in the interruptibility - state field 
+										//		indicates "virtual - NMI blocking"
+		UINT32 PreemptionTimer : 1;		//!< 6	Use VMX-preemption timer counts down in VMX non-root operation
+		UINT32 Reserved2 : 25;			//!< 7-31
+	};
 } VMX_PINBASED_CTLS, *PVMX_PINBASED_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PINBASED_CTLS));
 
 //! Vol 3B, Table 21-6. Definitions of Primary Processor-Based VM-Execution Controls
-typedef struct _VMX_PROCBASED_CTLS
+typedef union _VMX_PROCBASED_CTLS
 {
-	UINT32 Reserved0 : 2;		//!< 0-1
-	UINT32 IntWindowExit : 1;	//!< 2		A VM exit occurs at the beginning of any instruction 
-								//			if RFLAGS.IF = 1
-	UINT32 UseTscOffseting : 1; // 3		RDTSC, RDTSCP and IA32_TIME_STAMP_COUNTER MSR return 
-								//			a value modified by the TSC offset field
-	UINT32 Reserved1 : 3;		//!< 4-6
-	UINT32 HltExit : 1;			//!< 7		HLT causes a VM exit
-	UINT32 Reserved2 : 1;		//!< 8
-	UINT32 InvlpgExit : 1;		//!< 9		INVLPG causes a VM exit
-	UINT32 MwaitExit : 1;		//!< 10		MWAIT causes a VM exit
-	UINT32 RdpmcExit : 1;		//!< 11		RDPMC causes a VM exit
-	UINT32 RdtscExit : 1;		//!< 12		RDTSC causes a VM exit
-	UINT32 Reserved3 : 2;		//!< 13-14
-	UINT32 Cr3LoadExit : 1;		//!< 15		MOV to CR3 causes a VM exit
-	UINT32 Cr3StoreExit : 1;	//!< 16		MOV from CR3 causes a VM exit
-	UINT32 Reserved4 : 2;		//!< 17-18
-	UINT32 Cr8LoadExit : 1;		//!< 19		MOV to CR8 causes a VM exit
-	UINT32 Cr8StoreExit : 1;	//!< 20		MOV from CR8 causes a VM exit
-	UINT32 UseTprShadow : 1;	//!< 21		Activates the TPR shadow
-	UINT32 NmiWindowExit : 1;	//!< 22		VM exit occurs at the beginning of any instruction
-								//			if there is no virtual - NMI blocking
-	UINT32 MovDrExit : 1;		//!< 23		MOV to/from DR causes a VM exit
-	UINT32 UncondIoExit : 1;	//!< 24		I/O instruction cause a VM exit, ignored if using I/O bitmaps
-	UINT32 UseIoBitmaps : 1;	//!< 25		Use I/O bitmaps
-	UINT32 Reserved5 : 1;		//!< 26
-	UINT32 MonitorTrapFlag : 1; // 27		Monitor trap flag debugging feature is enabled
-	UINT32 UseMsrBitmaps : 1;	//!< 28		Use MSR bitmaps
-	UINT32 MonitorExit : 1;		//!< 29		MONITOR causes a VM exit
-	UINT32 PauseExit : 1;		//!< 30		PAUSE causes a VM exit
-	UINT32 UseProcbased2 : 1;	//!< 31		Determines whether to use VMX_PROCBASED_CTLS2 or not
+	UINT32 dwValue;
+	struct {
+		UINT32 Reserved0 : 2;		//!< 0-1
+		UINT32 IntWindowExit : 1;	//!< 2		A VM exit occurs at the beginning of any instruction 
+									//			if RFLAGS.IF = 1
+		UINT32 UseTscOffseting : 1; // 3		RDTSC, RDTSCP and IA32_TIME_STAMP_COUNTER MSR return 
+									//			a value modified by the TSC offset field
+		UINT32 Reserved1 : 3;		//!< 4-6
+		UINT32 HltExit : 1;			//!< 7		HLT causes a VM exit
+		UINT32 Reserved2 : 1;		//!< 8
+		UINT32 InvlpgExit : 1;		//!< 9		INVLPG causes a VM exit
+		UINT32 MwaitExit : 1;		//!< 10		MWAIT causes a VM exit
+		UINT32 RdpmcExit : 1;		//!< 11		RDPMC causes a VM exit
+		UINT32 RdtscExit : 1;		//!< 12		RDTSC causes a VM exit
+		UINT32 Reserved3 : 2;		//!< 13-14
+		UINT32 Cr3LoadExit : 1;		//!< 15		MOV to CR3 causes a VM exit
+		UINT32 Cr3StoreExit : 1;	//!< 16		MOV from CR3 causes a VM exit
+		UINT32 Reserved4 : 2;		//!< 17-18
+		UINT32 Cr8LoadExit : 1;		//!< 19		MOV to CR8 causes a VM exit
+		UINT32 Cr8StoreExit : 1;	//!< 20		MOV from CR8 causes a VM exit
+		UINT32 UseTprShadow : 1;	//!< 21		Activates the TPR shadow
+		UINT32 NmiWindowExit : 1;	//!< 22		VM exit occurs at the beginning of any instruction
+									//			if there is no virtual - NMI blocking
+		UINT32 MovDrExit : 1;		//!< 23		MOV to/from DR causes a VM exit
+		UINT32 UncondIoExit : 1;	//!< 24		I/O instruction cause a VM exit, ignored if using I/O bitmaps
+		UINT32 UseIoBitmaps : 1;	//!< 25		Use I/O bitmaps
+		UINT32 Reserved5 : 1;		//!< 26
+		UINT32 MonitorTrapFlag : 1; // 27		Monitor trap flag debugging feature is enabled
+		UINT32 UseMsrBitmaps : 1;	//!< 28		Use MSR bitmaps
+		UINT32 MonitorExit : 1;		//!< 29		MONITOR causes a VM exit
+		UINT32 PauseExit : 1;		//!< 30		PAUSE causes a VM exit
+		UINT32 UseProcbased2 : 1;	//!< 31		Determines whether to use VMX_PROCBASED_CTLS2 or not
+	};
 } VMX_PROCBASED_CTLS, *PVMX_PROCBASED_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PROCBASED_CTLS));
 
 //! Vol 3B, Table 21-7. Definitions of Secondary Processor-Based VM-Execution Controls
-typedef struct _VMX_PROCBASED_CTLS2
+typedef union _VMX_PROCBASED_CTLS2
 {
-	UINT32 VirtApicAccess : 1;		//!< 0		a VM exit occurs on any attempt to access
-									//			data on the page with the APIC - access address
-	UINT32 EnableEpt : 1;			//!< 1		Enable Extended Page Tables
-	UINT32 DescriptorTableExit : 1; // 2		LGDT, LIDT, LLDT, LTR, SGDT, SIDT, SLDT, and STR cause VM exits
-	UINT32 EnableRdtscp : 1;		//!< 3		When clear RTSCP causes an Invalid Opcode fault
-	UINT32 VirtX2ApicAccess : 1;	//!< 4		Causes RDMSR and WRMSR to IA32_X2APIC_TPR to use the TPR shadow
-	UINT32 EnableVpid : 1;			//!< 5		cached translations of linear addresses 
-									//			are associated with a virtual - processor identifier
-	UINT32 WbinvdExit : 1;			//!< 6		WBINVD causes a VM exit
-	UINT32 UnrestrictedGuest : 1;	//!< 7		Guest software may run in unpaged protected mode or 
-									//			in real - address mode
-	UINT32 Reserved0 : 2;			//!< 8-9
-	UINT32 PauseLoopExit : 1;		//!< 10		A series of executions of PAUSE can cause a VM exit
-	UINT32 Reserved1 : 21;			//!< 11-31
+	UINT32 dwValue;
+	struct {
+		UINT32 VirtApicAccess : 1;		//!< 0		a VM exit occurs on any attempt to access
+										//			data on the page with the APIC - access address
+		UINT32 EnableEpt : 1;			//!< 1		Enable Extended Page Tables
+		UINT32 DescriptorTableExit : 1; // 2		LGDT, LIDT, LLDT, LTR, SGDT, SIDT, SLDT, and STR cause VM exits
+		UINT32 EnableRdtscp : 1;		//!< 3		When clear RTSCP causes an Invalid Opcode fault
+		UINT32 VirtX2ApicAccess : 1;	//!< 4		Causes RDMSR and WRMSR to IA32_X2APIC_TPR to use the TPR shadow
+		UINT32 EnableVpid : 1;			//!< 5		cached translations of linear addresses 
+										//			are associated with a virtual - processor identifier
+		UINT32 WbinvdExit : 1;			//!< 6		WBINVD causes a VM exit
+		UINT32 UnrestrictedGuest : 1;	//!< 7		Guest software may run in unpaged protected mode or 
+										//			in real - address mode
+		UINT32 Reserved0 : 2;			//!< 8-9
+		UINT32 PauseLoopExit : 1;		//!< 10		A series of executions of PAUSE can cause a VM exit
+		UINT32 Reserved1 : 21;			//!< 11-31
+	};
 } VMX_PROCBASED_CTLS2, *PVMX_PROCBASED_CTLS2;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PROCBASED_CTLS2));
 
 //! Vol 3B, Table 21-9. Definitions of VM-Exit Controls
-typedef struct _VMX_EXIT_CTLS
+typedef union _VMX_EXIT_CTLS
 {
-	UINT32 Reserved0 : 2;				//!< 0-1
-	UINT32 SaveDebugControls : 1;		//!< 2		DR7 and the IA32_DEBUGCTL MSR are saved on VM exit
-	UINT32 Reserved1 : 6;				//!< 3-8
-	UINT32 IsHost64bit : 1;				//!< 9		Is host in 64bit mode
-	UINT32 Reserved2 : 2;				//!< 10-11
-	UINT32 LoadIa32PerfGlobalCtrl : 1;	//!< 12		IA32_PERF_GLOBAL_CTRL MSR is loaded on VM exit
-	UINT32 Reserved3 : 2;				//!< 13-14
-	UINT32 AckIntOnExit : 1;			//!< 15		Acknowledge the interrupt, acquiring the vector data
-	UINT32 Reserved4 : 2;				//!< 16-17
-	UINT32 SaveIa32Pat : 1;				//!< 18		IA32_PAT MSR is saved on VM exit
-	UINT32 LoadIa32Pat : 1;				//!< 19		IA32_PAT MSR is loaded on VM exit
-	UINT32 SaveIa32Efer : 1;			//!< 20		IA32_EFER MSR is saved on VM exit
-	UINT32 LoadIa32Efer : 1;			//!< 21		IA32_EFER MSR is loaded on VM exit
-	UINT32 SavePreemtptionTimer : 1;	//!< 22		Save the current value of VMX preemption timer
-	UINT32 Reserved5 : 9;				//!< 23-31
+	UINT32 dwValue;
+	struct {
+		UINT32 Reserved0 : 2;				//!< 0-1
+		UINT32 SaveDebugControls : 1;		//!< 2		DR7 and the IA32_DEBUGCTL MSR are saved on VM exit
+		UINT32 Reserved1 : 6;				//!< 3-8
+		UINT32 IsHost64bit : 1;				//!< 9		Is host in 64bit mode
+		UINT32 Reserved2 : 2;				//!< 10-11
+		UINT32 LoadIa32PerfGlobalCtrl : 1;	//!< 12		IA32_PERF_GLOBAL_CTRL MSR is loaded on VM exit
+		UINT32 Reserved3 : 2;				//!< 13-14
+		UINT32 AckIntOnExit : 1;			//!< 15		Acknowledge the interrupt, acquiring the vector data
+		UINT32 Reserved4 : 2;				//!< 16-17
+		UINT32 SaveIa32Pat : 1;				//!< 18		IA32_PAT MSR is saved on VM exit
+		UINT32 LoadIa32Pat : 1;				//!< 19		IA32_PAT MSR is loaded on VM exit
+		UINT32 SaveIa32Efer : 1;			//!< 20		IA32_EFER MSR is saved on VM exit
+		UINT32 LoadIa32Efer : 1;			//!< 21		IA32_EFER MSR is loaded on VM exit
+		UINT32 SavePreemtptionTimer : 1;	//!< 22		Save the current value of VMX preemption timer
+		UINT32 Reserved5 : 9;				//!< 23-31
+	};
 } VMX_EXIT_CTLS, *PVMX_EXIT_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_EXIT_CTLS));
 
 //! Vol 3B, Table 21-11. Definitions of VM-Entry Controls
-typedef struct _VMX_ENTRY_CTLS
+typedef union _VMX_ENTRY_CTLS
 {
-	UINT32 Reserved0 : 2;				//!< 0-1
-	UINT32 LoadDebugControls : 1;		//!< 2	DR7 and the IA32_DEBUGCTL MSR are loaded on VM exit
-	UINT32 Reserved1 : 6;				//!< 3-8
-	UINT32 IsGuest64bit : 1;			//!< 9	Is guest in 64bit mode
-	UINT32 EnterSmm : 1;				//!< 10	Is guest in SMM mode
-	UINT32 DisableDualMonitor : 1;		//!< 11	Restore default behavior for SMM after VM entry
-	UINT32 Reserved2 : 1;				//!< 12
-	UINT32 LoadIa32PerfGlobalCtrl : 1;	//!< 13	IA32_PERF_GLOBAL_CTRL MSR is loaded on VM entry
-	UINT32 LoadIa32Pat : 1;				//!< 14	IA32_PAT is loaded on VM entry
-	UINT32 LoadIa32Efer : 1;			//!< 15	IA32_EFER is loaded on VM entry
-	UINT32 Reserved3 : 16;				//!< 16-31
+	UINT32 dwValue;
+	struct {
+		UINT32 Reserved0 : 2;				//!< 0-1
+		UINT32 LoadDebugControls : 1;		//!< 2	DR7 and the IA32_DEBUGCTL MSR are loaded on VM exit
+		UINT32 Reserved1 : 6;				//!< 3-8
+		UINT32 IsGuest64bit : 1;			//!< 9	Is guest in 64bit mode
+		UINT32 EnterSmm : 1;				//!< 10	Is guest in SMM mode
+		UINT32 DisableDualMonitor : 1;		//!< 11	Restore default behavior for SMM after VM entry
+		UINT32 Reserved2 : 1;				//!< 12
+		UINT32 LoadIa32PerfGlobalCtrl : 1;	//!< 13	IA32_PERF_GLOBAL_CTRL MSR is loaded on VM entry
+		UINT32 LoadIa32Pat : 1;				//!< 14	IA32_PAT is loaded on VM entry
+		UINT32 LoadIa32Efer : 1;			//!< 15	IA32_EFER is loaded on VM entry
+		UINT32 Reserved3 : 16;				//!< 16-31
+	};
 } VMX_ENTRY_CTLS, *PVMX_ENTRY_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_ENTRY_CTLS));
 
 //! Vol 3B, 21.6.3 Exception Bitmap
-typedef struct _VMX_EXCEPTION_BITMAP
+typedef union _VMX_EXCEPTION_BITMAP
 {
-	UINT32 De : 1;			//!< 0	Divide - by - zero Error #DE
-	UINT32 Db : 1;			//!< 1	Debug Fault/Trap #DB
-	UINT32 Nmi : 1;			//!< 2	Non Maskable Interrupt
-	UINT32 Bp : 1;			//!< 3	Breakpoint #BP
-	UINT32 Of : 1;			//!< 4	Overflow #OF
-	UINT32 Br : 1;			//!< 5	Bound Range Exceeded #BR
-	UINT32 Ud : 1;			//!< 6	Invalid Opcode #UD
-	UINT32 Nm : 1;			//!< 7	Device Not Available #NM
-	UINT32 Df : 1;			//!< 8	Double Fault #DF
-	UINT32 So : 1;			//!< 9	Coprocessor Segment Overrun Fault
-	UINT32 Ts : 1;			//!< 10	Invalid TSS #TS
-	UINT32 Np : 1;			//!< 11	Segment Not Present #NP
-	UINT32 Ss : 1;			//!< 12	Stack - Segment Fault #SS
-	UINT32 Gp : 1;			//!< 13	General Protection Fault #GP
-	UINT32 Pf : 1;			//!< 14	Page Fault #PF
-	UINT32 Reserved0 : 1;	//!< 15
-	UINT32 Mf : 1;			//!< 16	x87 Floating - Point Exception
-	UINT32 Ac : 1;			//!< 17	Alignment Check Fault #AC
-	UINT32 Mc : 1;			//!< 18	Machine Check #MC
-	UINT32 Xm : 1;			//!< 19	SIMD Floating - Point Exception #XM / #XF
-	UINT32 Ve : 1;			//!< 20	Virtualization Exception #VE
-	UINT32 Reserved1 : 9;	//!< 21-29
-	UINT32 Sx : 1;			//!< 30	Security Exception #SX
-	UINT32 Reserved2 : 1;	//!< 31
+	UINT32 dwValue;
+	struct {
+		UINT32 De : 1;			//!< 0	Divide - by - zero Error #DE
+		UINT32 Db : 1;			//!< 1	Debug Fault/Trap #DB
+		UINT32 Nmi : 1;			//!< 2	Non Maskable Interrupt
+		UINT32 Bp : 1;			//!< 3	Breakpoint #BP
+		UINT32 Of : 1;			//!< 4	Overflow #OF
+		UINT32 Br : 1;			//!< 5	Bound Range Exceeded #BR
+		UINT32 Ud : 1;			//!< 6	Invalid Opcode #UD
+		UINT32 Nm : 1;			//!< 7	Device Not Available #NM
+		UINT32 Df : 1;			//!< 8	Double Fault #DF
+		UINT32 So : 1;			//!< 9	Coprocessor Segment Overrun Fault
+		UINT32 Ts : 1;			//!< 10	Invalid TSS #TS
+		UINT32 Np : 1;			//!< 11	Segment Not Present #NP
+		UINT32 Ss : 1;			//!< 12	Stack - Segment Fault #SS
+		UINT32 Gp : 1;			//!< 13	General Protection Fault #GP
+		UINT32 Pf : 1;			//!< 14	Page Fault #PF
+		UINT32 Reserved0 : 1;	//!< 15
+		UINT32 Mf : 1;			//!< 16	x87 Floating - Point Exception
+		UINT32 Ac : 1;			//!< 17	Alignment Check Fault #AC
+		UINT32 Mc : 1;			//!< 18	Machine Check #MC
+		UINT32 Xm : 1;			//!< 19	SIMD Floating - Point Exception #XM / #XF
+		UINT32 Ve : 1;			//!< 20	Virtualization Exception #VE
+		UINT32 Reserved1 : 9;	//!< 21-29
+		UINT32 Sx : 1;			//!< 30	Security Exception #SX
+		UINT32 Reserved2 : 1;	//!< 31
+	};
 } VMX_EXCEPTION_BITMAP, *PVMX_EXCEPTION_BITMAP;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_EXCEPTION_BITMAP));
 
@@ -495,15 +513,15 @@ C_ASSERT(PAGE_SIZE == sizeof(VMX_MSR_BITMAPS));
 
 typedef enum _VMX_ADDRESS_SIZE
 {
-	VMX_16BIT_ADDRESS_SIZE = 0,
-	VMX_32BIT_ADDRESS_SIZE = 1,
-	VMX_64BIT_ADDRESS_SIZE = 2
+	VMX_ADDRESS_SIZE_16BIT = 0,
+	VMX_ADDRESS_SIZE_32BIT = 1,
+	VMX_ADDRESS_SIZE_64BIT = 2
 } VMX_ADDRESS_SIZE, *PVMX_ADDRESS_SIZE;
 
 typedef enum _VMX_OPERAND_SIZE
 {
-	VMX_16BIT_OPERAND_SIZE = 0,
-	VMX_32BIT_OPERAND_SIZE = 1
+	VMX_OPERAND_SIZE_16BIT = 0,
+	VMX_OPERAND_SIZE_32BIT = 1
 } VMX_OPERAND_SIZE, *PVMX_OPERAND_SIZE;
 
 typedef enum _VMX_SEGMENT_REGISTER_INDEX
@@ -844,7 +862,7 @@ typedef enum _VMX_OPCODE_RC
 	VMX_ERROR_NO_INFO	//!< Opcode failed - no information available on error
 } VMX_OPCODE_RC, *PVMX_OPCODE_RC;
 
-//! Vol 3B, Table 30-1. VM-Instruction Error Numbers
+// Vol 3B, Table 30-1. VM-Instruction Error Numbers
 // Define VM_INSTRUCTION_ERROR enum and error message array using X-Macros
 #define VM_INSTRUCTION_ERRORS \
 		X(VMERROR_VMCALL_IN_ROOT, 1, "VMCALL executed in VMX root operation") \
@@ -887,7 +905,6 @@ typedef enum _VM_INSTRUCTION_ERROR
 * @return Error message string
 */
 LPCSTR
-__inline
 VTX_GetVmInstructionErrorMsg(
 	IN const VM_INSTRUCTION_ERROR eVmError
 );
@@ -899,8 +916,7 @@ VTX_GetVmInstructionErrorMsg(
 * @param ptCr0 - value to edit
 */
 VOID
-__inline
-VmxAdjustCr0(
+VTX_AdjustCr0(
 	OUT PCR0_REG ptCr0
 );
 
@@ -910,8 +926,7 @@ VmxAdjustCr0(
 * @param ptCr4 - value to edit
 */
 VOID
-__inline
-VmxAdjustCr4(
+VTX_AdjustCr4(
 	OUT PCR4_REG ptCr4
 );
 
@@ -922,23 +937,22 @@ VmxAdjustCr4(
 * @param pdwCtlValue - VMX execution control to adjust
 */
 VOID
-__inline
-VmxAdjustCtl(
+VTX_AdjustCtl(
 	IN	const UINT32	dwAdjustMsrCode,
 	OUT	PUINT32			pdwCtlValue
 );
 
-//! Vol 3B, 21.6 VM-EXECUTION CONTROL FIELDS
+// Vol 3B, 21.6 VM-EXECUTION CONTROL FIELDS
 #define VMX_ADJUST_PINBASED_CTLS(pdwCtlValue) \
-	VmxAdjustCtl(MSR_CODE_IA32_VMX_PINBASED_CTLS, (pdwCtlValue))
+	VTX_AdjustCtl(MSR_CODE_IA32_VMX_PINBASED_CTLS, (pdwCtlValue))
 #define VMX_ADJUST_PROCBASED_CTLS(pdwCtlValue) \
-	VmxAdjustCtl(MSR_CODE_IA32_VMX_PROCBASED_CTLS, (pdwCtlValue))
+	VTX_AdjustCtl(MSR_CODE_IA32_VMX_PROCBASED_CTLS, (pdwCtlValue))
 #define VMX_ADJUST_PROCBASED_CTLS2(pdwCtlValue) \
-	VmxAdjustCtl(MSR_CODE_IA32_VMX_PROCBASED_CTLS2, (pdwCtlValue))
+	VTX_AdjustCtl(MSR_CODE_IA32_VMX_PROCBASED_CTLS2, (pdwCtlValue))
 #define VMX_ADJUST_EXIT_CTLS(pdwCtlValue) \
-	VmxAdjustCtl(MSR_CODE_IA32_VMX_EXIT_CTLS, (pdwCtlValue))
+	VTX_AdjustCtl(MSR_CODE_IA32_VMX_EXIT_CTLS, (pdwCtlValue))
 #define VMX_ADJUST_ENTRY_CTLS(pdwCtlValue) \
-	VmxAdjustCtl(MSR_CODE_IA32_VMX_ENTRY_CTLS, (pdwCtlValue))
+	VTX_AdjustCtl(MSR_CODE_IA32_VMX_ENTRY_CTLS, (pdwCtlValue))
 
 #pragma warning(pop)
 #endif /* __INTEL_VT_X_H__ */

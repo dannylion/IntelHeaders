@@ -28,6 +28,8 @@
 #ifndef __INTEL_FAULTS_H__
 #define __INTEL_FAULTS_H__
 
+#include "ntdatatypes.h"
+
 // http://wiki.osdev.org/Exceptions
 typedef enum _FAULT_CODE
 {
@@ -57,5 +59,21 @@ typedef enum _FAULT_CODE
 	SX_FAULT = 30,		//!< Security Exception #SX
 	// 31 Reserved
 } FAULT_CODE, *PFAULT_CODE;
+
+#pragma pack(push, 1)
+
+// http://wiki.osdev.org/Interrupt_Descriptor_Table
+typedef struct _IDTR {
+	UINT16 Limit;
+	UINT32 Base;
+} IDTR, *PIDTR;
+
+// http://wiki.osdev.org/Global_Descriptor_Table
+typedef struct _GDTR {
+	UINT16 Limit;
+	UINT32 Base;
+} GDTR, *PGDTR;
+
+#pragma pack(pop)
 
 #endif /* __INTEL_FAULTS_H__ */
