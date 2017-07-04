@@ -28,7 +28,7 @@
 #ifndef __INTEL_MSR64_H__
 #define __INTEL_MSR64_H__
 
-#include <ntddk.h>
+#include "ntdatatypes.h"
 
 // Disable 'warning C4214: nonstandard extension used: bit field types other than int'
 // Disable 'warning C4201: nonstandard extension used: nameless struct/union'
@@ -36,7 +36,7 @@
 #pragma warning(disable : 4214)
 #pragma warning(disable : 4201)
 
-// Table 35-2. IA-32 Architectural MSRs 
+//! Table 35-2. IA-32 Architectural MSRs 
 typedef enum _MSR_CODE
 {
 	MSR_CODE_IA32_P5_MC_ADDR = 0,
@@ -403,118 +403,118 @@ typedef union _IA32_APIC_BASE
 	UINT64 qwValue;
 	struct
 	{
-		UINT64 reserved0 : 8;			// 0-7
-		UINT64 Bsp : 1;					// 8		Is this the bootstrap processor
-		UINT64 reserved1 : 2;			// 9-10
-		UINT64 ApicGlobalEnable : 1;	// 11		Enables or disables the local APIC
-		UINT64 ApicBase : 24;			// 12-35	Base address of the APIC registers. After a
+		UINT64 Reserved0 : 8;			//!< 0-7
+		UINT64 Bsp : 1;					//!< 8		Is this the bootstrap processor
+		UINT64 Reserved1 : 2;			//!< 9-10
+		UINT64 ApicGlobalEnable : 1;	//!< 11		Enables or disables the local APIC
+		UINT64 ApicBase : 24;			//!< 12-35	Base address of the APIC registers. After a
 										//			power-up or reset, this is set to 0xFEE00000
-		UINT64 reserved2 : 28;			// 36-63
+		UINT64 Reserved2 : 28;			//!< 36-63
 	};
 } IA32_APIC_BASE, *PIA32_APIC_BASE;
 
 // MSR_CODE_IA32_FEATURE_CONTROL = 0x3A
-// Table 5-1. Layout of IA32_FEATURE_CONTROL
+//! Table 5-1. Layout of IA32_FEATURE_CONTROL
 typedef union _IA32_FEATURE_CONTROL
 {
 	UINT64 qwValue;
 	struct
 	{
-		UINT64 LockBit : 1;			// 0		If the lock bit is clear, an attempt to execute
+		UINT64 LockBit : 1;			//!< 0		If the lock bit is clear, an attempt to execute
 									//			VMXON will cause a #GP fault
-		UINT64 VmxInSmx : 1;		// 1		Enables VMX in SMX operation
-		UINT64 VmxOutsideSmx : 1;	// 2		Enables VMX outside SMX operation
-		UINT64 reserved0 : 5;		// 3-7
-		UINT64 SenterLocals : 7;	// 8-14		Enabled functionality of the SENTER leaf function
-		UINT64 SenterGlobal : 1;	// 15		Global enable of all SENTER functionalities
-		UINT64 reserved1 : 48;		// 16-63
+		UINT64 VmxInSmx : 1;		//!< 1		Enables VMX in SMX operation
+		UINT64 VmxOutsideSmx : 1;	//!< 2		Enables VMX outside SMX operation
+		UINT64 Reserved0 : 5;		//!< 3-7
+		UINT64 SenterLocals : 7;	//!< 8-14	Enabled functionality of the SENTER leaf function
+		UINT64 SenterGlobal : 1;	//!< 15		Global enable of all SENTER functionalities
+		UINT64 Reserved1 : 48;		//!< 16-63
 	};
 } IA32_FEATURE_CONTROL, *PIA32_FEATURE_CONTROL;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_FEATURE_CONTROL));
 
 // MSR_CODE_IA32_MTRRCAP = 0xFE
-// Table 35-2. IA-32 Architectural MSRs 
+//! Table 35-2. IA-32 Architectural MSRs 
 typedef union _IA32_MTRRCAP
 {
 	UINT64 qwValue;
 	struct
 	{
-		UINT64 vcnt : 8;			// 0-7	The number of variable memory type ranges 
-									//		in the processor.
-		UINT64 fixed : 1;			// 8	Fixed range MTRRs are supported when set.
-		UINT64 reserved0 : 1;		// 9
-		UINT64 wc : 1;				// 10	WC Supported when set
-		UINT64 smrr : 1;			// 11	SMRR Supported when set
-		UINT64 reserved1 : 52;		// 12-63
+		UINT64 Vcnt : 8;			//!< 0-7	The number of variable memory type ranges 
+									//			in the processor.
+		UINT64 Fixed : 1;			//!< 8		Fixed range MTRRs are supported when set.
+		UINT64 Reserved0 : 1;		//!< 9
+		UINT64 Wc : 1;				//!< 10		WC Supported when set
+		UINT64 Smrr : 1;			//!< 11		SMRR Supported when set
+		UINT64 Reserved1 : 52;		//!< 12-63
 	};	
 } IA32_MTRRCAP, *PIA32_MTRRCAP;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRRCAP));
 
 // MSR_CODE_IA32_MTRR_PHYSBASE0 = 0x200
-// Table 11-9. Address Mapping for Fixed-Range MTRRs
+//! Table 11-9. Address Mapping for Fixed-Range MTRRs
 typedef union _IA32_MTRR_PHYSBASE
 {
 	UINT64 qwValue;
 	struct
 	{
-		UINT64 type : 8;		// 0-7		Memory type for the range 
-		UINT64 reserved0 : 4;	// 8-11
-		UINT64 PhysBase : 36;	// 12-47	Base address of the address range
-		UINT64 reserved1 : 16;	// 48-63
+		UINT64 Type : 8;		//!< 0-7		Memory type for the range 
+		UINT64 Reserved0 : 4;	//!< 8-11
+		UINT64 PhysBase : 36;	//!< 12-47	Base address of the address range
+		UINT64 Reserved1 : 16;	//!< 48-63
 	};
 } IA32_MTRR_PHYSBASE, *PIA32_MTRR_PHYSBASE;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_PHYSBASE));
 
 // MSR_CODE_IA32_MTRR_PHYSMASK0 = 0x201
-// Figure 11-7. IA32_MTRR_PHYSBASEn and IA32_MTRR_PHYSMASKn Variable-Range Register Pair
+//! Figure 11-7. IA32_MTRR_PHYSBASEn and IA32_MTRR_PHYSMASKn Variable-Range Register Pair
 typedef union _IA32_MTRR_PHYSMASK
 {
 	UINT64 qwValue;
 	struct
 	{
-		UINT64 reserved0 : 11;	// 0-10
-		UINT64 enabled : 1;		// 11		Enables the register pair when set
-		UINT64 PhysMask : 36;	// 12-47	Determines the range of the region being mapped
-		UINT64 reserved1 : 16;	// 48-63
+		UINT64 Reserved0 : 11;	//!< 0-10
+		UINT64 Enabled : 1;		//!< 11		Enables the register pair when set
+		UINT64 PhysMask : 36;	//!< 12-47	Determines the range of the region being mapped
+		UINT64 Reserved1 : 16;	//!< 48-63
 	};
 } IA32_MTRR_PHYSMASK, *PIA32_MTRR_PHYSMASK;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_PHYSMASK));
 
 // MSR_CODE_IA32_PAT = 0x277
-// Table 11-10. Memory Types That Can Be Encoded With PAT
+//! Table 11-10. Memory Types That Can Be Encoded With PAT
 typedef enum _IA32_PAT_MEMTYPE
 {
-	IA32_PAT_MEMTYPE_UC = 0,	// Uncachable
-	IA32_PAT_MEMTYPE_WC = 1,	// Write-Combined
-	IA32_PAT_MEMTYPE_WT = 4,	// Write-Through
-	IA32_PAT_MEMTYPE_WP = 5,	// Write-Protected
-	IA32_PAT_MEMTYPE_WB = 6,	// Write-Back
-	IA32_PAT_MEMTYPE_UCM = 7,	// Uncached
+	IA32_PAT_MEMTYPE_UC = 0,	//!< Uncachable
+	IA32_PAT_MEMTYPE_WC = 1,	//!< Write-Combined
+	IA32_PAT_MEMTYPE_WT = 4,	//!< Write-Through
+	IA32_PAT_MEMTYPE_WP = 5,	//!< Write-Protected
+	IA32_PAT_MEMTYPE_WB = 6,	//!< Write-Back
+	IA32_PAT_MEMTYPE_UCM = 7,	//!< Uncached
 	// 8-0xFF Reserved
 } IA32_PAT_MEMTYPE, *PIA32_PAT_MEMTYPE;
 
-// Figure 11-9. IA32_PAT MSR
+//! Figure 11-9. IA32_PAT MSR
 // Also see, Table 11-11. Selection of PAT Entries with PAT, PCD, and PWT Flags
 typedef union _IA32_PAT
 {
 	UINT64 qwValue;
 	struct {
-		UINT64 pa0 : 3;			// 0-2
-		UINT64 reserved0 : 5;	// 3-7
-		UINT64 pa1 : 3;			// 8-10
-		UINT64 reserved1 : 5;	// 11-15
-		UINT64 pa2 : 3;			// 16-18
-		UINT64 reserved2 : 5;	// 19-23
-		UINT64 pa3 : 3;			// 24-26
-		UINT64 reserved3 : 5;	// 27-31
-		UINT64 pa4 : 3;			// 32-34
-		UINT64 reserved4 : 5;	// 35-39
-		UINT64 pa5 : 3;			// 40-42
-		UINT64 reserved5 : 5;	// 43-47
-		UINT64 pa6 : 3;			// 48-50
-		UINT64 reserved6 : 5;	// 51-55
-		UINT64 pa7 : 3;			// 56-58
-		UINT64 reserved7 : 5;	// 59-63
+		UINT64 Pa0 : 3;			//!< 0-2
+		UINT64 Reserved0 : 5;	//!< 3-7
+		UINT64 Pa1 : 3;			//!< 8-10
+		UINT64 Reserved1 : 5;	//!< 11-15
+		UINT64 Pa2 : 3;			//!< 16-18
+		UINT64 Reserved2 : 5;	//!< 19-23
+		UINT64 Pa3 : 3;			//!< 24-26
+		UINT64 Reserved3 : 5;	//!< 27-31
+		UINT64 Pa4 : 3;			//!< 32-34
+		UINT64 Reserved4 : 5;	//!< 35-39
+		UINT64 Pa5 : 3;			//!< 40-42
+		UINT64 Reserved5 : 5;	//!< 43-47
+		UINT64 Pa6 : 3;			//!< 48-50
+		UINT64 Reserved6 : 5;	//!< 51-55
+		UINT64 Pa7 : 3;			//!< 56-58
+		UINT64 Reserved7 : 5;	//!< 59-63
 	};
 } IA32_PAT, *PIA32_PAT;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_PAT));
@@ -527,31 +527,31 @@ typedef union _IA32_VMX_EPT_VPID_CAP
 {
 	UINT64 qwValue;
 	struct {
-		UINT64 allowExecOnly : 1;	// 0	allows bits 2:0 of PTE to be 100b
+		UINT64 AllowExecOnly : 1;	//!< 0	allows bits 2:0 of PTE to be 100b
 									//		(indicating an execute - only translation)
-		UINT64 reserved0 : 5;		// 1-5
-		UINT64 support4kb : 1;		// 6	indicates support for a page-walk length of 4
-		UINT64 reserved1 : 1;		// 7
-		UINT64 uc : 1;				// 8	allow uncacheable memory type (UC)
-		UINT64 reserved2 : 5;		// 9-13 
-		UINT64 wb : 1;				// 14	allow write-back memory type (WB)
-		UINT64 reserved3 : 1;		// 15
-		UINT64 support2mb : 1;		// 16	allow 2MB page size
-		UINT64 support1gb : 1;		// 17	allow 1GB page size
-		UINT64 reserved4 : 2;		// 18-19
-		UINT64 invept : 1;			// 20	supports INVEPT
-		UINT64 accessAndDirty : 1;	// 21	accessed and dirty flags are supported
-		UINT64 reserved5 : 3;		// 22-24
-		UINT64 inveptSingle : 1;	// 25	single-context INVEPT is supported
-		UINT64 inveptAll : 1;		// 26	all-context INVEPT is supported
-		UINT64 reserved6 : 5;		// 27-31
-		UINT64 invvpid : 1;			// 32	INVVPID instruction is supported
-		UINT64 reserved7 : 7;		// 33-39
-		UINT64 invvpidInd : 1;		// 40	individual-address INVVPID type is supported
-		UINT64 invvpidSingle : 1;	// 41	single-context INVVPID type is supported
-		UINT64 invvpidAll : 1;		// 42	all-context INVVPID type is supported
-		UINT64 invvpidSingleG : 1;	// 43	single-context-retaining-globals INVVPID type is supported
-		UINT64 reserved8 : 20;		// 44-63
+		UINT64 Reserved0 : 5;		//!< 1-5
+		UINT64 Support4kb : 1;		//!< 6	indicates support for a page-walk length of 4
+		UINT64 Reserved1 : 1;		//!< 7
+		UINT64 Uc : 1;				//!< 8	allow uncacheable memory type (UC)
+		UINT64 Reserved2 : 5;		//!< 9-13 
+		UINT64 Wb : 1;				//!< 14	allow write-back memory type (WB)
+		UINT64 Reserved3 : 1;		//!< 15
+		UINT64 Support2mb : 1;		//!< 16	allow 2MB page size
+		UINT64 Support1gb : 1;		//!< 17	allow 1GB page size
+		UINT64 Reserved4 : 2;		//!< 18-19
+		UINT64 Invept : 1;			//!< 20	supports INVEPT
+		UINT64 AccessAndDirty : 1;	//!< 21	accessed and dirty flags are supported
+		UINT64 Reserved5 : 3;		//!< 22-24
+		UINT64 InveptSingle : 1;	//!< 25	single-context INVEPT is supported
+		UINT64 InveptAll : 1;		//!< 26	all-context INVEPT is supported
+		UINT64 Reserved6 : 5;		//!< 27-31
+		UINT64 Invvpid : 1;			//!< 32	INVVPID instruction is supported
+		UINT64 Reserved7 : 7;		//!< 33-39
+		UINT64 InvvpidInd : 1;		//!< 40	individual-address INVVPID type is supported
+		UINT64 InvvpidSingle : 1;	//!< 41	single-context INVVPID type is supported
+		UINT64 InvvpidAll : 1;		//!< 42	all-context INVVPID type is supported
+		UINT64 InvvpidSingleG : 1;	//!< 43	single-context-retaining-globals INVVPID type is supported
+		UINT64 Reserved8 : 20;		//!< 44-63
 	};
 } IA32_VMX_EPT_VPID_CAP, *PIA32_VMX_EPT_VPID_CAP;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_VMX_EPT_VPID_CAP));
@@ -561,13 +561,13 @@ typedef union _IA32_EFER
 {
 	UINT64 qwValue;
 	struct {
-		UINT64 sce : 1;			// 0	Enables SYSCALL/SYSRET instructions in 64bit
-		UINT64 reserved0 : 7;	// 1-7	
-		UINT64 lme : 1;			// 8	Enables IA-32e mode operation
-		UINT64 reserved1 : 1;	// 9	
-		UINT64 lma : 1;			// 10	Indicates IA-32e mode is active when set
-		UINT64 nxe : 1;			// 11	Execute Disable Bit Enable
-		UINT64 reserved2 : 52;	// 12-63
+		UINT64 Sce : 1;			//!< 0	Enables SYSCALL/SYSRET instructions in 64bit
+		UINT64 Reserved0 : 7;	//!< 1-7	
+		UINT64 Lme : 1;			//!< 8	Enables IA-32e mode operation
+		UINT64 Reserved1 : 1;	//!< 9	
+		UINT64 Lma : 1;			//!< 10	Indicates IA-32e mode is active when set
+		UINT64 Nxe : 1;			//!< 11	Execute Disable Bit Enable
+		UINT64 Reserved2 : 52;	//!< 12-63
 	};
 } IA32_EFER, *PIA32_EFER;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_EFER));

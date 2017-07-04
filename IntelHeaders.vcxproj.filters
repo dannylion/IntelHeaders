@@ -30,10 +30,13 @@
     <ClInclude Include="include\VT-d.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\Faults.h">
+    <ClInclude Include="include\apic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\apic.h">
+    <ClInclude Include="include\ntdatatypes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\faults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

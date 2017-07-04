@@ -28,9 +28,7 @@
 #ifndef __INTEL_APIC_H__
 #define __INTEL_APIC_H__
 
-#include <ntddk.h>
-#include <intrin.h>
-
+#include "ntdatatypes.h"
 #include "msr64.h"
 
 // Disable 'warning C4214: nonstandard extension used: bit field types other than int'
@@ -39,7 +37,7 @@
 #pragma warning( disable : 4214)
 #pragma warning( disable : 4201)
 
-// Vol 3B, Table 10-1 Local APIC Register Address Map
+//! Vol 3B, Table 10-1 Local APIC Register Address Map
 typedef enum _APIC_REG_OFFSET
 {
 	// 0x0000 - 0x0010 Reserved
@@ -96,7 +94,7 @@ typedef enum _APIC_REG_OFFSET
 	// 0x03F0 Reserved
 } APIC_REG_OFFSET, *PAPIC_REG_OFFSET;
 
-// Vol 3B, Table 10-6. Local APIC Register Address Map Supported by x2APIC
+//! Vol 3B, Table 10-6. Local APIC Register Address Map Supported by x2APIC
 // x2APIC registers can also be accessed through MSRs 0x802-0x83F (See msr64.h)
 typedef enum _X2APIC_REG_OFFSET
 {
@@ -149,16 +147,16 @@ typedef enum _X2APIC_REG_OFFSET
 	X2APIC_REG_OFFSET_DIV_CONF		= 0x3E0, // Divide Configuration Register (Read/Write)
 } X2APIC_REG_OFFSET, *PX2APIC_REG_OFFSET;
 
-// Vol 3B, Figure 10-7. Local APIC Version Register
+//! Vol 3B, Figure 10-7. Local APIC Version Register
 typedef union _APIC_VER_REG
 {
 	UINT32 dwValue;
 	struct {
-		UINT32 Version : 8;					// 0-7		Version numbers of the local APIC
-		UINT32 reserved0 : 8;				// 8-15
-		UINT32 MaxLvtEntry : 8;				// 16-23	Number of LVT entries -1
-		UINT32 SuppressEoiBroadcasts : 1;	// 24		S/W can inhibit the broadcast of EOI message
-		UINT32 reserved1 : 7;				// 25-31
+		UINT32 Version : 8;					//!< 0-7	Version numbers of the local APIC
+		UINT32 Reserved0 : 8;				//!< 8-15
+		UINT32 MaxLvtEntry : 8;				//!< 16-23	Number of LVT entries -1
+		UINT32 SuppressEoiBroadcasts : 1;	//!< 24		S/W can inhibit the broadcast of EOI message
+		UINT32 Reserved1 : 7;				//!< 25-31
 	};
 } APIC_VER_REG, *PAPIC_VER_REG;
 C_ASSERT(sizeof(UINT32) == sizeof(APIC_VER_REG));

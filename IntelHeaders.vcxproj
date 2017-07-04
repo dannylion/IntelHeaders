@@ -21,8 +21,9 @@
   <ItemGroup>
     <ClInclude Include="include\apic.h" />
     <ClInclude Include="include\cr64.h" />
-    <ClInclude Include="include\Faults.h" />
+    <ClInclude Include="include\faults.h" />
     <ClInclude Include="include\msr64.h" />
+    <ClInclude Include="include\ntdatatypes.h" />
     <ClInclude Include="include\paging64.h" />
     <ClInclude Include="include\VT-x.h" />
     <ClInclude Include="include\VT-d.h" />
