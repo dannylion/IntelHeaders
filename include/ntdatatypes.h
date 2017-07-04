@@ -70,6 +70,10 @@
 #define DECLSPEC_ALIGN(x) __declspec(align(x))
 #endif
 
+#ifndef DECLSPEC_NORETURN
+#define DECLSPEC_NORETURN __declspec(noreturn)
+#endif
+
 #ifndef PAGE_SIZE
 #define PAGE_SIZE 0x1000
 #endif
@@ -267,8 +271,6 @@ typedef union _LARGE_INTEGER {
 	};
 	LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
-
-typedef LARGE_INTEGER PHYSICAL_ADDRESS, *PPHYSICAL_ADDRESS;
 
 #pragma warning(pop)
 #endif /* ifndef WIN32 */

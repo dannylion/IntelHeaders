@@ -582,10 +582,10 @@ C_ASSERT(sizeof(UINT64) == sizeof(VMX_TASK_SWITCH_EXIT_QUALIFICATION));
 //! Table 24-3. Exit Qualification for Control-Register Accesses
 typedef enum _VMX_MOV_CR_ACCESS_TYPE
 {
-	MOV_CR_ACCESS_TYPE_TO_CR = 0,
-	MOV_CR_ACCESS_TYPE_FROM_CR,
-	MOV_CR_ACCESS_TYPE_CLTS,
-	MOV_CR_ACCESS_TYPE_LMSW,
+	VMX_MOV_CR_ACCESS_TYPE_TO_CR = 0,
+	VMX_MOV_CR_ACCESS_TYPE_FROM_CR,
+	VMX_MOV_CR_ACCESS_TYPE_CLTS,
+	VMX_MOV_CR_ACCESS_TYPE_LMSW,
 } VMX_MOV_CR_ACCESS_TYPE, *PVMX_MOV_CR_ACCESS_TYPE;
 
 //! Table 24-3. Exit Qualification for Control-Register Accesses
@@ -713,7 +713,7 @@ typedef enum _VMX_IDT_OR_GDT_INSTRUCTION_ID
 
 //! Table 24-9. Format of the VM-Exit Instruction-Information Field as Used for 
 //	LIDT, LGDT, SIDT, or SGDT
-union _VMX_IDT_OR_GDT_ACCESS_INSTRUCTION_INFO
+typedef union _VMX_IDT_OR_GDT_ACCESS_INSTRUCTION_INFO
 {
 	UINT32 dwValue;
 	struct {
@@ -743,7 +743,7 @@ typedef enum _VMX_LDT_OR_TR_INSTRUCTION_ID
 } VMX_LDT_OR_TR_INSTRUCTION_ID, *PVMX_LDT_OR_TR_INSTRUCTION_ID;
 
 //! Table 24-10. Format of the VM-Exit Instruction-Information Field as Used for LLDT, LTR, SLDT, and STR
-union _VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO
+typedef union _VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO
 {
 	UINT32 dwValue;
 	struct {
@@ -765,7 +765,7 @@ union _VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO));
 
 //! Table 24-11. Format of the VM-Exit Instruction-Information Field as Used for VMCLEAR, VMPTRLD, VMPTRST, and VMXON
-union _VMX_VMCS_PTR_OPCODES_INSTRUCTION_INFO
+typedef union _VMX_VMCS_PTR_OPCODES_INSTRUCTION_INFO
 {
 	UINT32 dwValue;
 	struct {
@@ -785,7 +785,7 @@ union _VMX_VMCS_PTR_OPCODES_INSTRUCTION_INFO
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VMCS_OPCODES_INSTRUCTION_INFO));
 
 //! Table 24-12. Format of the VM-Exit Instruction-Information Field as Used for VMREAD and VMWRITE
-union _VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO
+typedef union _VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO
 {
 	UINT32 dwValue;
 	struct {
@@ -806,7 +806,7 @@ union _VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO));
 
 //! Table 24-13. Format of the VM-Exit Instruction-Information Field as Used for INVEPT and INVVPID
-union _VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO
+typedef union _VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO
 {
 	UINT32 dwValue;
 	struct {
