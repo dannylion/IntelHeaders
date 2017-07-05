@@ -432,6 +432,22 @@ typedef union _IA32_FEATURE_CONTROL
 } IA32_FEATURE_CONTROL, *PIA32_FEATURE_CONTROL;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_FEATURE_CONTROL));
 
+// MSR_CODE_IA32_SMM_MONITOR_CTL = 0x9B
+//! 26.15.5 Enabling the Dual-Monitor Treatment
+typedef union _IA32_SMM_MONITOR_CTL
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Valid : 1;			//!< 0		SMM monitor can only be used if this is set
+		UINT64 Reserved0 : 1;		//!< 1		0
+		UINT64 UnblockSmi : 1;		//!< 2		VMXOFF unblock SMIs unless this bit is set
+		UINT64 Reserved1 : 9;		//!< 3-11	0
+		UINT64 MsegAddress : 20;	//!< 12-31	Physical address of MSEG base
+		UINT64 Reserved2 : 32;		//!< 32-63	0
+	};
+} IA32_SMM_MONITOR_CTL, *PIA32_SMM_MONITOR_CTL;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_SMM_MONITOR_CTL));
+
 // MSR_CODE_IA32_MTRRCAP = 0xFE
 //! Table 35-2. IA-32 Architectural MSRs 
 typedef union _IA32_MTRRCAP

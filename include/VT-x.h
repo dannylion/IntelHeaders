@@ -843,17 +843,176 @@ typedef union _VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO
 } VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO, *PVMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO));
 
-// TODO: Table 25-1. Format of an EPT PML4 Entry (PML4E)
-// TODO: Table 25-2. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE) that Maps a 1 - GByte Page
-// TODO: Table 25-3. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE) that References an EPT Page Directory
-// TODO: Table 25-4. Format of an EPT Page-Directory Entry (PDE) that Maps a 2-MByte Page
-// TODO: Table 25-5. Format of an EPT Page-Directory Entry (PDE) that References an EPT Page Table
-// TODO: Table 25-6. Format of an EPT Page-Table Entry
-// TODO: Figure 25-1. Formats of EPTP and EPT Paging-Structure Entries
+#define VMX_EPT_PML4E_ENTRY_COUNT   512
+#define VMX_EPT_PDPTE_ENTRY_COUNT   512
+#define VMX_EPT_PDE_ENTRY_COUNT     512
+#define VMX_EPT_PTE_ENTRY_COUNT     512
 
-// TODO: 26.15.2.3 Recording VM-Exit Information
-// TODO: Table 26-9. Exit Qualification for SMIs That Arrive Immediately After the Retirement of an I/O Instruction
-// TODO: Table 26-10. Format of MSEG Header
+typedef enum _VMX_EPT_MEMORY_TYPE
+{
+	VMX_EPT_MEMORY_TYPE_UC = 0,	// Uncachable
+	VMX_EPT_MEMORY_TYPE_WC = 1,	// Write-combined
+	VMX_EPT_MEMORY_TYPE_WT = 4,	// Write-through
+	VMX_EPT_MEMORY_TYPE_WP = 5,	// Write-Protected
+	VMX_EPT_MEMORY_TYPE_WB = 6	// Write-back
+} VMX_EPT_MEMORY_TYPE, *PVMX_EPT_MEMORY_TYPE;
+
+//! Table 25-1. Format of an EPT PML4 Entry (PML4E)
+typedef union _VMX_EPT_PML4E
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Read : 1;		//!< 0		Allow read
+		UINT64 Write : 1;		//!< 1		Allow write
+		UINT64 Execute : 1;		//!< 2		Allow execute
+		UINT64 Reserved0 : 5;	//!< 3-7	0
+		UINT64 Ignored0 : 4;	//!< 8-11
+		UINT64 Address : 36;	//!< 12-47	Address of VMX_EPT_PDPTE
+		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Ignored1 : 12;	//!< 52-63
+	};
+} VMX_EPT_PML4E, *PVMX_EPT_PML4E;
+C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PML4E));
+
+//! Table 25-2. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE) that Maps a 1 - GByte Page
+typedef union _VMX_EPT_PDPTE1GB
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Read : 1;		//!< 0		Allow read
+		UINT64 Write : 1;		//!< 1		Allow write
+		UINT64 Execute : 1;		//!< 2		Allow execute
+		UINT64 MemoryType : 3;	//!< 3-5	See VMX_EPT_MEMORY_TYPE
+		UINT64 IgnorePat : 1;	//!< 6		Ignore PAT memory type
+		UINT64 Large : 1;		//!< 7		Must be 1 for 1GB pages
+		UINT64 Ignored0 : 4;	//!< 8-11
+		UINT64 Reserved0 : 18;	//!< 12-29	0
+		UINT64 Address : 18;	//!< 30-47	Address of 1GB page
+		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Ignored1 : 12;	//!< 52-63
+	};
+} VMX_EPT_PDPTE1GB, *PVMX_EPT_PDPTE1GB;
+C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDPTE1GB));
+
+//! Table 25-3. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE) that References an EPT Page Directory
+typedef union _VMX_EPT_PDPTE
+{
+	UINT64 qwValue;
+	struct 	{
+		UINT64 Read : 1;		//!< 0		Allow read
+		UINT64 Write : 1;		//!< 1		Allow write
+		UINT64 Execute : 1;		//!< 2		Allow execute
+		UINT64 Reserved0 : 5;	//!< 3-7	0
+		UINT64 Ignored0 : 4;	//!< 8-11
+		UINT64 Address : 36;	//!< 12-47	Address of VMX_EPT_PDE
+		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Ignored2 : 12;	//!< 52-63
+	};
+} VMX_EPT_PDPTE, *PVMX_EPT_PDPTE;
+C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDPTE));
+
+//! Table 25-4. Format of an EPT Page-Directory Entry (PDE) that Maps a 2-MByte Page
+typedef union _VMX_EPT_PDE2MB
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Read : 1;		//!< 0		Allow read
+		UINT64 Write : 1;		//!< 1		Allow write
+		UINT64 Execute : 1;		//!< 2		Allow execute
+		UINT64 MemoryType : 3;	//!< 3-5	See VMX_EPT_MEMORY_TYPE
+		UINT64 IgnorePat : 1;	//!< 6		Ignore PAT memory type
+		UINT64 Large : 1;		//!< 7		Must be 1 for 2MB pages
+		UINT64 Ignored0 : 1;	//!< 8-11
+		UINT64 Reserved0 : 9;	//!< 12-20	0
+		UINT64 Address : 27;	//!< 21-47	Address of 2MB page
+		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Ignored1 : 12;	//!< 52-63
+	};
+} VMX_EPT_PDE2MB, *PVMX_EPT_PDE2MB;
+C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDE2MB));
+
+//! Table 25-5. Format of an EPT Page-Directory Entry (PDE) that References an EPT Page Table
+typedef union _VMX_EPT_PDE
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Read : 1;		//!< 0		Allow read
+		UINT64 Write : 1;		//!< 1		Allow write
+		UINT64 Execute : 1;		//!< 2		Allow execute
+		UINT64 Reserved0 : 5;	//!< 3-7	0
+		UINT64 Ignored0 : 4;	//!< 8-11
+		UINT64 Address : 36;	//!< 12-47	Address of PTE
+		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Ignored1 : 12;	//!< 52-63
+	};
+} VMX_EPT_PDE, *PVMX_EPT_PDE;
+C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDE));
+
+//! Table 25-6. Format of an EPT Page-Table Entry
+typedef union _VMX_EPT_PTE
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Read : 1;			//!< 0		Allow read
+		UINT64 Write : 1;			//!< 1		Allow write
+		UINT64 Execute : 1;			//!< 2		Allow execute
+		UINT64 MemoryType : 3;		//!< 3-5	See VMX_EPT_MEMORY_TYPE
+		UINT64 IgnorePat : 1;		//!< 6		Ignore PAT memory type
+		UINT64 Ignored0 : 5;		//!< 7-11
+		UINT64 Address : 36;		//!< 12-47	Address of page
+		UINT64 Reserved0 : 4;		//!< 48-51	0
+		UINT64 Ignored1 : 12;		//!< 52-63
+	};
+} VMX_EPT_PTE, *PVMX_EPT_PTE;
+
+// An example of a VMX EPT table
+typedef struct _VMX_EPT_TABLE
+{
+	DECLSPEC_ALIGN(PAGE_SIZE) VMX_EPT_PML4E atPml4[VMX_EPT_PML4E_ENTRY_COUNT];
+	DECLSPEC_ALIGN(PAGE_SIZE) VMX_EPT_PDPTE atPdpte[VMX_EPT_PDPTE_ENTRY_COUNT];
+	DECLSPEC_ALIGN(PAGE_SIZE) VMX_EPT_PDE2MB atPde[VMX_EPT_PDE_ENTRY_COUNT][VMX_EPT_PTE_ENTRY_COUNT];
+} VMX_EPT_TABLE, *PVMX_EPT_TABLE;
+
+//! Table 26-9. Exit Qualification for SMIs That Arrive Immediately After the Retirement of an I/O Instruction
+typedef union _VMX_SMI_AFTER_IO_EXIT_QUALIFICATION
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 AccessSize : 3;	//!< 0-2	See VMX_IO_ACCESS_SIZE
+		UINT64 Direction : 1;	//!< 3		0=OUT, 1=IN
+		UINT64 IsString : 1;	//!< 4		0=Not string, 1=String
+		UINT64 RepPrefixed : 1;	//!< 5		0=Not REP, 1=REP
+		UINT64 Operand : 1;		//!< 6		0=DX, 1=Immediate
+		UINT64 Reserved0 : 8;	//!< 7-15	0
+		UINT64 PortNumber : 16;	//!< 16-31	IO Port number
+		UINT64 Reserved1 : 32;	//!< 32-63	0
+	};
+} VMX_SMI_AFTER_IO_EXIT_QUALIFICATION, *PVMX_SMI_AFTER_IO_EXIT_QUALIFICATION;
+C_ASSERT(sizeof(UINT64) == sizeof(VMX_SMI_AFTER_IO_EXIT_QUALIFICATION));
+
+//! 26.15.5 Enabling the Dual-Monitor Treatment
+typedef union _VMX_SMM_MONITOR_FEATURES
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Is64bit : 1;		//!< 0		Will SMM monitor run in 64bit
+		UINT32 Reserved0 : 31;	//!< 1-31	0
+	};
+} VMX_SMM_MONITOR_FEATURES, *PVMX_SMM_MONITOR_FEATURES;
+C_ASSERT(sizeof(UINT32) == sizeof(VMX_SMM_MONITOR_FEATURES));
+
+//! Table 26-10. Format of MSEG Header (Monitor SEGment)
+typedef struct _VMX_MSEG_HEADER
+{
+	UINT32						dwRevision;
+	VMX_SMM_MONITOR_FEATURES	tMonitorFeatures;
+	UINT32						dwGdtrLimit;
+	UINT32						dwGdtrBaseOffset;
+	UINT32						dwCsSelector;
+	UINT32						dwEipOffset;
+	UINT32						dwEspOffset;
+	UINT32						dwCr3Offset;
+} VMX_MSEG_HEADER, *PVMX_MSEG_HEADER;
 
 typedef enum _VMX_OPCODE_RC
 {
