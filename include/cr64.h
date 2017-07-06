@@ -48,13 +48,13 @@ typedef union _CR0_REG
 		UINT32 Et : 1;			//!< 4 		extension type
 		UINT32 Ne : 1;			//!< 5 		numeric error
 		UINT32 Reserved0 : 10;	//!< 6-15	
-		UINT32 Wp : 1;			//!< 16 		write protect
+		UINT32 Wp : 1;			//!< 16 	write protect
 		UINT32 Reserved1 : 1;	//!< 17	
-		UINT32 Am : 1;			//!< 18 		alignment mask
+		UINT32 Am : 1;			//!< 18 	alignment mask
 		UINT32 Reserved2 : 10;	//!< 19-28
-		UINT32 Nw : 1;			//!< 29 		not- write through
-		UINT32 Cd : 1;			//!< 30 		cache disable
-		UINT32 Pg : 1;			//!< 31 		paging
+		UINT32 Nw : 1;			//!< 29 	not- write through
+		UINT32 Cd : 1;			//!< 30 	cache disable
+		UINT32 Pg : 1;			//!< 31 	paging
 	};
 } CR0_REG, *PCR0_REG;
 C_ASSERT(sizeof(UINT32) == sizeof(CR0_REG));
@@ -74,16 +74,16 @@ typedef union _CR4_REG
 		UINT32 Pge : 1;			//!< 7 		page global enable
 		UINT32 Pce : 1;			//!< 8 		performance monitoring counter enable
 		UINT32 Osfxsr : 1;		//!< 9 		os support for fxsave and fxrstor instructions
-		UINT32 Osxmmexcpt : 1;	//!< 10 		os support for unmasked simd floating point exceptions
+		UINT32 Osxmmexcpt : 1;	//!< 10 	os support for unmasked simd floating point exceptions
 		UINT32 Reserved0 : 2;	//!< 11-12
-		UINT32 Vmxe : 1;		//!< 13 		virtual machine extensions enable
-		UINT32 Smxe : 1;		//!< 14 		safer mode extensions enable
+		UINT32 Vmxe : 1;		//!< 13 	virtual machine extensions enable
+		UINT32 Smxe : 1;		//!< 14 	safer mode extensions enable
 		UINT32 Reserved1 : 2;	//!< 15-16
-		UINT32 Pcide : 1;		//!< 17 		pcid enable
-		UINT32 Osxsave : 1;		//!< 18 		xsave and processor extended states enable
+		UINT32 Pcide : 1;		//!< 17 	pcid enable
+		UINT32 Osxsave : 1;		//!< 18 	xsave and processor extended states enable
 		UINT32 Reserved2 : 1;	//!< 19
-		UINT32 Smep : 1;		//!< 20 		supervisor mode executions protection enable
-		UINT32 Smap : 1;		//!< 21 		supervisor mode access protection enable
+		UINT32 Smep : 1;		//!< 20 	supervisor mode executions protection enable
+		UINT32 Smap : 1;		//!< 21 	supervisor mode access protection enable
 		UINT32 Pke : 1;			//!< 22		associate each linear address with a protection 
 								//			key (PKRU)
 		UINT32 reserved3 : 9;	//!< 23-31

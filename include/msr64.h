@@ -434,6 +434,8 @@ C_ASSERT(sizeof(UINT64) == sizeof(IA32_FEATURE_CONTROL));
 
 // MSR_CODE_IA32_SMM_MONITOR_CTL = 0x9B
 //! 26.15.5 Enabling the Dual-Monitor Treatment
+// WRMSR to IA32_SMM_MONITOR_CTL generates a #GP if outside SMM, or if an attempt is
+// made to set any reserved bit
 typedef union _IA32_SMM_MONITOR_CTL
 {
 	UINT64 qwValue;

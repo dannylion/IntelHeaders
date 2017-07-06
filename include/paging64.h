@@ -206,18 +206,18 @@ C_ASSERT(sizeof(UINT64) == sizeof(PDE2MB64));
 //! Table 4-18. Format of an IA-32e Page-Directory Entry that References a Page Table
 typedef struct _PDE64
 {
-	UINT64 Present : 1;		//!< 0 Present
-	UINT64 Rw : 1;			//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;			//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;			//!< 3 Page-level write-through
-	UINT64 Pcd : 1;			//!< 4 Page-level cache disable
-	UINT64 Access : 1;		//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Reserved0 : 1;	//!< 6
-	UINT64 PageSize : 1;	//!< 7 Page-Size; must be 0 to reference PTE
-	UINT64 Reserved1 : 4;	//!< 8-11
-	UINT64 Addr : 39;		//!< 12-50 Physical address that the entry points to
-	UINT64 Reserved2 : 12;	//!< 51-62
-	UINT64 ExecuteDisable : 1;			//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 Present : 1;			//!< 0 Present
+	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+	UINT64 Pwt : 1;				//!< 3 Page-level write-through
+	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+	UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+	UINT64 Reserved0 : 1;		//!< 6
+	UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0 to reference PTE
+	UINT64 Reserved1 : 4;		//!< 8-11
+	UINT64 Addr : 39;			//!< 12-50 Physical address that the entry points to
+	UINT64 Reserved2 : 12;		//!< 51-62
+	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
 } PDE64, *PPDE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDE64));
 

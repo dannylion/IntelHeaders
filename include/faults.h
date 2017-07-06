@@ -63,13 +63,6 @@ typedef enum _FAULT_CODE
 #pragma pack(push, 1)
 
 // http://wiki.osdev.org/Interrupt_Descriptor_Table
-typedef struct _IDTR16
-{
-	UINT64 Limit : 16;		//!< 0-15
-	UINT64 Base : 24;		//!< 16-39
-	UINT64 Reserved : 8;	//!< 40-47
-} IDTR16, *PIDTR16;
-
 typedef struct _IDTR32
 {
 	UINT16 Limit;	//!< 0-15
@@ -82,7 +75,25 @@ typedef struct _IDTR64
 	UINT64 Base;	//!< 16-79
 } IDTR64, *PIDTR64;
 
+typedef struct _IDTR
+{
+	UINT16 Limit;	//!< 0-15
+	ULONG_PTR Base;	//!< 16-79
+} IDTR, *PIDTR;
+
 // http://wiki.osdev.org/Global_Descriptor_Table
+typedef struct _GDTR32
+{
+	UINT16 Limit;	//!< 0-15
+	UINT32 Base;	//!< 16-47
+} GDTR32, *PGDTR32;
+
+typedef struct _GDTR64
+{
+	UINT16 Limit;	//!< 0-15
+	UINT64 Base;	//!< 16-79
+} GDTR64, *PGDTR64;
+
 typedef struct _GDTR
 {
 	UINT16 Limit;
