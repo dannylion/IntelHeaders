@@ -39,6 +39,9 @@
     <ClInclude Include="include\faults.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\smm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\VT-x.c">

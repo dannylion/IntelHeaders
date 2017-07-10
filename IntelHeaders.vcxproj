@@ -25,6 +25,7 @@
     <ClInclude Include="include\msr64.h" />
     <ClInclude Include="include\ntdatatypes.h" />
     <ClInclude Include="include\paging64.h" />
+    <ClInclude Include="include\smm.h" />
     <ClInclude Include="include\VT-x.h" />
     <ClInclude Include="include\VT-d.h" />
   </ItemGroup>

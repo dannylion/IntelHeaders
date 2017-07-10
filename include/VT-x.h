@@ -562,6 +562,38 @@ typedef enum _VMX_SCALING
 	VMX_SCALE_BY_8 = 3
 } VMX_SCALING, *PVMX_SCALING;
 
+//! Vol 3B, 23.5 EVENT INJECTION
+typedef enum _VMX_INTERRUPTION_TYPE
+{
+	VMX_INT_TYPE_EXTERNAL = 0,
+	VMX_INT_TYPE_NMI = 2,
+	VMX_INT_TYPE_HW_EXCEPTION = 3,
+	VMX_INT_TYPE_SW_INTERRUPT = 4,
+	VMX_INT_TYPE_PRIVILEGED_SW = 5,
+	VMX_INT_TYPE_SW_EXCEPTION = 6,
+} VMX_INTERRUPTION_TYPE, *PVMX_INTERRUPTION_TYPE;
+
+// TODO: Table 21-12. Format of the VM-Entry Interruption-Information Field
+// TODO: Table 21-13. Format of Exit Reason
+
+//! Vol 3B, Table 21-14. Format of the VM-Exit Interruption-Information Field
+typedef union _VMX_VM_EXIT_INTR_INFO
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Vector : 8;				//!< 0-7	Vector of interrupt or exception
+		UINT32 InterruptionType : 3;	//!< 8-10	See VMX_INTERRUPTION_TYPE
+		UINT32 ErrorCodeValid : 1;		//!< 11		0=invalid, 1=valid
+		UINT32 NmiUnblocking : 1;		//!< 12		NMI unblocking due to IRET
+		UINT32 Reserved0 : 18;			//!< 13-30	0
+		UINT32 Valid : 1;				//!< 31		Is structure valid
+	};
+} VMX_VM_EXIT_INTR_INFO, *PVMX_VM_EXIT_INTR_INFO;
+C_ASSERT(sizeof(UINT32) == sizeof(VMX_VM_EXIT_INTR_INFO));
+
+// TODO: Table 21-15. Format of the IDT-Vectoring Information Field
+
+
 //! Table 24-1. Exit Qualification for Debug Exceptions
 typedef union _VMX_DEBUG_EXCEPTION_EXIT_QUALIFICATION
 {

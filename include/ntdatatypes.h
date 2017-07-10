@@ -114,6 +114,10 @@
 #define VOID void
 #endif
 
+#ifndef FIELD_OFFSET
+#define FIELD_OFFSET(type, field)    ((LONG)(LONG_PTR)&(((type *)0)->field))
+#endif
+
 #define MINCHAR			0x80
 #define MAXCHAR			0x7f
 #define MINSHORT		0x8000

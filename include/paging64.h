@@ -134,7 +134,7 @@ typedef struct _PML4E64
 	UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0
 	UINT64 Ignored1 : 4;		//!< 8-11
 	UINT64 Addr : 39;			//!< 12-50 Physical address that the entry points to
-	UINT64 Ignored1 : 12;		//!< 51-62
+	UINT64 Ignored2 : 12;		//!< 51-62
 	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
 } PML4E64, *PPML4E64;
 C_ASSERT(sizeof(UINT64) == sizeof(PML4E64));
