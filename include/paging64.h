@@ -33,6 +33,13 @@
 #include "msr64.h"
 #include "cr64.h"
 
+// Disable 'warning C4214: nonstandard extension used: bit field types other than int'
+// Disable 'warning C4201: nonstandard extension used: nameless struct/union'
+#pragma warning(push)
+#pragma warning( disable : 4214)
+#pragma warning( disable : 4201)
+#pragma pack(push, 1)
+
 #define PAGING64_PML4E_COUNT	512
 #define PAGING64_PDPTE_COUNT	512
 #define PAGING64_PDE_COUNT		512
@@ -251,4 +258,6 @@ typedef struct _PAGE_TABLE64
 	UINT64 qwPhysicalAddress;
 } PAGE_TABLE64, *PPAGE_TABLE64;
 
+#pragma pack(pop)
+#pragma warning(pop)
 #endif  /* __INTEL_MSR64_H__ */

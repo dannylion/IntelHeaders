@@ -35,6 +35,7 @@
 #pragma warning(push)
 #pragma warning( disable : 4214)
 #pragma warning( disable : 4201)
+#pragma pack(push, 1)
 
 //! Figure 2-7. Control Registers
 typedef union _CR0_REG
@@ -112,5 +113,6 @@ typedef union _CR3_REG
 } CR3_REG, *PCR3_REG;
 C_ASSERT(sizeof(UINT64) == sizeof(CR3_REG));
 
+#pragma pack(pop)
 #pragma warning(pop)
 #endif /* __INTEL_CR64_H__ */

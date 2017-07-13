@@ -36,6 +36,7 @@
 #pragma warning(push)
 #pragma warning( disable : 4214)
 #pragma warning( disable : 4201)
+#pragma pack(push, 1)
 
 //! Vol 3B, Table 10-1 Local APIC Register Address Map
 typedef enum _APIC_REG_OFFSET
@@ -164,6 +165,6 @@ C_ASSERT(sizeof(UINT32) == sizeof(APIC_VER_REG));
 // Read MSR_CODE_IA32_APIC_BASE and calculate the APIC base from it
 #define READ_APIC_BASE ((__readmsr(MSR_CODE_IA32_APIC_BASE) >> 12) << 12)
 
+#pragma pack(pop)
 #pragma warning(pop)
-
 #endif /* __INTEL_APIC_H__ */

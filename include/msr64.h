@@ -35,6 +35,7 @@
 #pragma warning(push)
 #pragma warning(disable : 4214)
 #pragma warning(disable : 4201)
+#pragma pack(push, 1)
 
 //! Table 35-2. IA-32 Architectural MSRs 
 typedef enum _MSR_CODE
@@ -590,5 +591,6 @@ typedef union _IA32_EFER
 } IA32_EFER, *PIA32_EFER;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_EFER));
 
+#pragma pack(pop)
 #pragma warning(pop)
 #endif /* __INTEL_MSR64_H__ */

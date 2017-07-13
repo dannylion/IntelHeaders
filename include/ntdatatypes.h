@@ -313,5 +313,4 @@ typedef union _LARGE_INTEGER {
 
 #pragma warning(pop)
 #endif /* ifndef WIN32 */
-
 #endif /* __NT_DATA_TYPES_H__ */

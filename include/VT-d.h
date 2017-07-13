@@ -35,7 +35,6 @@
 #pragma warning(push)
 #pragma warning( disable : 4214)
 #pragma warning( disable : 4201)
-
 #pragma pack(push, 1)
 
 #define CAP_REG					0x8
