@@ -21,5 +21,5 @@ yourself to the contibutors.txt file :)
 Code is under the MIT License unless the file header says otherwise.
 See LICENSE file for more info.
 
-# Contributers
+# Contributors
 See contibutors.txt file
