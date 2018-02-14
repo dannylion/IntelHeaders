@@ -39,6 +39,8 @@
 #pragma pack(push, 1)
 
 //! Vol 3B, Table 10-1 Local APIC Register Address Map
+#define APIC_BASE_DEFAULT 0xFEE00000
+
 typedef enum _APIC_REG_OFFSET
 {
 	// 0x0000 - 0x0010 Reserved
@@ -52,7 +54,7 @@ typedef enum _APIC_REG_OFFSET
 	APIC_REG_OFFSET_RRD			= 0x00C0, // Remote Read Register (Read Only)
 	APIC_REG_OFFSET_LDR			= 0x00D0, // Logical Destination Register (Read/Write)
 	APIC_REG_OFFSET_DFR			= 0x00E0, // Destination Format Register (Read/Write)
-	APIC_REG_OFFSET_SIVR		= 0x00F0, // Spurious Interrupt Vector Register (Read/Write)
+	APIC_REG_OFFSET_SVR			= 0x00F0, // Spurious Interrupt Vector Register (Read/Write)
 	APIC_REG_OFFSET_ISR0		= 0x0100, // In-Service Register; bits 31:0 (Read Only)
 	APIC_REG_OFFSET_ISR1		= 0x0110, // ISR bits 63:32 (Read Only)
 	APIC_REG_OFFSET_ISR2		= 0x0120, // ISR bits 95:64 (Read Only)
@@ -87,11 +89,11 @@ typedef enum _APIC_REG_OFFSET
 	APIC_REG_OFFSET_LVT_PMI		= 0x0340, // LVT Performance Monitoring Counters Register (Read/Write)
 	APIC_REG_OFFSET_LVT_LINT0	= 0x0350, // LVT LINT0 Register (Read/Write)
 	APIC_REG_OFFSET_LVT_LINT1	= 0x0360, // LVT LINT1 Register (Read/Write)
-	APIC_REG_OFFSET_LVT_ERROR	= 0x0370, // LVT Error Register (Read/Write)
-	APIC_REG_OFFSET_INIT_COUNT	= 0x0380, // Initial Count Register (Read/Write)
-	APIC_REG_OFFSET_CUR_COUNT	= 0x0390, // Current Count Register (Read Only)
+	APIC_REG_OFFSET_LVTERR		= 0x0370, // LVT Error Register (Read/Write)
+	APIC_REG_OFFSET_TMICT		= 0x0380, // Initial Count Register (Read/Write)
+	APIC_REG_OFFSET_TMCCT		= 0x0390, // Current Count Register (Read Only)
 	// 0x03A0 - 0x03D0 Reserved
-	APIC_REG_OFFSET_DIV_CONF	= 0x03E0, // Divide Configuration Register (Read/Write)
+	APIC_REG_OFFSET_TDCR		= 0x03E0, // Divide Configuration Register (Read/Write)
 	// 0x03F0 Reserved
 } APIC_REG_OFFSET, *PAPIC_REG_OFFSET;
 
@@ -142,13 +144,13 @@ typedef enum _X2APIC_REG_OFFSET
 	X2APIC_REG_OFFSET_LVT_PMI		= 0x340, // LVT Performance Monitoring register (Read/Write)
 	X2APIC_REG_OFFSET_LVT_LINT0		= 0x350, // LVT LINT0 register (Read/Write)
 	X2APIC_REG_OFFSET_LVT_LINT1		= 0x360, // LVT LINT1 register (Read/Write)
-	X2APIC_REG_OFFSET_LVT_ERROR		= 0x370, // LVT Error register (Read/Write)
-	X2APIC_REG_OFFSET_INIT_COUNT	= 0x380, // Initial Count register (Read/write)
-	X2APIC_REG_OFFSET_CUR_COUNT		= 0x390, // Current Count register (Read-only)
-	X2APIC_REG_OFFSET_DIV_CONF		= 0x3E0, // Divide Configuration Register (Read/Write)
+	X2APIC_REG_OFFSET_LVTERR		= 0x370, // LVT Error register (Read/Write)
+	X2APIC_REG_OFFSET_TMICT			= 0x380, // Initial Count register (Read/write)
+	X2APIC_REG_OFFSET_TMCCT			= 0x390, // Current Count register (Read-only)
+	X2APIC_REG_OFFSET_TDCR			= 0x3E0, // Divide Configuration Register (Read/Write)
 } X2APIC_REG_OFFSET, *PX2APIC_REG_OFFSET;
 
-//! Vol 3B, Figure 10-7. Local APIC Version Register
+//! Vol 3A, Figure 10-7. Local APIC Version Register
 typedef union _APIC_VER_REG
 {
 	UINT32 dwValue;
@@ -162,8 +164,108 @@ typedef union _APIC_VER_REG
 } APIC_VER_REG, *PAPIC_VER_REG;
 C_ASSERT(sizeof(UINT32) == sizeof(APIC_VER_REG));
 
-// Read MSR_CODE_IA32_APIC_BASE and calculate the APIC base from it
-#define READ_APIC_BASE ((__readmsr(MSR_CODE_IA32_APIC_BASE) >> 12) << 12)
+//! Vol 3A, Figure 10-23. Spurious-Interrupt Vector Register (SVR)
+typedef union _APIC_SVR_REG
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Vector : 8;					//!< 0-7	Vector number to deliver to processor
+		UINT32 EnableApic : 1;				//!< 8		Enable the local APIC
+		UINT32 EnableFocusProcChk : 1;		//!< 9		Enable focus processor checking
+		UINT32 Reserved0 : 2;				//!< 10-11
+		UINT32 EnableEoiBrdcstSuppress : 1;	//!< 12		Enable EOI broadcasts
+		UINT32 Reserved1 : 19;				//!< 13-31
+	};
+} APIC_SVR_REG, *PAPIC_SVR_REG;
+C_ASSERT(sizeof(UINT32) == sizeof(APIC_SVR_REG));
+
+//! Vol 3A,Figure 10-12. Interrupt Command Register (ICR)
+typedef enum _APIC_ICR_DELIVERY_MODE
+{
+	APIC_ICR_DELIVERY_MODE_FIXED = 0,
+	APIC_ICR_DELIVERY_MODE_LOW_PRIORITY = 1,
+	APIC_ICR_DELIVERY_MODE_SMI = 2,
+	// 3 is reserved
+	APIC_ICR_DELIVERY_MODE_NMI = 4,
+	APIC_ICR_DELIVERY_MODE_INIT = 5,
+	APIC_ICR_DELIVERY_MODE_STARTUP = 6,
+	// 7 is reserved
+} APIC_ICR_DELIVERY_MODE, *PAPIC_ICR_DELIVERY_MODE;
+
+typedef enum _APIC_ICR_DESTINATION_SHORTHAND
+{
+	APIC_ICR_DESTINATION_SHORTHAND_NONE = 0,
+	APIC_ICR_DESTINATION_SHORTHAND_SELF = 1,
+	APIC_ICR_DESTINATION_SHORTHAND_ALL = 2,
+	APIC_ICR_DESTINATION_SHORTHAND_ALL_NOT_SELF = 3,
+} APIC_ICR_DESTINATION_SHORTHAND, *PAPIC_ICR_DESTINATION_SHORTHAND;
+
+typedef union _APIC_ICR0_REG
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Vector : 8;					//!< 0-7	The vector number of the interrupt being sent
+		UINT32 DeliveryMode : 3;			//!< 8-10	See APIC_ICR_DESTINATION_MODE
+		UINT32 DestinationMode : 1;			//!< 11		0=Physical, 1=Logical
+		UINT32 DeliveryStatus : 1;			//!< 12		0=Idle, 1=Send-Pending
+		UINT32 Reserved0 : 1;				//!< 13
+		UINT32 Level : 1;					//!< 14		0=De-assert, 1=Assert
+		UINT32 TriggerMode : 1;				//!< 15		0=Edge, 1=Level
+		UINT32 Reserved1 : 2;				//!< 16-17
+		UINT32 DestinationShortHand : 2;	//!< 18-19	See APIC_ICR_DESTINATION_SHORTHAND
+		UINT32 Reserved2 : 12;				//!< 20-31
+	};
+} APIC_ICR0_REG, *PAPIC_ICR0_REG;
+C_ASSERT(sizeof(UINT32) == sizeof(APIC_ICR0_REG));
+
+typedef union _APIC_ICR1_REG
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Reserved0 : 24;	//!< 32-55
+		UINT32 Destination : 8;	//!< 56-63 APIC ID of destination
+	};
+} APIC_ICR1_REG, *PAPIC_ICR1_REG;
+C_ASSERT(sizeof(UINT32) == sizeof(APIC_ICR1_REG));
+
+//! Vol 3A, Figure 10-10. Divide Configuration Register (TDCR)
+typedef union _APIC_TDCR_REG
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Frequency : 4;	//!< 0-3	APIC timer frequency
+		UINT32 Reserved0 : 28;	//!< 4-31
+	};
+} APIC_TDCR_REG, *PAPIC_TDCR_REG;
+C_ASSERT(sizeof(UINT32) == sizeof(APIC_TDCR_REG));
+
+/**
+* Delay execution for the given number of microseconds using APIC timer
+* @param dwMicroSeconds - Microseconds to delay
+*/
+VOID
+APIC_DelayMicroSeconds(
+	INT32 dwMicroSeconds
+);
+
+/**
+* Delay execution for the given number of nanoseconds using APIC timer
+* @param dwNanoSeconds - Nanoseconds to delay
+*/
+VOID
+APIC_DelayNanoSeconds(
+	INT32 dwNanoSeconds
+);
+
+/**
+* Send the signals INIT,SIPI,SIPI too all APs from BSP (all cores, except BSP)
+* @param cVector - AP will execute at address=(cVector * 0x1000)
+* @return TRUE on success, else FALSE
+*/
+BOOLEAN
+APIC_InitSipiSipiAllAps(
+	UINT8 cVector
+);
 
 #pragma pack(pop)
 #pragma warning(pop)

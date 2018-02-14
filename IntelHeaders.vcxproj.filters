@@ -47,5 +47,11 @@
     <ClCompile Include="src\VT-x.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="apic.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="paging64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

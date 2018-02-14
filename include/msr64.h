@@ -538,6 +538,32 @@ typedef union _IA32_PAT
 } IA32_PAT, *PIA32_PAT;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_PAT));
 
+// MSR_CODE_IA32_VMX_MISC = 0x485
+// A.6 MISCELLANEOUS DATA
+typedef union _IA32_VMX_MISC
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 TscInc : 5;			//!< 0-4	VMX-preemption timer counts down by 1 every time bit X
+									//			in the TSC changes due to a TSC increment
+		UINT64 StoreEferLma : 1;	//!< 5		If 1, VM exits store the value of IA32_EFER.LMA
+									//			into the "IA-32e mode guest" VM-entry control
+		UINT64 StateHlt : 1;		//!< 6		If 0, VM-Entry to HLT state will fail
+		UINT64 StateShutdown : 1;	//!< 7		If 0, VM-Entry to Shutdown state will fail
+		UINT64 StateWaitForSipi : 1;//!< 8		If 0, VM-Entry to Wait-for-SIPI state will fail
+		UINT64 Reserved0 : 6;		//!< 9-14	0
+		UINT64 SmmIa32Smbase : 1;	//!< 15		RDMSR can be used in SMM to read IA32_SMBASE MSR
+		UINT64 Cr3Values : 9;		//!< 16-24	CR3-target values supported by the processor
+		UINT64 MsrListMax : 3;		//!< 25-27	Max number of MSRs that appear in VM-Exit MSR-store list,
+									//			MSR-load list, or the VM-entry MSR-load list
+		UINT64 UnblockSmi : 1;		//!< 28		IA32_SMM_MONITOR_CTL.UnblockSmi can be set to 1
+		UINT64 WriteInfoFields : 1;	//!< 29		If 1, can VMWRITE to VM-exit information fields
+		UINT64 Reserved1 : 2;		//!< 30-31	0
+		UINT64 MsegId : 32;			//!< 32-63	MSEG revision identifier used by the processor
+	};
+} IA32_VMX_MISC, *PIA32_VMX_MISC;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_VMX_MISC));
+
 // MSR_CODE_IA32_VMX_EPT_VPID_CAP = 0x48C
 // A.10 VPID AND EPT CAPABILITIES
 // reports information about the capabilities of the logical processor with regard 

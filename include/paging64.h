@@ -258,6 +258,28 @@ typedef struct _PAGE_TABLE64
 	UINT64 qwPhysicalAddress;
 } PAGE_TABLE64, *PPAGE_TABLE64;
 
+/**
+* Find the physical address mapped by the given virtual address
+* @param qwVirtualAddress - virtual address to query
+* @param pqwPhysicalAddress - physical address the virtual address is mapped to
+* @return TRUE on success, else FALSE
+*/
+BOOLEAN
+PAGING64_VirtualToPhysical(
+	IN const UINT64 qwVirtualAddress,
+	OUT PUINT64 pqwPhysicalAddress
+);
+
+/**
+* Check if virtual address is mapped by page table
+* @param qwVirtualAddress - virtual address to query
+* @return TRUE on success, else FALSE
+*/
+BOOLEAN
+PAGING64_IsMapped(
+	IN const UINT64 qwVirtualAddress
+);
+
 #pragma pack(pop)
 #pragma warning(pop)
 #endif  /* __INTEL_MSR64_H__ */

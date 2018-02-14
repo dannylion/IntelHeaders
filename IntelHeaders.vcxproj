@@ -30,6 +30,8 @@
     <ClInclude Include="include\VT-d.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="apic.c" />
+    <ClCompile Include="paging64.c" />
     <ClCompile Include="src\VT-x.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

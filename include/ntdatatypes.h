@@ -311,6 +311,9 @@ typedef union _LARGE_INTEGER {
 	LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
+typedef unsigned char BOOLEAN;
+typedef int BOOL;
+
 #pragma warning(pop)
 #endif /* ifndef WIN32 */
 #endif /* __NT_DATA_TYPES_H__ */

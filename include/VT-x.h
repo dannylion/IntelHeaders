@@ -337,7 +337,7 @@ typedef enum _VMEXIT_REASON
 	VMEXIT_REASONS_MAX
 } VMEXIT_REASON, *PVMEXIT_REASON;
 
-//! Vol 3B, Table 21-5. Definitions of Pin-Based VM-Execution Controls
+//! Vol 3B, Table 24-5. Definitions of Pin-Based VM-Execution Controls
 // (VMCS_FIELD_PINBASED_CTLS)
 typedef union _VMX_PINBASED_CTLS
 {
@@ -351,12 +351,13 @@ typedef union _VMX_PINBASED_CTLS
 										//		bit(bit 3) in the interruptibility - state field 
 										//		indicates "virtual - NMI blocking"
 		UINT32 PreemptionTimer : 1;		//!< 6	Use VMX-preemption timer counts down in VMX non-root operation
-		UINT32 Reserved2 : 25;			//!< 7-31
+		UINT32 ProcessApicInts : 1;		//!< 7	Write posted interrupts to virtual APIC page
+		UINT32 Reserved2 : 24;			//!< 8-31
 	};
 } VMX_PINBASED_CTLS, *PVMX_PINBASED_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PINBASED_CTLS));
 
-//! Vol 3B, Table 21-6. Definitions of Primary Processor-Based VM-Execution Controls
+//! Vol 3B, Table 24-6. Definitions of Primary Processor-Based VM-Execution Controls
 // (VMCS_FIELD_PROCBASED_CTLS)
 typedef union _VMX_PROCBASED_CTLS
 {
@@ -396,7 +397,7 @@ typedef union _VMX_PROCBASED_CTLS
 } VMX_PROCBASED_CTLS, *PVMX_PROCBASED_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PROCBASED_CTLS));
 
-//! Vol 3B, Table 21-7. Definitions of Secondary Processor-Based VM-Execution Controls
+//! Vol 3B, Table 24-7. Definitions of Secondary Processor-Based VM-Execution Controls
 // (VMCS_FIELD_PROCBASED_CTLS2)
 typedef union _VMX_PROCBASED_CTLS2
 {
@@ -405,7 +406,7 @@ typedef union _VMX_PROCBASED_CTLS2
 		UINT32 VirtApicAccess : 1;		//!< 0		a VM exit occurs on any attempt to access
 										//			data on the page with the APIC - access address
 		UINT32 EnableEpt : 1;			//!< 1		Enable Extended Page Tables
-		UINT32 DescriptorTableExit : 1; // 2		LGDT, LIDT, LLDT, LTR, SGDT, SIDT, SLDT, and STR cause VM exits
+		UINT32 DescriptorTableExit : 1; //!< 2		LGDT, LIDT, LLDT, LTR, SGDT, SIDT, SLDT, and STR cause VM exits
 		UINT32 EnableRdtscp : 1;		//!< 3		When clear RTSCP causes an Invalid Opcode fault
 		UINT32 VirtX2ApicAccess : 1;	//!< 4		Causes RDMSR and WRMSR to IA32_X2APIC_TPR to use the TPR shadow
 		UINT32 EnableVpid : 1;			//!< 5		cached translations of linear addresses 
@@ -413,9 +414,24 @@ typedef union _VMX_PROCBASED_CTLS2
 		UINT32 WbinvdExit : 1;			//!< 6		WBINVD causes a VM exit
 		UINT32 UnrestrictedGuest : 1;	//!< 7		Guest software may run in unpaged protected mode or 
 										//			in real - address mode
-		UINT32 Reserved0 : 2;			//!< 8-9
+		UINT32 ApicRegister : 1;		//!< 8		If 1, virtualize certain APIC accesses
+		UINT32 VirtIntExit : 1;			//!< 9		Enable VM-Exits on virtual interrupts and writes 
+										//			to the APIC registers
 		UINT32 PauseLoopExit : 1;		//!< 10		A series of executions of PAUSE can cause a VM exit
-		UINT32 Reserved1 : 21;			//!< 11-31
+		UINT32 RdrandExit : 1;			//!< 11		RDRAND causes a VM-Exit
+		UINT32 InvpcidExit : 1;			//!< 12		INVPCID causes a VM-Exit
+		UINT32 EnableVmFunc : 1;		//!< 13		Enable VMFUNC in non-root mode
+		UINT32 EnableShadowVmcs : 1;	//!< 14		VMREAD/VMWRITE access a shadow in non-root mode
+		UINT32 Reserved0 : 1;			//!< 15		0
+		UINT32 RdseedExit : 1;			//!< 16		RDSEED causes a VM-Exit
+		UINT32 EnablePml : 1;			//!< 17		Memory access that sets EPT dirty bit will 
+										//			also add an entry to page-modification log
+		UINT32 EnableEptVe: 1;			//!< 18		EPT Violations may cause a #VE fault instead of a VM-Exit
+		UINT32 Reserved1 : 1;			//!< 19		0
+		UINT32 XSaveStorExit : 1;		//!< 20		XSAVES and XRSTORS cause a VM-Exit
+		UINT32 Reserved2 : 4;			//!< 21-24	0
+		UINT32 TscScaling : 1;			//!< 25		Reads of timestamp counter are modified by VMCS_FIELD_TSC_MULTIPLIER
+		UINT32 Reserved3 : 6;			//!< 26-31
 	};
 } VMX_PROCBASED_CTLS2, *PVMX_PROCBASED_CTLS2;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PROCBASED_CTLS2));
@@ -575,6 +591,7 @@ typedef enum _VMX_INTERRUPTION_TYPE
 	VMX_INT_TYPE_SW_INTERRUPT = 4,
 	VMX_INT_TYPE_PRIVILEGED_SW = 5,
 	VMX_INT_TYPE_SW_EXCEPTION = 6,
+	VMX_INT_TYPE_OTHER = 7,
 } VMX_INTERRUPTION_TYPE, *PVMX_INTERRUPTION_TYPE;
 
 //! Table 21-12. Format of the VM-Entry Interruption-Information Field
@@ -1107,7 +1124,7 @@ typedef enum _VMX_OPCODE_RC
 	VMX_ERROR_NO_INFO	//!< Opcode failed - no information available on error
 } VMX_OPCODE_RC, *PVMX_OPCODE_RC;
 
-// Vol 3B, Table 30-1. VM-Instruction Error Numbers
+// Vol 3C, Table 30-1. VM-Instruction Error Numbers
 // Define VM_INSTRUCTION_ERROR enum and error message array using X-Macros
 #define VM_INSTRUCTION_ERRORS \
 		X(VMERROR_VMCALL_IN_ROOT, 1, "VMCALL executed in VMX root operation") \
