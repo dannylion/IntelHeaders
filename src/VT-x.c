@@ -26,6 +26,7 @@
 */
 
 #include "VT-x.h"
+#include "intrinsics64.h"
 
 // Use X-Macros to define the VM instruction error messages array
 static LPCSTR g_VmInstructionErrorMessages[VM_INSTRUCTION_ERROR_MAX] = {
@@ -52,8 +53,8 @@ VTX_AdjustCr0(
 
 	NT_ASSERT(NULL != ptCr0);
 
-	tFixed0.QuadPart = __readmsr(MSR_CODE_IA32_VMX_CR0_FIXED0);
-	tFixed1.QuadPart = __readmsr(MSR_CODE_IA32_VMX_CR0_FIXED1);
+	tFixed0.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR0_FIXED0);
+	tFixed1.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR0_FIXED1);
 
 	ptCr0->dwValue &= tFixed1.LowPart;
 	ptCr0->dwValue |= tFixed0.LowPart;
@@ -69,8 +70,8 @@ VTX_AdjustCr4(
 
 	NT_ASSERT(NULL != ptCr4);
 
-	tFixed0.QuadPart = __readmsr(MSR_CODE_IA32_VMX_CR4_FIXED0);
-	tFixed1.QuadPart = __readmsr(MSR_CODE_IA32_VMX_CR4_FIXED1);
+	tFixed0.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR4_FIXED0);
+	tFixed1.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR4_FIXED1);
 
 	ptCr4->dwValue &= tFixed1.LowPart;
 	ptCr4->dwValue |= tFixed0.LowPart;
@@ -86,7 +87,7 @@ VTX_AdjustCtl(
 
 	NT_ASSERT(NULL != pdwCtlValue);
 
-	tAdjustMsr.QuadPart = __readmsr(dwAdjustMsrCode);
+	tAdjustMsr.QuadPart = ASM64_Rdmsr(dwAdjustMsrCode);
 	*pdwCtlValue &= tAdjustMsr.HighPart;
 	*pdwCtlValue |= tAdjustMsr.LowPart;
 }

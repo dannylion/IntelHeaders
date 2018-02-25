@@ -27,6 +27,7 @@
 
 #include "apic.h"
 #include "msr64.h"
+#include "intrinsics64.h"
 
 typedef VOID(*APIC_callback_t)(VOID * pvContext);
 
@@ -38,7 +39,7 @@ apic_GetBase(
 	UINT64 qwApicPhysicalAddr = 0;
 	IA32_APIC_BASE tApicBase;
 	
-	tApicBase.qwValue = __readmsr(MSR_CODE_IA32_APIC_BASE);
+	tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
 	qwApicPhysicalAddr = tApicBase.ApicBase << 12;
 
 	// NOTE: We assume we have a 1:1 mapping of physical to virtual addresses
@@ -51,7 +52,7 @@ apic_IsApicEnabled(
 )
 {
 	IA32_APIC_BASE tApicBase;
-	tApicBase.qwValue = __readmsr(MSR_CODE_IA32_APIC_BASE);
+	tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
 	return (	tApicBase.Bsp
 			&&	tApicBase.ApicGlobalEnable);
 }

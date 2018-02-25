@@ -27,6 +27,7 @@
 
 #include "mtrr.h"
 #include "cpuid.h"
+#include "intrinsics64.h"
 
 //! Vol 3A, 11.11.1 MTRR Feature Identification
 BOOLEAN
@@ -35,7 +36,10 @@ MTRR_IsMtrrSupported(
 )
 {
 	CPUID_BASIC_FEATURES tCpuidFeatures;
-	__cpuidex(&tCpuidFeatures, CPUID_FUNCTION_BASIC_FEATURES, 0);
+	ASM64_Cpuid(
+		(const UINT32 *)&tCpuidFeatures,
+		(UINT32)CPUID_FUNCTION_BASIC_FEATURES,
+		0);
 	return (0 != tCpuidFeatures.Mtrr);
 }
 
@@ -65,15 +69,15 @@ MTRR_GetSmmRange(
 		goto lblCleanup;
 	}
 
-	tMtrrCap.qwValue = __readmsr(MSR_CODE_IA32_MTRRCAP);
+	tMtrrCap.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRRCAP);
 	if (!tMtrrCap.Smrr)
 	{
 		// SMRR not supported
 		goto lblCleanup;
 	}
 
-	tSmrrPhysBase.qwValue = __readmsr(MSR_CODE_IA32_SMRR_PHYSBASE);
-	tSmrrPhysMask.qwValue = __readmsr(MSR_CODE_IA32_SMRR_PHYSMASK);
+	tSmrrPhysBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_SMRR_PHYSBASE);
+	tSmrrPhysMask.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_SMRR_PHYSMASK);
 
 	qwSmrrBase = (((UINT64)tSmrrPhysBase.Base) << 12) & qwMaxPhyAddr;
 	qwSmrrMask = (((UINT64)tSmrrPhysMask.Mask) << 12) & qwMaxPhyAddr;
@@ -110,7 +114,7 @@ mtrr_GetMemTypeFromFixed(
 		&&	(0x7FFFF >= qwPhysicalAddress))
 	{
 		IA32_MTRR_FIX64K tFix64k;
-		tFix64k.qwValue = __readmsr(MSR_CODE_IA32_MTRR_FIX64K_00000);
+		tFix64k.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_FIX64K_00000);
 		*peMemType = tFix64k.acRanges[qwPhysicalAddress / 0x10000];
 		return TRUE;
 	}
@@ -119,7 +123,7 @@ mtrr_GetMemTypeFromFixed(
 		&&	(0xBFFFF >= qwPhysicalAddress))
 	{
 		IA32_MTRR_FIX16K tFix16k;
-		tFix16k.qwValue = __readmsr(MSR_CODE_IA32_MTRR_FIX16K_80000 + (qwPhysicalAddress / 0x20000));
+		tFix16k.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_FIX16K_80000 + (qwPhysicalAddress / 0x20000));
 		*peMemType = tFix16k.acRanges[qwPhysicalAddress / 0x4000];
 		return TRUE;
 	}
@@ -128,7 +132,7 @@ mtrr_GetMemTypeFromFixed(
 		&&	(0xFFFFF >= qwPhysicalAddress))
 	{
 		IA32_MTRR_FIX4K tFix4k;
-		tFix4k.qwValue = __readmsr(MSR_CODE_IA32_MTRR_FIX4K_C0000 + (qwPhysicalAddress / 0x8000));
+		tFix4k.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_FIX4K_C0000 + (qwPhysicalAddress / 0x8000));
 		*peMemType = tFix4k.acRanges[qwPhysicalAddress / 0x1000];
 		return TRUE;
 	}
@@ -155,8 +159,8 @@ mtrr_GetMemTypeFromVariable(
 		IA32_MTRR_PHYSBASE tMtrrPhysBase;
 		IA32_MTRR_PHYSMASK tMtrrPhysMask;
 
-		tMtrrPhysBase.qwValue = __readmsr(MSR_CODE_IA32_MTRR_PHYSBASE0 + (2 * dwCurrentIndex));
-		tMtrrPhysMask.qwValue = __readmsr(MSR_CODE_IA32_MTRR_PHYSMASK0 + (2 * dwCurrentIndex));
+		tMtrrPhysBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_PHYSBASE0 + (2 * dwCurrentIndex));
+		tMtrrPhysMask.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_PHYSMASK0 + (2 * dwCurrentIndex));
 
 		if (!tMtrrPhysMask.Valid)
 		{
@@ -206,8 +210,8 @@ MTRR_GetMemTypeForPhysicalAddress(
 		goto lblCleanup;
 	}
 
-	tMtrrCap.qwValue = __readmsr(MSR_CODE_IA32_MTRRCAP);
-	tMtrrDefType.qwValue = __readmsr(MSR_CODE_IA32_MTRR_DEF_TYPE);
+	tMtrrCap.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRRCAP);
+	tMtrrDefType.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_DEF_TYPE);
 
 	// Check if physical address is in SMM range
 	if (MTRR_GetSmmRange(

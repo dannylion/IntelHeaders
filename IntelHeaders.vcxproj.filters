@@ -54,6 +54,15 @@
     <ClInclude Include="src\mtrr.c">
       <Filter>Source Files</Filter>
     </ClInclude>
+    <ClInclude Include="src\paging64_internal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\intrinsics64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\VT-x.c">
@@ -68,5 +77,13 @@
     <ClCompile Include="src\cpuid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <MASM Include="src\x64.asm">
+      <Filter>Source Files</Filter>
+    </MASM>
   </ItemGroup>
 </Project>

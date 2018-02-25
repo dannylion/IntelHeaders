@@ -21,42 +21,50 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		cpuid.h
-* @section	CPUID structures and functions (https://en.wikipedia.org/wiki/CPUID)
+* @file		utils.h
+* @section	Basic utility functions that have nothing to do with any Intel mechanisms
 */
 
-#include "cpuid.h"
-#include "intrinsics64.h"
+#ifndef __INTEL_UTILS_H__
+#define __INTEL_UTILS_H__
 
-UINT8
-CPUID_GetMaxPhyAddrBits(
-	VOID
-)
-{
-	CPUID_EX_MAXFUNC tCpuidExMaxFunc;
-	CPUID_BASIC_FEATURES tCpuidBasicFeatures;
-	CPUID_EX_MAXADDR tCpuidMaxAddrInfo;
-	
-	ASM64_Cpuid(
-		(const UINT32 *)&tCpuidExMaxFunc,
-		(UINT32)CPUID_FUNCTION_EX_MAXFUNC,
-		0);
+#include "ntdatatypes.h"
 
-	// Check if MAXPHYADDR from CPUID is not supported
-	if (CPUID_FUNCTION_EX_MAXADDR > tCpuidExMaxFunc.dwMaxExFunc)
-	{
-		// 4.1.4 Enumeration of Paging Features by CPUID
-		// Default MAXPHYADDR with PAE is 36, and without is 32
-		ASM64_Cpuid(
-			(const UINT32 *)&tCpuidBasicFeatures,
-			(UINT32)CPUID_FUNCTION_BASIC_FEATURES,
-			0);
-		return ((tCpuidBasicFeatures.Pae) ? 36 : 32);
-	}
+/**
+* Copy an amount of bytes from the source buffer to the destination buffer
+* @param pvDst - destination buffer
+* @param pvSrc - source buffer
+* @param cbSize - amount of bytes to copy
+*/
+VOID
+MemCopy(
+	OUT PVOID pvDst,
+	IN const PVOID pvSrc,
+	IN const UINT64 cbSize
+);
 
-	ASM64_Cpuid(
-		(const UINT32 *)&tCpuidMaxAddrInfo,
-		(UINT32)CPUID_FUNCTION_EX_MAXADDR,
-		0);
-	return (UINT8)tCpuidMaxAddrInfo.MaxPhysAddr;
-}
+/**
+* Set an amount of bytes in the destination buffer to given character
+* @param pvDst - destination buffer
+* @param cChar - character to write
+* @param cbSize - amount of bytes to set
+*/
+VOID
+MemFill(
+	OUT PVOID pvDst,
+	IN const char cChar,
+	IN const UINT64 cbSize
+);
+
+/**
+* Zero an amount of bytes in the destination buffer
+* @param pvDst - destination buffer
+* @param cbSize - amount of bytes to set
+*/
+VOID
+MemZero(
+	OUT PVOID pvDst,
+	IN const UINT64 cbSize
+);
+
+#endif /* __INTEL_UTILS_H__ */
