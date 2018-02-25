@@ -96,7 +96,7 @@ typedef union _CR3_REG
 {
 	UINT64 qwValue;
 
- //! Table 4-12. Use of CR3 with IA-32e Paging and CR4.PCIDE = 0
+ //! Vol 3A, Table 4-12. Use of CR3 with IA-32e Paging and CR4.PCIDE = 0
 	struct {
 		UINT64 Reserved0 : 3;	//!< 0-2
 		UINT64 Pwt : 1;			//!< 3		Page-level Write-Through
@@ -105,7 +105,7 @@ typedef union _CR3_REG
 		UINT64 Pml4 : 52;		//!< 12-63	PML4 table physical address
 	} NoPcid;
 
- //! Table 4-13. Use of CR3 with IA-32e Paging and CR4.PCIDE = 1
+ //! Vol 3A, Table 4-13. Use of CR3 with IA-32e Paging and CR4.PCIDE = 1
 	struct {
 		UINT64 Pcid : 12;		//!< 5-11
 		UINT64 Pml4 : 52;		//!< 12-63	PML4 table physical address

@@ -312,7 +312,9 @@ typedef union _LARGE_INTEGER {
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
 typedef unsigned char BOOLEAN;
+typedef BOOLEAN *PBOOLEAN;
 typedef int BOOL;
+typedef BOOL *PBOOL;
 
 #pragma warning(pop)
 #endif /* ifndef WIN32 */

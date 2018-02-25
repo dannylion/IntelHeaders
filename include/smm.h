@@ -49,7 +49,7 @@
 // and extends down to [SMBASE + 0x8000 + 0x7E00]
 #define SMI_SAVE_STATE_START_OFFSET 0xFE00
 
-// TODO: Vol 3C, Table 34-1. SMRAM State Save Map
+//! Vol 3C, Table 34-1. SMRAM State Save Map
 typedef enum _SMI_SAVE_STATE_OFFSET
 {
 	SMI_SAVE_STATE_OFFSET_CR0 = 0x7FFC, 				// Read Only

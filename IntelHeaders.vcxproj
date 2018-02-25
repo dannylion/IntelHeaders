@@ -20,18 +20,23 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\apic.h" />
+    <ClInclude Include="include\cpuid.h" />
     <ClInclude Include="include\cr64.h" />
     <ClInclude Include="include\faults.h" />
+    <ClInclude Include="include\gdt64.h" />
     <ClInclude Include="include\msr64.h" />
+    <ClInclude Include="include\mtrr.h" />
     <ClInclude Include="include\ntdatatypes.h" />
     <ClInclude Include="include\paging64.h" />
     <ClInclude Include="include\smm.h" />
     <ClInclude Include="include\VT-x.h" />
     <ClInclude Include="include\VT-d.h" />
+    <ClInclude Include="src\mtrr.c" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="apic.c" />
-    <ClCompile Include="paging64.c" />
+    <ClCompile Include="src\apic.c" />
+    <ClCompile Include="src\cpuid.c" />
+    <ClCompile Include="src\paging64.c" />
     <ClCompile Include="src\VT-x.c" />
   </ItemGroup>
   <PropertyGroup Label="Globals">

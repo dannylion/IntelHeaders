@@ -29,6 +29,7 @@
 #define __INTEL_FAULTS_H__
 
 #include "ntdatatypes.h"
+#include "gdt64.h"
 
 #pragma pack(push, 1)
 
@@ -61,44 +62,6 @@ typedef enum _FAULT_CODE
 	SX_FAULT = 30,		//!< Security Exception #SX
 	// 31 Reserved
 } FAULT_CODE, *PFAULT_CODE;
-
-// http://wiki.osdev.org/Interrupt_Descriptor_Table
-typedef struct _IDTR32
-{
-	UINT16 Limit;	//!< 0-15
-	UINT32 Base;	//!< 16-47
-} IDTR32, *PIDTR32;
-
-typedef struct _IDTR64
-{
-	UINT16 Limit;	//!< 0-15
-	UINT64 Base;	//!< 16-79
-} IDTR64, *PIDTR64;
-
-typedef struct _IDTR
-{
-	UINT16 Limit;	//!< 0-15
-	ULONG_PTR Base;	//!< 16-79
-} IDTR, *PIDTR;
-
-// http://wiki.osdev.org/Global_Descriptor_Table
-typedef struct _GDTR32
-{
-	UINT16 Limit;	//!< 0-15
-	UINT32 Base;	//!< 16-47
-} GDTR32, *PGDTR32;
-
-typedef struct _GDTR64
-{
-	UINT16 Limit;	//!< 0-15
-	UINT64 Base;	//!< 16-79
-} GDTR64, *PGDTR64;
-
-typedef struct _GDTR
-{
-	UINT16 Limit;
-	ULONG_PTR Base;
-} GDTR, *PGDTR;
 
 #pragma pack(pop)
 #endif /* __INTEL_FAULTS_H__ */

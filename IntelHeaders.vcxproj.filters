@@ -42,15 +42,30 @@
     <ClInclude Include="include\smm.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\gdt64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\mtrr.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\cpuid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="src\mtrr.c">
+      <Filter>Source Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\VT-x.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="apic.c">
+    <ClCompile Include="src\apic.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="paging64.c">
+    <ClCompile Include="src\paging64.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\cpuid.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

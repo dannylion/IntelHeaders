@@ -39,7 +39,7 @@
 #pragma warning( disable : 4201)
 #pragma pack(push, 1)
 
-//! Vol 3B, Table 21-16. Structure of VMCS Component Encoding
+//! Vol 3C, Table 21-16. Structure of VMCS Component Encoding
 typedef union _VMCS_COMPONENT_ENCODING
 {
 	UINT32 AccessType : 1;	//!< 0		Access type (0 = full; 1 = high); must be full 
@@ -51,15 +51,15 @@ typedef union _VMCS_COMPONENT_ENCODING
 } VMCS_COMPONENT_ENCODING, *PVMCS_COMPONENT_ENCODING;
 C_ASSERT(sizeof(UINT32) == sizeof(VMCS_COMPONENT_ENCODING));
 
-//! Vol 3B, APPENDIX H FIELD ENCODING IN VMCS
+//! Vol 3C, APPENDIX B FIELD ENCODING IN VMCS
 typedef enum _VMCS_FIELD_ENCODING
 {
-	// Vol 3B, Table H-1. Encoding for 16-Bit Control Fields (0000_00xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-1. Encoding for 16-Bit Control Fields (0000_00xx_xxxx_xxx0B)
 	VMCS_FIELD_VPID = 0x00000000,
 	VMCS_FIELD_POSTED_INTR_NOTIFICATION_VECTOR = 0x00000002,
 	VMCS_FIELD_EPTP_INDEX = 0x00000004,
 
-	// Vol 3B, Table H-2. Encodings for 16-Bit Guest-State Fields (0000_10xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-2. Encodings for 16-Bit Guest-State Fields (0000_10xx_xxxx_xxx0B)
 	VMCS_FIELD_GUEST_ES_SELECTOR = 0x00000800,
 	VMCS_FIELD_GUEST_CS_SELECTOR = 0x00000802,
 	VMCS_FIELD_GUEST_SS_SELECTOR = 0x00000804,
@@ -71,7 +71,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_GUEST_INTR_STATUS = 0x00000810,
 	VMCS_FIELD_GUEST_PML_INDEX = 0x00000812,
 
-	// Vol 3B, Table H-3. Encodings for 16-Bit Host-State Fields (0000_11xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-3. Encodings for 16-Bit Host-State Fields (0000_11xx_xxxx_xxx0B)
 	VMCS_FIELD_HOST_ES_SELECTOR = 0x00000c00,
 	VMCS_FIELD_HOST_CS_SELECTOR = 0x00000c02,
 	VMCS_FIELD_HOST_SS_SELECTOR = 0x00000c04,
@@ -80,7 +80,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_HOST_GS_SELECTOR = 0x00000c0a,
 	VMCS_FIELD_HOST_TR_SELECTOR = 0x00000c0c,
 
-	// Vol 3B, Table H-3. Encodings for 16-Bit Host-State Fields (0000_11xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-3. Encodings for 16-Bit Host-State Fields (0000_11xx_xxxx_xxx0B)
 	VMCS_FIELD_IO_BITMAP_A_FULL = 0x00002000,
 	VMCS_FIELD_IO_BITMAP_A_HIGH = 0x00002001,
 	VMCS_FIELD_IO_BITMAP_B_FULL = 0x00002002,
@@ -124,11 +124,11 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_TSC_MULTIPLIER_FULL = 0x00002032,
 	VMCS_FIELD_TSC_MULTIPLIER_HIGH = 0x00002033,
 	
-	// Vol 3B, Table H-5. Encodings for 64-Bit Read-Only Data Field (0010_01xx_xxxx_xxxAb)
+	//! Vol 3C, Table B-5. Encodings for 64-Bit Read-Only Data Field (0010_01xx_xxxx_xxxAb)
 	VMCS_FIELD_GUEST_PHYSICAL_ADDRESS_FULL = 0x00002400,
 	VMCS_FIELD_GUEST_PHYSICAL_ADDRESS_HIGH = 0x00002401,
 	
-	// Vol 3B, Table H-6. Encodings for 64-Bit Guest-State Fields (0010_10xx_xxxx_xxxAb)
+	//! Vol 3C, Table B-6. Encodings for 64-Bit Guest-State Fields (0010_10xx_xxxx_xxxAb)
 	VMCS_FIELD_VMCS_LINK_POINTER_FULL = 0x00002800,
 	VMCS_FIELD_VMCS_LINK_POINTER_HIGH = 0x00002801,
 	VMCS_FIELD_GUEST_IA32_DEBUGCTL_FULL = 0x00002802,
@@ -150,7 +150,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_GUEST_BNDCFGS_FULL = 0x00002812,
 	VMCS_FIELD_GUEST_BNDCFGS_HIGH = 0x00002813,
 	
-	// Vol 3B, Table H-7. Encodings for 64-Bit Host-State Fields (0010_11xx_xxxx_xxxAb)
+	//! Vol 3C, Table B-7. Encodings for 64-Bit Host-State Fields (0010_11xx_xxxx_xxxAb)
 	VMCS_FIELD_HOST_PAT_FULL = 0x00002c00,
 	VMCS_FIELD_HOST_PAT_HIGH = 0x00002c01,
 	VMCS_FIELD_HOST_EFER_FULL = 0x00002c02,
@@ -158,7 +158,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_HOST_PERF_GLOBAL_CTRL_FULL = 0x00002c04,
 	VMCS_FIELD_HOST_PERF_GLOBAL_CTRL_HIGH = 0x00002c05,
 
-	// Table H-8. Encodings for 32-Bit Control Fields (0100_00xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-8. Encodings for 32-Bit Control Fields (0100_00xx_xxxx_xxx0B)
 	VMCS_FIELD_PINBASED_CTLS = 0x00004000,
 	VMCS_FIELD_PROCBASED_CTLS = 0x00004002,
 	VMCS_FIELD_EXCEPTION_BITMAP = 0x00004004,
@@ -178,7 +178,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_PLE_GAP = 0x00004020,
 	VMCS_FIELD_PLE_WINDOW = 0x00004022,
 
-	// Vol 3B, Table H-9. Encodings for 32-Bit Read-Only Data Fields (0100_01xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-9. Encodings for 32-Bit Read-Only Data Fields (0100_01xx_xxxx_xxx0B)
 	VMCS_FIELD_VM_INSTRUCTION_ERROR = 0x00004400,
 	VMCS_FIELD_VM_EXIT_REASON = 0x00004402,
 	VMCS_FIELD_VM_EXIT_INTR_INFO = 0x00004404,
@@ -188,7 +188,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_VM_EXIT_INSTRUCTION_LEN = 0x0000440c,
 	VMCS_FIELD_INSTRUCTION_INFO = 0x0000440e,
 
-	// Vol 3B, Table H-10. Encodings for 32-Bit Guest-State Fields (0100_10xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-10. Encodings for 32-Bit Guest-State Fields (0100_10xx_xxxx_xxx0B)
 	VMCS_FIELD_GUEST_ES_LIMIT = 0x00004800,
 	VMCS_FIELD_GUEST_CS_LIMIT = 0x00004802,
 	VMCS_FIELD_GUEST_SS_LIMIT = 0x00004804,
@@ -213,10 +213,10 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_GUEST_SYSENTER_CS = 0x0000482a,
 	VMCS_FIELD_GUEST_PREEMPTION_TIMER = 0x0000482e,
 
-	// Vol 3B, Table H-11. Encoding for 32-Bit Host-State Field (0100_11xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-11. Encoding for 32-Bit Host-State Field (0100_11xx_xxxx_xxx0B)
 	VMCS_FIELD_HOST_SYSENTER_CS = 0x00004c00,
 
-	// Vol 3B, Table H-12. Encodings for Natural-Width Control Fields (0110_00xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-12. Encodings for Natural-Width Control Fields (0110_00xx_xxxx_xxx0B)
 	VMCS_FIELD_CR0_GUEST_HOST_MASK = 0x00006000,
 	VMCS_FIELD_CR4_GUEST_HOST_MASK = 0x00006002,
 	VMCS_FIELD_CR0_READ_SHADOW = 0x00006004,
@@ -226,7 +226,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_CR3_TARGET_VALUE2 = 0x0000600c,
 	VMCS_FIELD_CR3_TARGET_VALUE3 = 0x0000600e,
 
-	// Vol 3B, Table H-13. Encodings for Natural-Width Read-Only Data Fields (0110_01xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-13. Encodings for Natural-Width Read-Only Data Fields (0110_01xx_xxxx_xxx0B)
 	VMCS_FIELD_EXIT_QUALIFICATION = 0x00006400,
 	VMCS_FIELD_IO_RCX = 0x00006402,
 	VMCS_FIELD_IO_RSI = 0x00006404,
@@ -234,7 +234,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_IO_RIP = 0x00006408,
 	VMCS_FIELD_GUEST_LINEAR_ADDRESS = 0x0000640a,
 
-	// Vol 3B, Table H-14. Encodings for Natural-Width Guest-State Fields (0110_10xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-14. Encodings for Natural-Width Guest-State Fields (0110_10xx_xxxx_xxx0B)
 	VMCS_FIELD_GUEST_CR0 = 0x00006800,
 	VMCS_FIELD_GUEST_CR3 = 0x00006802,
 	VMCS_FIELD_GUEST_CR4 = 0x00006804,
@@ -256,7 +256,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_GUEST_SYSENTER_ESP = 0x00006824,
 	VMCS_FIELD_GUEST_SYSENTER_EIP = 0x00006826,
 	
-	// Vol 3B, Table H-15. Encodings for Natural-Width Host-State Fields (0110_11xx_xxxx_xxx0B)
+	//! Vol 3C, Table B-15. Encodings for Natural-Width Host-State Fields (0110_11xx_xxxx_xxx0B)
 	VMCS_FIELD_HOST_CR0 = 0x00006c00,
 	VMCS_FIELD_HOST_CR3 = 0x00006c02,
 	VMCS_FIELD_HOST_CR4 = 0x00006c04,
@@ -271,7 +271,7 @@ typedef enum _VMCS_FIELD_ENCODING
 	VMCS_FIELD_HOST_RIP = 0x00006c16,
 } VMCS_FIELD_ENCODING, *PVMCS_FIELD_ENCODING;
 
-// Vol 3B, Table I-1. Basic Exit Reasons
+//! Vol 3C, Table I-1. Basic Exit Reasons
 typedef enum _VMEXIT_REASON
 {
 	VMEXIT_REASON_EXCEPTION_NMI = 0,
@@ -337,7 +337,7 @@ typedef enum _VMEXIT_REASON
 	VMEXIT_REASONS_MAX
 } VMEXIT_REASON, *PVMEXIT_REASON;
 
-//! Vol 3B, Table 24-5. Definitions of Pin-Based VM-Execution Controls
+//! Vol 3C, Table 24-5. Definitions of Pin-Based VM-Execution Controls
 // (VMCS_FIELD_PINBASED_CTLS)
 typedef union _VMX_PINBASED_CTLS
 {
@@ -357,7 +357,7 @@ typedef union _VMX_PINBASED_CTLS
 } VMX_PINBASED_CTLS, *PVMX_PINBASED_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PINBASED_CTLS));
 
-//! Vol 3B, Table 24-6. Definitions of Primary Processor-Based VM-Execution Controls
+//! Vol 3C, Table 24-6. Definitions of Primary Processor-Based VM-Execution Controls
 // (VMCS_FIELD_PROCBASED_CTLS)
 typedef union _VMX_PROCBASED_CTLS
 {
@@ -397,7 +397,7 @@ typedef union _VMX_PROCBASED_CTLS
 } VMX_PROCBASED_CTLS, *PVMX_PROCBASED_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PROCBASED_CTLS));
 
-//! Vol 3B, Table 24-7. Definitions of Secondary Processor-Based VM-Execution Controls
+//! Vol 3C, Table 24-7. Definitions of Secondary Processor-Based VM-Execution Controls
 // (VMCS_FIELD_PROCBASED_CTLS2)
 typedef union _VMX_PROCBASED_CTLS2
 {
@@ -436,7 +436,7 @@ typedef union _VMX_PROCBASED_CTLS2
 } VMX_PROCBASED_CTLS2, *PVMX_PROCBASED_CTLS2;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_PROCBASED_CTLS2));
 
-//! Vol 3B, Table 21-9. Definitions of VM-Exit Controls (VMCS_FIELD_VMEXIT_CTLS)
+//! Vol 3C, Table 21-9. Definitions of VM-Exit Controls (VMCS_FIELD_VMEXIT_CTLS)
 typedef union _VMX_EXIT_CTLS
 {
 	UINT32 dwValue;
@@ -460,7 +460,7 @@ typedef union _VMX_EXIT_CTLS
 } VMX_EXIT_CTLS, *PVMX_EXIT_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_EXIT_CTLS));
 
-//! Vol 3B, Table 21-11. Definitions of VM-Entry Controls (VMCS_FIELD_VMENTRY_CTLS)
+//! Vol 3C, Table 21-11. Definitions of VM-Entry Controls (VMCS_FIELD_VMENTRY_CTLS)
 typedef union _VMX_ENTRY_CTLS
 {
 	UINT32 dwValue;
@@ -480,7 +480,7 @@ typedef union _VMX_ENTRY_CTLS
 } VMX_ENTRY_CTLS, *PVMX_ENTRY_CTLS;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_ENTRY_CTLS));
 
-//! Vol 3B, 21.6.3 Exception Bitmap (VMCS_FIELD_EXCEPTION_BITMAP)
+//! Vol 3C, 21.6.3 Exception Bitmap (VMCS_FIELD_EXCEPTION_BITMAP)
 typedef union _VMX_EXCEPTION_BITMAP
 {
 	UINT32 dwValue;
@@ -513,7 +513,7 @@ typedef union _VMX_EXCEPTION_BITMAP
 } VMX_EXCEPTION_BITMAP, *PVMX_EXCEPTION_BITMAP;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_EXCEPTION_BITMAP));
 
-//! Vol 3B, 21.6.4 I/O-Bitmap Addresses (VMCS_FIELD_IO_BITMAP_A_FULL)
+//! Vol 3C, 21.6.4 I/O-Bitmap Addresses (VMCS_FIELD_IO_BITMAP_A_FULL)
 typedef struct DECLSPEC_ALIGN(PAGE_SIZE) _VMX_IO_BITMAPS
 {
 	UINT8 tIoBitmapA[PAGE_SIZE]; //!< 0 - 0x7FFF
@@ -521,7 +521,7 @@ typedef struct DECLSPEC_ALIGN(PAGE_SIZE) _VMX_IO_BITMAPS
 } VMX_IO_BITMAPS, *PVMX_IO_BITMAPS;
 C_ASSERT((2 * PAGE_SIZE) == sizeof(VMX_IO_BITMAPS));
 
-//! Vol 3B, 21.6.9 MSR-Bitmap Address (VMCS_FIELD_MSR_BITMAP_FULL)
+//! Vol 3C, 21.6.9 MSR-Bitmap Address (VMCS_FIELD_MSR_BITMAP_FULL)
 typedef struct DECLSPEC_ALIGN(PAGE_SIZE) _VMX_MSR_BITMAPS
 {
 	UINT8 tRdmsrL[PAGE_SIZE / 4]; //!< RDMSR 0 - 0x1FFF
@@ -582,7 +582,7 @@ typedef enum _VMX_SCALING
 	VMX_SCALE_BY_8 = 3
 } VMX_SCALING, *PVMX_SCALING;
 
-//! Vol 3B, 23.5 EVENT INJECTION
+//! Vol 3C, 23.5 EVENT INJECTION
 typedef enum _VMX_INTERRUPTION_TYPE
 {
 	VMX_INT_TYPE_EXTERNAL = 0,
@@ -594,7 +594,7 @@ typedef enum _VMX_INTERRUPTION_TYPE
 	VMX_INT_TYPE_OTHER = 7,
 } VMX_INTERRUPTION_TYPE, *PVMX_INTERRUPTION_TYPE;
 
-//! Table 21-12. Format of the VM-Entry Interruption-Information Field
+//! Vol 3C, Table 24-13. Format of the VM-Entry Interruption-Information Field
 // (VMCS_FIELD_VM_ENTRY_INTR_INFO)
 typedef union _VMX_VM_ENTRY_INTR_INFO
 {
@@ -609,7 +609,7 @@ typedef union _VMX_VM_ENTRY_INTR_INFO
 } VMX_VM_ENTRY_INTR_INFO, *PVMX_VM_ENTRY_INTR_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VM_ENTRY_INTR_INFO));
 
-//! Table 21-13. Format of Exit Reason (VMCS_FIELD_VM_EXIT_REASON)
+//! Vol 3C, Table 24-14. Format of Exit Reason (VMCS_FIELD_VM_EXIT_REASON)
 typedef union _VMX_VMEXIT_REASON
 {
 	UINT32 dwValue;
@@ -624,7 +624,7 @@ typedef union _VMX_VMEXIT_REASON
 } VMX_VMEXIT_REASON, *PVMX_VMEXIT_REASON;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VMEXIT_REASON));
 
-//! Vol 3B, Table 21-14. Format of the VM-Exit Interruption-Information Field
+//! Vol 3C, Table 24-15. Format of the VM-Exit Interruption-Information Field
 // (VMCS_FIELD_VM_EXIT_INTR_INFO)
 typedef union _VMX_VM_EXIT_INTR_INFO
 {
@@ -640,7 +640,7 @@ typedef union _VMX_VM_EXIT_INTR_INFO
 } VMX_VM_EXIT_INTR_INFO, *PVMX_VM_EXIT_INTR_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VM_EXIT_INTR_INFO));
 
-//! Table 21-15. Format of the IDT-Vectoring Information Field (VMCS_FIELD_IDT_VECTORING_INFO)
+//! Vol 3C, Table 24-16. Format of the IDT-Vectoring Information Field (VMCS_FIELD_IDT_VECTORING_INFO)
 typedef union _VMX_IDT_VECTORING_INFO
 {
 	UINT32 dwValue;
@@ -655,7 +655,7 @@ typedef union _VMX_IDT_VECTORING_INFO
 } VMX_IDT_VECTORING_INFO, *PVMX_IDT_VECTORING_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_IDT_VECTORING_INFO));
 
-//! Table 24-1. Exit Qualification for Debug Exceptions (VMCS_FIELD_EXIT_QUALIFICATION)
+//! Vol 3C, Table 27-1. Exit Qualification for Debug Exceptions (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_DEBUG_EXCEPTION_EXIT_QUALIFICATION
 {
 	UINT64 qwValue;
@@ -677,7 +677,7 @@ typedef enum _VMX_TASK_SWITCH_CAUSE
 	VMX_TASK_SWITCH_CAUSE_TASK_GATE = 3
 } VMX_TASK_SWITCH_CAUSE, *PVMX_TASK_SWITCH_CAUSE;
 
-//! Table 24-2. Exit Qualification for Task Switch (VMCS_FIELD_EXIT_QUALIFICATION)
+//! Vol 3C, Table 27-2. Exit Qualification for Task Switch (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_TASK_SWITCH_EXIT_QUALIFICATION
 {
 	UINT64 qwValue;
@@ -690,7 +690,7 @@ typedef union _VMX_TASK_SWITCH_EXIT_QUALIFICATION
 } VMX_TASK_SWITCH_EXIT_QUALIFICATION, *PVMX_TASK_SWITCH_EXIT_QUALIFICATION;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_TASK_SWITCH_EXIT_QUALIFICATION));
 
-//! Table 24-3. Exit Qualification for Control-Register Accesses
+//! Vol 3C, Table 27-3. Exit Qualification for Control-Register Accesses
 typedef enum _VMX_MOV_CR_ACCESS_TYPE
 {
 	VMX_MOV_CR_ACCESS_TYPE_TO_CR = 0,
@@ -699,7 +699,7 @@ typedef enum _VMX_MOV_CR_ACCESS_TYPE
 	VMX_MOV_CR_ACCESS_TYPE_LMSW,
 } VMX_MOV_CR_ACCESS_TYPE, *PVMX_MOV_CR_ACCESS_TYPE;
 
-//! Table 24-3. Exit Qualification for Control-Register Accesses (VMCS_FIELD_EXIT_QUALIFICATION)
+//! Vol 3C, Table 27-3. Exit Qualification for Control-Register Accesses (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_MOV_CR_EXIT_QUALIFICATION
 {
 	UINT64 qwValue;
@@ -716,7 +716,7 @@ typedef union _VMX_MOV_CR_EXIT_QUALIFICATION
 } VMX_MOV_CR_EXIT_QUALIFICATION, *PVMX_MOV_CR_EXIT_QUALIFICATION;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_MOV_CR_EXIT_QUALIFICATION));
 
-// 24-4. Exit Qualification for MOV DR (VMCS_FIELD_EXIT_QUALIFICATION)
+//! Vol 3C, 27-4. Exit Qualification for MOV DR (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_MOV_DR_EXIT_QUALIFICATION
 {
 	UINT64 qwValue;
@@ -738,7 +738,7 @@ typedef enum _VMX_IO_ACCESS_SIZE
 	VMX_IO_ACCESS_SIZE_4 = 3
 } VMX_IO_ACCESS_SIZE, *PVMX_IO_ACCESS_SIZE;
 
-//! Table 24-5. Exit Qualification for I/O Instructions (VMCS_FIELD_EXIT_QUALIFICATION)
+//! Vol 3C, Table 27-5. Exit Qualification for I/O Instructions (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_IO_OPCODE_EXIT_QUALIFICATION
 {
 	UINT64 qwValue;
@@ -764,7 +764,7 @@ typedef enum _VMX_APIC_ACCESS_TYPE
 	VMX_APIC_ACCESS_TYPE_GUEST_PHYSICAL_FETCH = 15,	//!< guest-physical access for an instruction fetch or during instruction execution
 } VMX_APIC_ACCESS_TYPE, *PVMX_APIC_ACCESS_TYPE;
 
-//!	Table 24-6. Exit Qualification for APIC-Access VM Exits from Linear Accesses 
+//!	Vol 3C, Table 27-6. Exit Qualification for APIC-Access VM Exits from Linear Accesses 
 //	and Guest - Physical Accesses (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_APIC_ACCESS_EXIT_QUALIFICATION
 {
@@ -777,7 +777,7 @@ typedef union _VMX_APIC_ACCESS_EXIT_QUALIFICATION
 } VMX_APIC_ACCESS_EXIT_QUALIFICATION, *PVMX_APIC_ACCESS_EXIT_QUALIFICATION;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_APIC_ACCESS_EXIT_QUALIFICATION));
 
-//! Table 24-7. Exit Qualification for EPT Violations (VMCS_FIELD_EXIT_QUALIFICATION)
+//! Vol 3C, Table 27-7. Exit Qualification for EPT Violations (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_EPT_EXIT_QUALIFICATION
 {
 	UINT64 qwValue;
@@ -800,7 +800,7 @@ typedef union _VMX_EPT_EXIT_QUALIFICATION
 } VMX_EPT_EXIT_QUALIFICATION, *PVMX_EPT_EXIT_QUALIFICATION;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_EXIT_QUALIFICATION));
 
-//! Table 24-8. Format of the VM-Exit Instruction-Information Field 
+//! Vol 3C, Table 27-8. Format of the VM-Exit Instruction-Information Field 
 // as Used for INS and OUTS (VMCS_FIELD_INSTRUCTION_INFO)
 typedef union _VMX_IO_INSTRUCTION_INFO
 {
@@ -823,7 +823,28 @@ typedef enum _VMX_IDT_OR_GDT_INSTRUCTION_ID
 	VMX_LIDT_ID = 3
 } VMX_IDT_OR_GDT_INSTRUCTION_ID, *PVMX_IDT_OR_GDT_INSTRUCTION_ID;
 
-//! Table 24-9. Format of the VM-Exit Instruction-Information Field as Used for 
+//! Vol 3C, Table 27-9. Format of the VM-Exit Instruction-Information Field as Used for
+// INVEPT, INVPCID, and INVVPID (VMCS_FIELD_INSTRUCTION_INFO)
+typedef union _VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO
+{
+	UINT32 dwValue;
+	struct {
+		UINT32 Scalling : 2;				//!<  0-1	See VMX_SCALING
+		UINT32 Undefined0 : 5;				//!<  2-6
+		UINT32 AddressSize : 3;				//!<  7-9	See VMX_ADDRESS_SIZE
+		UINT32 Zero0 : 1;					//!<  10	0
+		UINT32 Undefined1 : 4;				//!<  11-14
+		UINT32 SegmentRegister : 3;			//!<  15-17 See VMX_SEGMENT_REGISTER_INDEX
+		UINT32 IndexRegister : 4;			//!<  18-21 See VMX_GP_REGISTER_INDEX
+		UINT32 IndexRegisterInvalid : 1;	//!<  22	0=valid, 1=invalid
+		UINT32 BaseRegister : 4;			//!<  23-26 BaseReg (encoded as IndexRegister above)
+		UINT32 BaseRegisterInvalid : 1;		//!<  27	0=valid, 1=invalid
+		UINT32 GpRegister2 : 4;				//!<  28-31 See VMX_GP_REGISTER_INDEX
+	};
+} VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO, *PVMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO;
+C_ASSERT(sizeof(UINT32) == sizeof(VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO));
+
+//! Vol 3C, Table 27-10. Format of the VM-Exit Instruction-Information Field as Used for 
 //	LIDT, LGDT, SIDT, or SGDT (VMCS_FIELD_INSTRUCTION_INFO)
 typedef union _VMX_IDT_OR_GDT_ACCESS_INSTRUCTION_INFO
 {
@@ -854,7 +875,7 @@ typedef enum _VMX_LDT_OR_TR_INSTRUCTION_ID
 	VMX_LTR_ID = 3
 } VMX_LDT_OR_TR_INSTRUCTION_ID, *PVMX_LDT_OR_TR_INSTRUCTION_ID;
 
-//! Table 24-10. Format of the VM-Exit Instruction-Information Field 
+//! Vol 3C, Table 27-11. Format of the VM-Exit Instruction-Information Field 
 // as Used for LLDT, LTR, SLDT, and STR (VMCS_FIELD_INSTRUCTION_INFO)
 typedef union _VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO
 {
@@ -877,8 +898,10 @@ typedef union _VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO
 } VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO, *PVMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_LDT_OR_TR_ACCESS_INSTRUCTION_INFO));
 
-//! Table 24-11. Format of the VM-Exit Instruction-Information Field
-// as Used for VMCLEAR, VMPTRLD, VMPTRST, and VMXON (VMCS_FIELD_INSTRUCTION_INFO)
+// TODO: Vol 3C, Table 27-12. Format of the VM-Exit Instruction-Information Field as Used for RDRAND and RDSEED
+
+//! Vol 3C, Table 27-13. Format of the VM-Exit Instruction-Information Field as Used for
+// VMCLEAR, VMPTRLD, VMPTRST, VMXON, XRSTORS, and XSAVES (VMCS_FIELD_INSTRUCTION_INFO)
 typedef union _VMX_VMCS_PTR_OPCODES_INSTRUCTION_INFO
 {
 	UINT32 dwValue;
@@ -898,7 +921,7 @@ typedef union _VMX_VMCS_PTR_OPCODES_INSTRUCTION_INFO
 } VMX_VMCS_OPCODES_INSTRUCTION_INFO, *PVMX_VMCS_OPCODES_INSTRUCTION_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VMCS_OPCODES_INSTRUCTION_INFO));
 
-//! Table 24-12. Format of the VM-Exit Instruction-Information Field
+//! Vol 3C, Table 27-14. Format of the VM-Exit Instruction-Information Field
 // as Used for VMREAD and VMWRITE (VMCS_FIELD_INSTRUCTION_INFO)
 typedef union _VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO
 {
@@ -920,27 +943,6 @@ typedef union _VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO
 } VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO, *PVMX_VMCS_RW_OPCODES_INSTRUCTION_INFO;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_VMCS_RW_OPCODES_INSTRUCTION_INFO));
 
-//! Table 24-13. Format of the VM-Exit Instruction-Information Field
-// as Used for INVEPT and INVVPID (VMCS_FIELD_INSTRUCTION_INFO)
-typedef union _VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO
-{
-	UINT32 dwValue;
-	struct {
-		UINT32 Scalling : 2;				//!<  0-1	See VMX_SCALING
-		UINT32 Undefined0 : 5;				//!<  2-6
-		UINT32 AddressSize : 3;				//!<  7-9	See VMX_ADDRESS_SIZE
-		UINT32 Zero0 : 1;					//!<  10	0
-		UINT32 Undefined1 : 4;				//!<  11-14
-		UINT32 SegmentRegister : 3;			//!<  15-17 See VMX_SEGMENT_REGISTER_INDEX
-		UINT32 IndexRegister : 4;			//!<  18-21 See VMX_GP_REGISTER_INDEX
-		UINT32 IndexRegisterInvalid : 1;	//!<  22	0=valid, 1=invalid
-		UINT32 BaseRegister : 4;			//!<  23-26 BaseReg (encoded as IndexRegister above)
-		UINT32 BaseRegisterInvalid : 1;		//!<  27	0=valid, 1=invalid
-		UINT32 GpRegister2 : 4;				//!<  28-31 See VMX_GP_REGISTER_INDEX
-	};
-} VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO, *PVMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO;
-C_ASSERT(sizeof(UINT32) == sizeof(VMX_INVEPT_OR_INVVPID_INSTRUCTION_INFO));
-
 #define VMX_EPT_PML4E_ENTRY_COUNT   512
 #define VMX_EPT_PDPTE_ENTRY_COUNT   512
 #define VMX_EPT_PDE_ENTRY_COUNT     512
@@ -955,7 +957,8 @@ typedef enum _VMX_EPT_MEMORY_TYPE
 	VMX_EPT_MEMORY_TYPE_WB = 6	// Write-back
 } VMX_EPT_MEMORY_TYPE, *PVMX_EPT_MEMORY_TYPE;
 
-//! Table 25-1. Format of an EPT PML4 Entry (PML4E)
+//! Vol 3C, Table 28-1. Format of an EPT PML4 Entry (PML4E) that References
+// an EPT Page-Directory-Pointer Table
 typedef union _VMX_EPT_PML4E
 {
 	UINT64 qwValue;
@@ -965,14 +968,13 @@ typedef union _VMX_EPT_PML4E
 		UINT64 Execute : 1;		//!< 2		Allow execute
 		UINT64 Reserved0 : 5;	//!< 3-7	0
 		UINT64 Ignored0 : 4;	//!< 8-11
-		UINT64 Address : 36;	//!< 12-47	Address of VMX_EPT_PDPTE
-		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Address : 40;	//!< 12-51	Address of VMX_EPT_PDPTE
 		UINT64 Ignored1 : 12;	//!< 52-63
 	};
 } VMX_EPT_PML4E, *PVMX_EPT_PML4E;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PML4E));
 
-//! Table 25-2. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE)
+//! Vol 3C, Table 28-2. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE)
 // that Maps a 1 - GByte Page
 typedef union _VMX_EPT_PDPTE1GB
 {
@@ -986,14 +988,13 @@ typedef union _VMX_EPT_PDPTE1GB
 		UINT64 Large : 1;		//!< 7		Must be 1 for 1GB pages
 		UINT64 Ignored0 : 4;	//!< 8-11
 		UINT64 Reserved0 : 18;	//!< 12-29	0
-		UINT64 Address : 18;	//!< 30-47	Address of 1GB page
-		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Address : 22;	//!< 30-51	Address of 1GB page
 		UINT64 Ignored1 : 12;	//!< 52-63
 	};
 } VMX_EPT_PDPTE1GB, *PVMX_EPT_PDPTE1GB;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDPTE1GB));
 
-//! Table 25-3. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE)
+//! Vol 3C, Table 28-3. Format of an EPT Page-Directory-Pointer-Table Entry (PDPTE)
 // that References an EPT Page Directory
 typedef union _VMX_EPT_PDPTE
 {
@@ -1004,14 +1005,13 @@ typedef union _VMX_EPT_PDPTE
 		UINT64 Execute : 1;		//!< 2		Allow execute
 		UINT64 Reserved0 : 5;	//!< 3-7	0
 		UINT64 Ignored0 : 4;	//!< 8-11
-		UINT64 Address : 36;	//!< 12-47	Address of VMX_EPT_PDE
-		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Address : 40;	//!< 12-51	Address of VMX_EPT_PDE
 		UINT64 Ignored2 : 12;	//!< 52-63
 	};
 } VMX_EPT_PDPTE, *PVMX_EPT_PDPTE;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDPTE));
 
-//! Table 25-4. Format of an EPT Page-Directory Entry (PDE)
+//! Vol 3C, Table 28-4. Format of an EPT Page-Directory Entry (PDE)
 // that Maps a 2-MByte Page
 typedef union _VMX_EPT_PDE2MB
 {
@@ -1025,14 +1025,13 @@ typedef union _VMX_EPT_PDE2MB
 		UINT64 Large : 1;		//!< 7		Must be 1 for 2MB pages
 		UINT64 Ignored0 : 1;	//!< 8-11
 		UINT64 Reserved0 : 9;	//!< 12-20	0
-		UINT64 Address : 27;	//!< 21-47	Address of 2MB page
-		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Address : 31;	//!< 21-51	Address of 2MB page
 		UINT64 Ignored1 : 12;	//!< 52-63
 	};
 } VMX_EPT_PDE2MB, *PVMX_EPT_PDE2MB;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDE2MB));
 
-//! Table 25-5. Format of an EPT Page-Directory Entry (PDE)
+//! Vol 3C, Table 28-5. Format of an EPT Page-Directory Entry (PDE)
 // that References an EPT Page Table
 typedef union _VMX_EPT_PDE
 {
@@ -1043,14 +1042,13 @@ typedef union _VMX_EPT_PDE
 		UINT64 Execute : 1;		//!< 2		Allow execute
 		UINT64 Reserved0 : 5;	//!< 3-7	0
 		UINT64 Ignored0 : 4;	//!< 8-11
-		UINT64 Address : 36;	//!< 12-47	Address of PTE
-		UINT64 Reserved1 : 4;	//!< 48-51	0
+		UINT64 Address : 40;	//!< 12-51	Address of PTE
 		UINT64 Ignored1 : 12;	//!< 52-63
 	};
 } VMX_EPT_PDE, *PVMX_EPT_PDE;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_EPT_PDE));
 
-//! Table 25-6. Format of an EPT Page-Table Entry
+//! Vol 3C, Table 28-6. Format of an EPT Page-Table Entry
 typedef union _VMX_EPT_PTE
 {
 	UINT64 qwValue;
@@ -1061,8 +1059,7 @@ typedef union _VMX_EPT_PTE
 		UINT64 MemoryType : 3;		//!< 3-5	See VMX_EPT_MEMORY_TYPE
 		UINT64 IgnorePat : 1;		//!< 6		Ignore PAT memory type
 		UINT64 Ignored0 : 5;		//!< 7-11
-		UINT64 Address : 36;		//!< 12-47	Address of page
-		UINT64 Reserved0 : 4;		//!< 48-51	0
+		UINT64 Address : 40;		//!< 12-51	Address of page
 		UINT64 Ignored1 : 12;		//!< 52-63
 	};
 } VMX_EPT_PTE, *PVMX_EPT_PTE;
@@ -1075,7 +1072,7 @@ typedef struct _VMX_EPT_TABLE
 	DECLSPEC_ALIGN(PAGE_SIZE) VMX_EPT_PDE2MB atPde[VMX_EPT_PDE_ENTRY_COUNT][VMX_EPT_PTE_ENTRY_COUNT];
 } VMX_EPT_TABLE, *PVMX_EPT_TABLE;
 
-//! Table 26-9. Exit Qualification for SMIs That Arrive Immediately
+//! Vol 3C, Table 34-9. Exit Qualification for SMIs That Arrive Immediately
 // After the Retirement of an I/O Instruction (VMCS_FIELD_EXIT_QUALIFICATION)
 typedef union _VMX_SMI_AFTER_IO_EXIT_QUALIFICATION
 {
@@ -1093,7 +1090,7 @@ typedef union _VMX_SMI_AFTER_IO_EXIT_QUALIFICATION
 } VMX_SMI_AFTER_IO_EXIT_QUALIFICATION, *PVMX_SMI_AFTER_IO_EXIT_QUALIFICATION;
 C_ASSERT(sizeof(UINT64) == sizeof(VMX_SMI_AFTER_IO_EXIT_QUALIFICATION));
 
-//! 26.15.5 Enabling the Dual-Monitor Treatment
+//! Vol 3C, 34.15.5 Enabling the Dual-Monitor Treatment
 typedef union _VMX_SMM_MONITOR_FEATURES
 {
 	UINT32 dwValue;
@@ -1104,7 +1101,7 @@ typedef union _VMX_SMM_MONITOR_FEATURES
 } VMX_SMM_MONITOR_FEATURES, *PVMX_SMM_MONITOR_FEATURES;
 C_ASSERT(sizeof(UINT32) == sizeof(VMX_SMM_MONITOR_FEATURES));
 
-//! Table 26-10. Format of MSEG Header (Monitor SEGment)
+//! Vol 3C, Table 34-10. Format of MSEG Header (Monitor SEGment)
 typedef struct _VMX_MSEG_HEADER
 {
 	UINT32						dwRevision;
@@ -1124,7 +1121,7 @@ typedef enum _VMX_OPCODE_RC
 	VMX_ERROR_NO_INFO	//!< Opcode failed - no information available on error
 } VMX_OPCODE_RC, *PVMX_OPCODE_RC;
 
-// Vol 3C, Table 30-1. VM-Instruction Error Numbers
+//! Vol 3C, Table 30-1. VM-Instruction Error Numbers
 // Define VM_INSTRUCTION_ERROR enum and error message array using X-Macros
 #define VM_INSTRUCTION_ERRORS \
 		X(VMERROR_VMCALL_IN_ROOT, 1, "VMCALL executed in VMX root operation") \
@@ -1171,7 +1168,7 @@ VTX_GetVmInstructionErrorMsg(
 	IN const VM_INSTRUCTION_ERROR eVmError
 );
 
-// Vol 3B, 27.5 VMM SETUP & TEAR DOWN
+//! Vol 3C, 31.5 VMM SETUP & TEAR DOWN
 /**
 * Adjust the value of CR0 according to the FIXED MSRs
 * to clear/set bits that the CPU doesn't/must support
@@ -1204,7 +1201,7 @@ VTX_AdjustCtl(
 	OUT	PUINT32			pdwCtlValue
 );
 
-// Vol 3B, 21.6 VM-EXECUTION CONTROL FIELDS
+//! Vol 3C, 24.6 VM-EXECUTION CONTROL FIELDS
 #define VMX_ADJUST_PINBASED_CTLS(pdwCtlValue) \
 	VTX_AdjustCtl(MSR_CODE_IA32_VMX_PINBASED_CTLS, (pdwCtlValue))
 #define VMX_ADJUST_PROCBASED_CTLS(pdwCtlValue) \

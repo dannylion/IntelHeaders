@@ -37,7 +37,7 @@
 #pragma warning(disable : 4201)
 #pragma pack(push, 1)
 
-//! Table 35-2. IA-32 Architectural MSRs 
+//! Vol 3A, Table 35-2. IA-32 Architectural MSRs 
 typedef enum _MSR_CODE
 {
 	MSR_CODE_IA32_P5_MC_ADDR = 0,
@@ -85,6 +85,7 @@ typedef enum _MSR_CODE
 	MSR_CODE_IA32_PACKAGE_THERM_STATUS = 0x1B1,
 	MSR_CODE_IA32_PACKAGE_THERM_INTERRUPT = 0x1B2,
 	MSR_CODE_IA32_DEBUGCTL = 0x1D9,
+	MSR_CODE_IA32_SMRR_PHYSBASE = 0x1F2,
 	MSR_CODE_IA32_SMRR_PHYSMASK = 0x1F3,
 	MSR_CODE_IA32_PLATFORM_DCA_CAP = 0x1F8,
 	MSR_CODE_IA32_CPU_DCA_CAP = 0x1F9,
@@ -402,8 +403,7 @@ typedef enum _MSR_CODE
 typedef union _IA32_APIC_BASE
 {
 	UINT64 qwValue;
-	struct
-	{
+	struct {
 		UINT64 Reserved0 : 8;			//!< 0-7
 		UINT64 Bsp : 1;					//!< 8		Is this the bootstrap processor
 		UINT64 Reserved1 : 2;			//!< 9-10
@@ -415,12 +415,11 @@ typedef union _IA32_APIC_BASE
 } IA32_APIC_BASE, *PIA32_APIC_BASE;
 
 // MSR_CODE_IA32_FEATURE_CONTROL = 0x3A
-//! Table 5-1. Layout of IA32_FEATURE_CONTROL
+//! Vol 3A, Table 5-1. Layout of IA32_FEATURE_CONTROL
 typedef union _IA32_FEATURE_CONTROL
 {
 	UINT64 qwValue;
-	struct
-	{
+	struct {
 		UINT64 LockBit : 1;			//!< 0		If the lock bit is clear, an attempt to execute
 									//			VMXON will cause a #GP fault
 		UINT64 VmxInSmx : 1;		//!< 1		Enables VMX in SMX operation
@@ -452,67 +451,164 @@ typedef union _IA32_SMM_MONITOR_CTL
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_SMM_MONITOR_CTL));
 
 // MSR_CODE_IA32_MTRRCAP = 0xFE
-//! Table 35-2. IA-32 Architectural MSRs 
+//! Vol 3A, Table 35-2. IA-32 Architectural MSRs 
 typedef union _IA32_MTRRCAP
 {
 	UINT64 qwValue;
-	struct
-	{
-		UINT64 Vcnt : 8;			//!< 0-7	The number of variable memory type ranges 
-									//			in the processor.
-		UINT64 Fixed : 1;			//!< 8		Fixed range MTRRs are supported when set.
+	struct {
+		UINT64 Vcnt : 8;			//!< 0-7	Number of variable range registers
+		UINT64 Fix : 1;				//!< 8		Fixed range registers supported
 		UINT64 Reserved0 : 1;		//!< 9
-		UINT64 Wc : 1;				//!< 10		WC Supported when set
-		UINT64 Smrr : 1;			//!< 11		SMRR Supported when set
+		UINT64 Wc : 1;				//!< 10		Write-combining memory type supported
+		UINT64 Smrr : 1;			//!< 11		SMRR interface supported
 		UINT64 Reserved1 : 52;		//!< 12-63
 	};	
 } IA32_MTRRCAP, *PIA32_MTRRCAP;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRRCAP));
 
+//! Vol 3A, Table 11-9. Address Mapping for Fixed-Range MTRRs
+// MSR_CODE_IA32_MTRR_FIX64K_00000 (0x250)
+typedef union _IA32_MTRR_FIX64K
+{
+	UINT64 qwValue;
+	UINT8 acRanges[8];
+	struct {
+		UINT8 Range0;	//!< 0-7	0x00000-0x0FFFF
+		UINT8 Range1;	//!< 8-15	0x10000-0x1FFFF
+		UINT8 Range2;	//!< 16-23	0x20000-0x2FFFF
+		UINT8 Range3;	//!< 24-31	0x30000-0x3FFFF
+		UINT8 Range4;	//!< 32-39	0x40000-0x4FFFF
+		UINT8 Range5;	//!< 40-47	0x50000-0x5FFFF
+		UINT8 Range6;	//!< 48-55	0x60000-0x6FFFF
+		UINT8 Range7;	//!< 56-63	0x70000-0x7FFFF
+	};
+} IA32_MTRR_FIX64K, *PIA32_MTRR_FIX64K;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_FIX64K));
+
+// MSR_CODE_IA32_MTRR_FIX16K_80000 (0x258)
+// MSR_CODE_IA32_MTRR_FIX16K_A0000 (0x259)
+typedef union _IA32_MTRR_FIX16K
+{
+	UINT64 qwValue;
+	UINT8 acRanges[8];
+	struct {
+		UINT8 Range0;	//!< 0-7	0x80000-0x83FFF
+		UINT8 Range1;	//!< 8-15	0x84000-0x87FFF
+		UINT8 Range2;	//!< 16-23	0x88000-0x8BFFF
+		UINT8 Range3;	//!< 24-31	0x8C000-0x8FFFF
+		UINT8 Range4;	//!< 32-39	0x90000-0x93FFF
+		UINT8 Range5;	//!< 40-47	0x94000-0x97FFF
+		UINT8 Range6;	//!< 48-55	0x98000-0x9BFFF
+		UINT8 Range7;	//!< 56-63	0x9C000-0x9FFFF
+	};
+} IA32_MTRR_FIX16K, *PIA32_MTRR_FIX16K;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_FIX16K));
+
+// MSR_CODE_IA32_MTRR_FIX4K_C0000 (0x268)
+// MSR_CODE_IA32_MTRR_FIX4K_C8000 (0x269)
+// MSR_CODE_IA32_MTRR_FIX4K_D0000 (0x26A)
+// MSR_CODE_IA32_MTRR_FIX4K_D8000 (0x26B)
+// MSR_CODE_IA32_MTRR_FIX4K_E0000 (0x26C)
+// MSR_CODE_IA32_MTRR_FIX4K_E8000 (0x26D)
+// MSR_CODE_IA32_MTRR_FIX4K_F0000 (0x26E)
+// MSR_CODE_IA32_MTRR_FIX4K_F8000 (0x26F)
+typedef union _IA32_MTRR_FIX4K
+{
+	UINT64 qwValue;
+	UINT8 acRanges[8];
+	struct {
+		UINT8 Range0;	//!< 0-7	0xC0000-0xC0FFF
+		UINT8 Range1;	//!< 8-15	0xC1000-0xC1FFF
+		UINT8 Range2;	//!< 16-23	0xC2000-0xC2FFF
+		UINT8 Range3;	//!< 24-31	0xC3000-0xC3FFF
+		UINT8 Range4;	//!< 32-39	0xC4000-0xC4FFF
+		UINT8 Range5;	//!< 40-47	0xC5000-0xC5FFF
+		UINT8 Range6;	//!< 48-55	0xC6000-0xC6FFF
+		UINT8 Range7;	//!< 56-63	0xC7000-0xC7FFF
+	};
+} IA32_MTRR_FIX4K, *PIA32_MTRR_FIX4K;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_FIX4K));
+
+
+//! Vol 3A, Figure 11-7. IA32_MTRR_PHYSBASEn and IA32_MTRR_PHYSMASKn Variable-Range Register Pair
 // MSR_CODE_IA32_MTRR_PHYSBASE0 = 0x200
-//! Table 11-9. Address Mapping for Fixed-Range MTRRs
 typedef union _IA32_MTRR_PHYSBASE
 {
 	UINT64 qwValue;
-	struct
-	{
-		UINT64 Type : 8;		//!< 0-7		Memory type for the range 
+	struct {
+		UINT64 Type : 8;		//!< 0-7	Memory type for the range 
 		UINT64 Reserved0 : 4;	//!< 8-11
-		UINT64 PhysBase : 36;	//!< 12-47	Base address of the address range
-		UINT64 Reserved1 : 16;	//!< 48-63
+		UINT64 Base : 52;		//!< 12-63	Base address of the address range
 	};
 } IA32_MTRR_PHYSBASE, *PIA32_MTRR_PHYSBASE;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_PHYSBASE));
 
 // MSR_CODE_IA32_MTRR_PHYSMASK0 = 0x201
-//! Figure 11-7. IA32_MTRR_PHYSBASEn and IA32_MTRR_PHYSMASKn Variable-Range Register Pair
 typedef union _IA32_MTRR_PHYSMASK
 {
 	UINT64 qwValue;
-	struct
-	{
+	struct {
 		UINT64 Reserved0 : 11;	//!< 0-10
-		UINT64 Enabled : 1;		//!< 11		Enables the register pair when set
-		UINT64 PhysMask : 36;	//!< 12-47	Determines the range of the region being mapped
-		UINT64 Reserved1 : 16;	//!< 48-63
+		UINT64 Valid : 1;		//!< 11		Enables the register pair when set
+		UINT64 Mask : 52;		//!< 12-63	Determines the range of the region being mapped
 	};
 } IA32_MTRR_PHYSMASK, *PIA32_MTRR_PHYSMASK;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_PHYSMASK));
 
+
+//! Vol 3A, Figure 11-8. IA32_SMRR_PHYSBASE and IA32_SMRR_PHYSMASK SMRR Pair
+// MSR_CODE_IA32_SMRR_PHYSBASE = 0x1F2
+typedef union _IA32_SMRR_PHYSBASE
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Type : 8;		//!< 0-7	Memory type for the range 
+		UINT64 Reserved0 : 4;	//!< 8-11
+		UINT64 Base : 20;		//!< 12-31	Base address of SMM address range
+		UINT64 Reserved1 : 32;	//!< 32-63
+	};
+} IA32_SMRR_PHYSBASE, *PIA32_SMRR_PHYSBASE;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_SMRR_PHYSBASE));
+
+// MSR_CODE_IA32_SMRR_PHYSMASK = 0x1F3
+typedef union _IA32_SMRR_PHYSMASK
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Reserved0 : 11;	//!< 0-10
+		UINT64 Valid : 1;		//!< 11		Enables the register pair when set
+		UINT64 Mask : 20;		//!< 12-63	Determines the range of the SMM region being mapped
+		UINT64 Reserved1 : 32;	//!< 32-63
+	};
+} IA32_SMRR_PHYSMASK, *PIA32_SMRR_PHYSMASK;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_SMRR_PHYSMASK));
+
 // MSR_CODE_IA32_PAT = 0x277
-//! Table 11-10. Memory Types That Can Be Encoded With PAT
+//! Vol 3A, Table 11-10. Memory Types That Can Be Encoded With PAT
 typedef enum _IA32_PAT_MEMTYPE
 {
-	IA32_PAT_MEMTYPE_UC = 0,	//!< Uncachable
-	IA32_PAT_MEMTYPE_WC = 1,	//!< Write-Combined
-	IA32_PAT_MEMTYPE_WT = 4,	//!< Write-Through
-	IA32_PAT_MEMTYPE_WP = 5,	//!< Write-Protected
-	IA32_PAT_MEMTYPE_WB = 6,	//!< Write-Back
-	IA32_PAT_MEMTYPE_UCM = 7,	//!< Uncached
+	IA32_PAT_MEMTYPE_UC = 0,	//!< Uncacheable (UC)
+	IA32_PAT_MEMTYPE_WC = 1,	//!< Write Combining (WC)
+	// 2-3 Reserved
+	IA32_PAT_MEMTYPE_WT = 4,	//!< Write Through (WT)
+	IA32_PAT_MEMTYPE_WP = 5,	//!< Write Protected (WP)
+	IA32_PAT_MEMTYPE_WB = 6,	//!< Write Back (WB)
+	IA32_PAT_MEMTYPE_UCM = 7,	//!< Uncached (UC-)
 	// 8-0xFF Reserved
+	IA32_PAT_MEMTYPE_INVALID = 0xFF
 } IA32_PAT_MEMTYPE, *PIA32_PAT_MEMTYPE;
 
-//! Figure 11-9. IA32_PAT MSR
+//! Vol 3A, Table 11-12. Memory Type Setting of PAT Entries Following a Power-up or Reset
+#define PAT0_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_WB
+#define PAT1_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_WT
+#define PAT2_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_UCM
+#define PAT3_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_WC
+#define PAT4_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_WB
+#define PAT5_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_WT
+#define PAT6_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_UCM
+#define PAT7_DEFAULT_MEMTYPE IA32_PAT_MEMTYPE_UC
+
+//! Vol 3A, Figure 11-9. IA32_PAT MSR
 // Also see, Table 11-11. Selection of PAT Entries with PAT, PCD, and PWT Flags
 typedef union _IA32_PAT
 {
@@ -537,6 +633,21 @@ typedef union _IA32_PAT
 	};
 } IA32_PAT, *PIA32_PAT;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_PAT));
+
+// MSR_CODE_IA32_MTRR_DEF_TYPE = 0x2FF
+//! Vol 3A, 11.11.2.1 IA32_MTRR_DEF_TYPE MSR
+typedef union _IA32_MTRR_DEF_TYPE
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 Type : 8;		//!< 0-7	Default memory type
+		UINT64 Reserved0 : 2;	//!< 8-9	0
+		UINT64 Fe : 1;			//!< 10		Fixed-range MTRRs enable/disable
+		UINT64 E : 1;			//!< 11		MTRR enable/disable
+		UINT64 Reserved1 : 42;	//!< 12-63	0
+	};
+} IA32_MTRR_DEF_TYPE, *PIA32_MTRR_DEF_TYPE;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_DEF_TYPE));
 
 // MSR_CODE_IA32_VMX_MISC = 0x485
 // A.6 MISCELLANEOUS DATA
