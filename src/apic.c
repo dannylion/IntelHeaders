@@ -98,7 +98,7 @@ APIC_InitSipiSipiAllAps(
 )
 {
 	UINT64 qwApicBase = apic_GetBase();
-	APIC_ICR0_REG tIcr0 = { 0 };
+	APIC_ICR0_REG tIcr0;
 	PAPIC_ICR0_REG ptIcr0 = (PAPIC_ICR0_REG)(qwApicBase + APIC_REG_OFFSET_ICR0);
 
 	if (!apic_IsApicEnabled())

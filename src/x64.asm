@@ -27,6 +27,11 @@
 
 .CODE
 
+; UINT64
+; __stdcall
+; ASM64_Rdmsr(
+; 	IN const UINT32 dwMsrCode
+; );
 ASM64_Rdmsr PROC
 	push rbx
 	
@@ -40,6 +45,12 @@ ASM64_Rdmsr PROC
 	ret
 ASM64_Rdmsr ENDP
 
+; VOID
+; __stdcall
+; ASM64_Wrmsr(
+; 	IN const UINT32 dwMsrCode,
+; 	IN const UINT64 qwValue
+; );
 ASM64_Wrmsr PROC
 	push rax
 	push rbx
@@ -55,6 +66,13 @@ ASM64_Wrmsr PROC
 	ret
 ASM64_Wrmsr ENDP
 
+; VOID
+; __stdcall
+; ASM64_Cpuid(
+; 	OUT UINT32 adwRegs[4],
+; 	IN const UINT32 dwFunction,
+; 	IN const UINT32 dwSubFunction
+; );
 ASM64_Cpuid PROC
 	push rax
 	push rbx
@@ -77,44 +95,696 @@ ASM64_Cpuid PROC
 	ret
 ASM64_Cpuid ENDP
 
+; UINT64
+; __stdcall
+; ASM64_ReadCr0(
+; 	VOID
+; );
 ASM64_ReadCr0 PROC
 	mov rax, cr0
 	ret
 ASM64_ReadCr0 ENDP
 
+; UINT64
+; __stdcall
+; ASM64_ReadCr2(
+; 	VOID
+; );
+ASM64_ReadCr2 PROC
+	mov rax, cr2
+	ret
+ASM64_ReadCr2 ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadCr3(
+; 	VOID
+; );
 ASM64_ReadCr3 PROC
 	mov rax, cr3
 	ret
 ASM64_ReadCr3 ENDP
 
+; UINT64
+; __stdcall
+; ASM64_ReadCr4(
+; 	VOID
+; );
 ASM64_ReadCr4 PROC
 	mov rax, cr4
 	ret
 ASM64_ReadCr4 ENDP
 
+; UINT64
+; __stdcall
+; ASM64_ReadCr8(
+; 	VOID
+; );
 ASM64_ReadCr8 PROC
 	mov rax, cr8
 	ret
 ASM64_ReadCr8 ENDP
 
+; VOID
+; __stdcall
+; ASM64_Lgdt(
+; 	IN const PUINT64 pqwValue
+; );
 ASM64_Lgdt PROC
 	lgdt fword ptr [rcx]
 	ret
 ASM64_Lgdt ENDP
 
+; VOID
+; __stdcall
+; ASM64_Sgdt(
+; 	OUT PUINT64 pqwValue
+; );
 ASM64_Sgdt PROC
 	sgdt fword ptr [rcx]
 	ret
 ASM64_Sgdt ENDP
 
+; VOID
+; __stdcall
+; ASM64_Lidt(
+; 	IN const PUINT64 pqwValue
+; );
 ASM64_Lidt PROC
 	lidt fword ptr [rcx]
 	ret
 ASM64_Lidt ENDP
 
+; VOID
+; __stdcall
+; ASM64_Sidt(
+; 	OUT PUINT64 pqwValue
+; );
 ASM64_Sidt PROC
 	sidt fword ptr [rcx]
 	ret
 ASM64_Sidt ENDP
+
+; VOID
+; __stdcall
+; ASM64_Ldtr(
+; 	IN const UINT16 wValue
+; );
+ASM64_Ldtr PROC
+	ltr cx
+	ret
+ASM64_Ldtr ENDP
+
+; UINT16
+; __stdcall
+; ASM64_Sldt(
+; 	VOID
+; );
+ASM64_Sldt PROC
+	sldt ax
+	ret
+ASM64_Sldt ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteCr0(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteCr0 PROC
+	mov cr0, rcx
+	ret
+ASM64_WriteCr0 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteCr2(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteCr2 PROC
+	mov cr2, rcx
+	ret
+ASM64_WriteCr2 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteCr3(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteCr3 PROC
+	mov cr3, rcx
+	ret
+ASM64_WriteCr3 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteCr4(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteCr4 PROC
+	mov cr4, rcx
+	ret
+ASM64_WriteCr4 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteCr8(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteCr8 PROC
+	mov cr8, rcx
+	ret
+ASM64_WriteCr8 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteCS(
+; 	IN const UINT16 wValue
+; );
+ASM64_WriteCS PROC
+	mov cs, cx
+	ret
+ASM64_WriteCS ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteSS(
+; 	IN const UINT16 wValue
+; );
+ASM64_WriteSS PROC
+	mov ss, cx
+	ret
+ASM64_WriteSS ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDS(
+; 	IN const UINT16 wValue
+; );
+ASM64_WriteDS PROC
+	mov ds, cx
+	ret
+ASM64_WriteDS ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteES(
+; 	IN const UINT16 wValue
+; );
+ASM64_WriteES PROC
+	mov es, cx
+	ret
+ASM64_WriteES ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteFS(
+; 	IN const UINT16 wValue
+; );
+ASM64_WriteFS PROC
+	mov fs, cx
+	ret
+ASM64_WriteFS ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteGS(
+; 	IN const UINT16 wValue
+; );
+ASM64_WriteGS PROC
+	mov gs, cx
+	ret
+ASM64_WriteGS ENDP
+
+; UINT16
+; __stdcall
+; ASM64_ReadCS(
+; 	VOID
+; );
+ASM64_ReadCS PROC
+	mov ax, cs
+	ret
+ASM64_ReadCS ENDP
+
+; UINT16
+; __stdcall
+; ASM64_ReadSS(
+; 	VOID
+; );
+ASM64_ReadSS PROC
+	mov ax, ss
+	ret
+ASM64_ReadSS ENDP
+
+; UINT16
+; __stdcall
+; ASM64_ReadDS(
+; 	VOID
+; );
+ASM64_ReadDS PROC
+	mov ax, ds
+	ret
+ASM64_ReadDS ENDP
+
+; UINT16
+; __stdcall
+; ASM64_ReadES(
+; 	VOID
+; );
+ASM64_ReadES PROC
+	mov ax, es
+	ret
+ASM64_ReadES ENDP
+
+; UINT16
+; __stdcall
+; ASM64_ReadFS(
+; 	VOID
+; );
+ASM64_ReadFS PROC
+	mov ax, fs
+	ret
+ASM64_ReadFS ENDP
+
+; UINT16
+; __stdcall
+; ASM64_ReadGS(
+; 	VOID
+; );
+ASM64_ReadGS PROC
+	mov ax, gs
+	ret
+ASM64_ReadGS ENDP
+
+; UINT64
+; __stdcall
+; ASM64_Lar(
+; 	IN const UINT16 wSegmentSelector
+; );
+ASM64_Lar PROC
+	lar rax, rcx
+	ret
+ASM64_Lar ENDP
+
+; VOID
+; __stdcall
+; ASM64_Invd(
+; 	VOID
+; );
+ASM64_Invd PROC
+	invd
+	ret
+ASM64_Invd ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Invept(
+; 	IN const UINT32 dwInveptType, 
+; 	IN const ULONG_PTR qwInveptDescriptor
+; );
+ASM64_Invept PROC
+	; invept  ecx, oword ptr [rdx]
+    db  66h, 0fh, 38h, 80h, 0ah
+
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Invept ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Invvpid(
+; 	IN const UINT32 dwInvVpidType,
+; 	IN const ULONG_PTR qwInvVpidDescriptor
+; );
+ASM64_Invvpid PROC
+	; invvpid  ecx, oword ptr [rdx]
+    db  66h, 0fh, 38h, 81h, 0ah
+
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Invvpid ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmcall(
+; 	IN const UINT32 dwHypercallNumber,
+; 	IN PVOID ptContext
+; );
+ASM64_Vmcall PROC
+	vmcall
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmcall ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmclear(
+; 	IN const UINT64 qwVmcsPhysicalAddress
+; );
+ASM64_Vmclear PROC
+	vmclear qword ptr [rcx]
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmclear ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmfunc(
+; 	IN const UINT32 dwVmFuncNumber
+; );
+ASM64_Vmfunc PROC
+	mov eax, ecx
+	db  0fh, 01h, 212, 0ah	; vmfunc
+	jz l_VtxFailValid		; if (ZF) jmp
+    jc l_VtxFailInvalid		; if (CF) jmp
+    xor rax, rax			; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmfunc ENDP
+
+; DECLSPEC_NORETURN
+; VTX_RC
+; __stdcall
+; ASM64_Vmlaunch(
+; 	VOID
+; );
+ASM64_Vmlaunch PROC
+	vmlaunch
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmlaunch ENDP
+
+; DECLSPEC_NORETURN
+; VTX_RC
+; __stdcall
+; ASM64_Vmresume(
+; 	VOID
+; );
+ASM64_Vmresume PROC
+	vmresume
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmresume ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmptrld(
+; 	IN const PUINT64 pqwVmcsPhysicalAddress
+; );
+ASM64_Vmptrld PROC
+	vmptrld qword ptr [rcx]
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmptrld ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmptrst(
+; 	OUT PUINT64 pqwVmcsPhysicalAddress
+; );
+ASM64_Vmptrst PROC
+	vmptrst qword ptr [rcx]
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmptrst ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmread(
+; 	IN const UINT64 qwVmcsField,
+; 	OUT PUINT64 pqwValue
+; );
+ASM64_Vmread PROC
+	vmread qword ptr [rdx], rcx
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmread ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmwrite(
+; 	IN const UINT64 qwVmcsField,
+; 	IN const UINT64 qwValue
+; );
+ASM64_Vmwrite PROC
+	vmwrite rdx, rcx
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmwrite ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmxoff(
+; 	VOID
+; );
+ASM64_Vmxoff PROC
+	vmxoff
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmxoff ENDP
+
+; VTX_RC
+; __stdcall
+; ASM64_Vmxon(
+; 	IN const UINT64 qwVmxonRegionPhysicalAddress
+; );
+ASM64_Vmxon PROC
+	vmxon qword ptr [rcx]
+	jz l_VtxFailValid	; if (ZF) jmp
+    jc l_VtxFailInvalid	; if (CF) jmp
+    xor rax, rax		; return VTX_SUCCESS
+	ret
+    
+l_VtxFailInvalid:
+    mov rax, 2 ; return VTX_FAIL_INVALID
+    ret
+
+l_VtxFailValid:
+    mov rax, 1 ; return VTX_FAIL_VALID
+	ret
+ASM64_Vmxon ENDP
+
+; VOID
+; __stdcall
+; ASM64_CaptureContext(
+; 	OUT PCONTEXT ptContext
+; );
+ASM64_CaptureContext PROC
+    pushfq
+    mov     [rcx+78h], rax
+    mov     [rcx+80h], rcx
+    mov     [rcx+88h], rdx
+    mov     [rcx+0B8h], r8
+    mov     [rcx+0C0h], r9
+    mov     [rcx+0C8h], r10
+    mov     [rcx+0D0h], r11
+
+    mov     word ptr [rcx+38h], cs
+    mov     word ptr [rcx+3Ah], ds
+    mov     word ptr [rcx+3Ch], es
+    mov     word ptr [rcx+42h], ss
+    mov     word ptr [rcx+3Eh], fs
+    mov     word ptr [rcx+40h], gs
+
+    mov     [rcx+90h], rbx
+    mov     [rcx+0A0h], rbp
+    mov     [rcx+0A8h], rsi
+    mov     [rcx+0B0h], rdi
+    mov     [rcx+0D8h], r12
+    mov     [rcx+0E0h], r13
+    mov     [rcx+0E8h], r14
+    mov     [rcx+0F0h], r15
+
+    lea     rax, [rsp+10h]
+    mov     [rcx+98h], rax
+    mov     rax, [rsp+8]
+    mov     [rcx+0F8h], rax
+    mov     eax, [rsp]
+    mov     [rcx+44h], eax
+
+    add     rsp, 8
+    ret
+ASM64_CaptureContext ENDP
+
+; DECLSPEC_NORETURN
+; VOID
+; __cdecl
+; ASM64_RestoreContext(
+; 	IN const PCONTEXT ptContext
+; );
+ASM64_RestoreContext PROC
+    mov     ax, [rcx+42h]
+    mov     [rsp+20h], ax	; ss selector
+    mov     rax, [rcx+98h]
+    mov     [rsp+18h], rax	; rsp
+    mov     eax, [rcx+44h]
+    mov     [rsp+10h], eax	; rflags
+    mov     ax, [rcx+38h]
+    mov     [rsp+8], ax		; cs selector
+    mov     rax, [rcx+0F8h]
+    mov     [rsp], rax		; rip
+
+    mov     rax, [rcx+78h]
+    mov     rdx, [rcx+88h]
+    mov     r8, [rcx+0B8h]
+    mov     r9, [rcx+0C0h]
+    mov     r10, [rcx+0C8h]
+    mov     r11, [rcx+0D0h]
+    cli
+
+    mov     rbx, [rcx+90h]
+    mov     rsi, [rcx+0A8h]
+    mov     rdi, [rcx+0B0h]
+    mov     rbp, [rcx+0A0h]
+    mov     r12, [rcx+0D8h]
+    mov     r13, [rcx+0E0h]
+    mov     r14, [rcx+0E8h]
+    mov     r15, [rcx+0F0h]
+    mov     rcx, [rcx+80h]
+
+    iretq					; pop rip, cs, rflags, rsp, ss in that order
+ASM64_RestoreContext ENDP
+
+; DECLSPEC_NORETURN
+; VTX_RC
+; __cdecl
+; ShvAsmVmresume(
+; 	IN const PCONTEXT ptContext
+; );
+ASM64_RestoreContextAndVmresume PROC
+	mov     rax, [rcx+78h]
+    mov     rdx, [rcx+88h]
+    mov     r8, [rcx+0B8h]
+    mov     r9, [rcx+0C0h]
+    mov     r10, [rcx+0C8h]
+    mov     r11, [rcx+0D0h]
+    mov     rbx, [rcx+90h]
+    mov     rsi, [rcx+0A8h]
+    mov     rdi, [rcx+0B0h]
+    mov     rbp, [rcx+0A0h]
+    mov     r12, [rcx+0D8h]
+    mov     r13, [rcx+0E0h]
+    mov     r14, [rcx+0E8h]
+    mov     r15, [rcx+0F0h]
+    mov     rcx, [rcx+80h]
+	vmresume
+	ret
+ASM64_RestoreContextAndVmresume ENDP
 
 END

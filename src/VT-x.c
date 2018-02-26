@@ -48,8 +48,8 @@ VTX_AdjustCr0(
 	OUT PCR0_REG ptCr0
 )
 {
-	LARGE_INTEGER tFixed0 = { 0 };
-	LARGE_INTEGER tFixed1 = { 0 };
+	LARGE_INTEGER tFixed0;
+	LARGE_INTEGER tFixed1;
 
 	NT_ASSERT(NULL != ptCr0);
 
@@ -65,8 +65,8 @@ VTX_AdjustCr4(
 	OUT PCR4_REG ptCr4
 )
 {
-	LARGE_INTEGER tFixed0 = { 0 };
-	LARGE_INTEGER tFixed1 = { 0 };
+	LARGE_INTEGER tFixed0;
+	LARGE_INTEGER tFixed1;
 
 	NT_ASSERT(NULL != ptCr4);
 
@@ -83,7 +83,7 @@ VTX_AdjustCtl(
 	OUT	PUINT32			pdwCtlValue
 )
 {
-	LARGE_INTEGER tAdjustMsr = { 0 };
+	LARGE_INTEGER tAdjustMsr;
 
 	NT_ASSERT(NULL != pdwCtlValue);
 

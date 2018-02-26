@@ -396,7 +396,7 @@ CPUID_GetMaxPhyAddrBits(
 );
 
 // Calculate the Max Physical Address mask
-#define MAXPHYADDR ((1 << CPUID_GetMaxPhyAddr()) - 1)
+#define MAXPHYADDR ((1 << CPUID_GetMaxPhyAddrBits()) - 1)
 
 #pragma pack(pop)
 #pragma warning(pop)

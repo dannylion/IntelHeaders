@@ -30,7 +30,11 @@
 
 #include "ntdatatypes.h"
 
-// __readmsr
+/**
+ * Perform RDMSR opcode
+ * @param dwMsrCode - MSR code to read from
+ * @return MSR value
+ */
 extern
 UINT64
 __stdcall
@@ -38,7 +42,11 @@ ASM64_Rdmsr(
 	IN const UINT32 dwMsrCode
 );
 
-// __writemsr
+/**
+* Perform WRMSR opcode
+* @param dwMsrCode - MSR code to write to
+* @param qwValue - MSR value to write
+*/
 extern
 VOID
 __stdcall
@@ -47,17 +55,25 @@ ASM64_Wrmsr(
 	IN const UINT64 qwValue
 );
 
-// __cpuidex
+/**
+* Perform CPUID opcode
+* @param adwRegs - values of EAX, EBX, ECX, EDX after CPUID
+* @param dwFunction - CPUID function id
+* @param dwSubFunction - CPUID sub-function/leaf id
+*/
 extern
 VOID
 __stdcall
 ASM64_Cpuid(
-	IN const UINT32 adwRegs[4],
+	OUT UINT32 adwRegs[4],
 	IN const UINT32 dwFunction,
 	IN const UINT32 dwSubFunction
 );
 
-// __readcr0
+/**
+* Read CR0 value
+* @return CR0 value
+*/
 extern
 UINT64
 __stdcall
@@ -65,7 +81,21 @@ ASM64_ReadCr0(
 	VOID
 );
 
-// __readcr3
+/**
+* Read CR2 value
+* @return CR2 value
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadCr2(
+	VOID
+);
+
+/**
+* Read CR3 value
+* @return CR3 value
+*/
 extern
 UINT64
 __stdcall
@@ -73,7 +103,10 @@ ASM64_ReadCr3(
 	VOID
 );
 
-// __readcr4
+/**
+* Read CR4 value
+* @return CR4 value
+*/
 extern
 UINT64
 __stdcall
@@ -81,7 +114,10 @@ ASM64_ReadCr4(
 	VOID
 );
 
-// __readcr8
+/**
+* Read CR8 value
+* @return CR8 value
+*/
 extern
 UINT64
 __stdcall
@@ -89,7 +125,10 @@ ASM64_ReadCr8(
 	VOID
 );
 
-// __lgdt
+/**
+* Perform LGDT opcode (write to GDTR)
+* @param pqwValue - GDTR value to write
+*/
 extern
 VOID
 __stdcall
@@ -97,7 +136,10 @@ ASM64_Lgdt(
 	IN const PUINT64 pqwValue
 );
 
-// __sgdt
+/**
+* Perform SGDT opcode (read from GDTR)
+* @param pqwValue - GDTR value read
+*/
 extern
 VOID
 __stdcall
@@ -105,7 +147,10 @@ ASM64_Sgdt(
 	IN const PUINT64 pqwValue
 );
 
-// __lidt
+/**
+* Perform LIDT opcode (write to IDTR)
+* @param pqwValue - IDTR value to write
+*/
 extern
 VOID
 __stdcall
@@ -113,12 +158,513 @@ ASM64_Lidt(
 	IN const PUINT64 pqwValue
 );
 
-// __sidt
+/**
+* Perform SIDT opcode (read from IDTR)
+* @param pqwValue - IDTR value read
+*/
 extern
 VOID
 __stdcall
 ASM64_Sidt(
-	IN const PUINT64 pqwValue
+	OUT PUINT64 pqwValue
+);
+
+/**
+* Perform LDTR opcode (write to TR)
+* @param wValue - TR value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_Ldtr(
+	IN const UINT16 wValue
+);
+
+/**
+* Perform SLDT opcode (read from TR)
+* @return TR value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_Sldt(
+	VOID
+);
+
+/**
+* Write to CR0
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteCr0(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to CR2
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteCr2(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to CR3
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteCr3(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to CR4
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteCr4(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to CR8
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteCr8(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to CS selector
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteCS(
+	IN const UINT16 wValue
+);
+
+/**
+* Write to SS selector
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteSS(
+	IN const UINT16 wValue
+);
+
+/**
+* Write to DS selector
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDS(
+	IN const UINT16 wValue
+);
+
+/**
+* Write to ES selector
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteES(
+	IN const UINT16 wValue
+);
+
+/**
+* Write to FS selector
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteFS(
+	IN const UINT16 wValue
+);
+
+/**
+* Write to GS selector
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteGS(
+	IN const UINT16 wValue
+);
+
+/**
+* Read CS selector
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_ReadCS(
+	VOID
+);
+
+/**
+* Read SS selector
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_ReadSS(
+	VOID
+);
+
+/**
+* Read DS selector
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_ReadDS(
+	VOID
+);
+
+/**
+* Read ES selector
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_ReadES(
+	VOID
+);
+
+/**
+* Read FS selector
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_ReadFS(
+	VOID
+);
+
+/**
+* Read GS selector
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_ReadGS(
+	VOID
+);
+
+/**
+* Perform LAR opcode (Load Access Rights Byte)
+* @param wSegementSelector - segment selector value
+* @return Access Rights of given selector
+*/
+extern
+UINT64
+__stdcall
+ASM64_Lar(
+	IN const UINT16 wSegmentSelector
+);
+
+/**
+* Perform INVD opcode (Invalidate Internal Caches)
+*/
+extern
+VOID
+__stdcall
+ASM64_Invd(
+	VOID
+);
+
+//! Vol 3C, 30.2 CONVENTIONS
+typedef enum _VTX_RC
+{
+	VTX_SUCCESS = 0,
+	VTX_FAIL_VALID = 1,
+	VTX_FAIL_INVALID = 2,
+} VTX_RC, *PVTX_RC;
+
+//! Vol 3C, 30.3 VMX INSTRUCTIONS
+// INVEPT types supported by a logical processors are reported in
+// IA32_VMX_EPT_VPID_CAP MSR
+typedef enum _INVEPT_TYPE
+{
+	// Invalidates all mappings associated with bits 51:12 of the EPT pointer(EPTP)
+	// specified in the INVEPT descriptor.It may invalidate other mappings as well
+	INVEPT_TYPE_SINGLE_CONTEXT = 1,
+
+	// Invalidates mappings associated with all EPTPs
+	INVEPT_TYPE_GLOBAL = 2,
+} INVEPT_TYPE, *PINVEPT_TYPE;
+
+//! Vol 3C, Figure 30-1. INVEPT Descriptor
+typedef struct _INVEPT_DESCRIPTOR
+{
+	UINT64 qwEptPointer;	//!< 0-63
+	UINT64 Reserved0;		//!< 64-127
+} INVEPT_DESCRIPTOR, *PINVEPT_DESCRIPTOR;
+
+/**
+* Perform INVEPT opcode (Invalidate Translations Derived from EPT)
+* @param dwInveptType - See INVEPT_TYPE
+* @param dwInveptType - See INVEPT_DESCRIPTOR
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Invept(
+	IN const INVEPT_TYPE eInveptType,
+	IN const PINVEPT_DESCRIPTOR ptInveptDescriptor
+);
+
+typedef enum _INVVPID_TYPE
+{
+	// Invalidates mappings for the linear address and VPID specified in the 
+	// INVVPID descriptor.In some cases, it may invalidate mappings for
+	// other linear addresses (or other VPIDs) as well
+	INVVPID_TYPE_INDIVIDUAL = 0,
+
+	// Invalidates all mappings tagged with the VPID specified in the INVVPID 
+	// descriptor.In some cases, it may invalidate mappings for other VPIDs as
+	// well
+	INVVPID_TYPE_SINGLE_CONTEXT = 1,
+
+	// Invalidates all mappings tagged with all VPIDs except VPID 0000H. 
+	// In some cases, it may invalidate translations with VPID 0000H as well
+	INVVPID_TYPE_ALL_CONTEXTS = 2,
+
+	// Invalidates all mappings tagged with the VPID specified in the INVVPID 
+	// descriptor except global translations.In some cases, it may invalidate
+	// global translations(and mappings with other VPIDs) as well
+	INVVPID_TYPE_GLOBAL = 3,
+} INVVPID_TYPE, *PINVVPID_TYPE;
+
+//! Vol 3C, Figure 30-2. INVVPID Descriptor
+typedef struct _INVVPID_DESCRIPTOR
+{
+	UINT16 wVpid;			//!< 0-15
+	UINT16 Reserved0;		//!< 16-31
+	UINT32 Reserved1;		//!< 32-63
+	UINT64 qwLinearAddress;	//!< 64-127
+} INVVPID_DESCRIPTOR, *PINVVPID_DESCRIPTOR;
+
+/**
+* Perform INVVPID opcode (Invalidate Translations Based on VPID)
+* @param dwInveptType - See INVVPID_TYPE
+* @param dwInveptType - See INVVPID_DESCRIPTOR
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Invvpid(
+	IN const INVVPID_TYPE eInvVpidType,
+	IN const PINVVPID_DESCRIPTOR ptInvVpidDescriptor
+);
+
+/**
+* Perform VMCALL opcode (Call to VM Monitor). This opcode only causes a VM-Exit
+* the parameters, if any, to the "hypercall" are implementation specific
+* @param dwHypercallNumber - RCX will hold hypercall number
+* @param qwContext - RDX will hold a pointer to a context structure
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmcall(
+	IN const UINT32 dwHypercallNumber,
+	IN PVOID ptContext
+);
+
+/**
+* Perform VMCLEAR opcode (Clear VMCS)
+* @param pqwVmcsPhysicalAddress - pointer to VMCS physical address
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmclear(
+	IN const PUINT64 pqwVmcsPhysicalAddress
+);
+
+/**
+* Perform VMFUNC opcode (Invoke VM function). Invoke a VM-function from
+* non-root mode (from guest).
+* @param dwHypercallNumber - number of VM-function
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmfunc(
+	IN const UINT32 dwVmFuncNumber
+);
+
+/**
+* Perform VMLAUNCH opcode
+* @return	On success, this function will not return but "jump" to
+*			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
+*/
+extern
+DECLSPEC_NORETURN
+VTX_RC
+__stdcall
+ASM64_Vmlaunch(
+	VOID
+);
+
+/**
+* Perform VMRESUME opcode
+* @return	On success, this function will not return but "jump" to
+*			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
+*/
+extern
+DECLSPEC_NORETURN
+VTX_RC
+__stdcall
+ASM64_Vmresume(
+	VOID
+);
+
+/**
+* Perform VMPTRLD opcode (Load VMCS current pointer)
+* @param pqwVmcsPhysicalAddress - pointer to VMCS physical address
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmptrld(
+	IN const PUINT64 pqwVmcsPhysicalAddress
+);
+
+/**
+* Perform VMPTRST opcode (Store VMCS current pointer)
+* @param pqwVmcsPhysicalAddress - pointer to VMCS physical address
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmptrst(
+	OUT PUINT64 pqwVmcsPhysicalAddress
+);
+
+/**
+* Perform VMREAD opcode (Read field from current VMCS)
+* @param qwVmcsField - VMCS field encoding
+* @param pqwValue - VMCS field value
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmread(
+	IN const UINT64 qwVmcsField,
+	OUT PUINT64 pqwValue
+);
+
+/**
+* Perform VMWRITE opcode (Write to a field of current VMCS)
+* @param qwVmcsField - VMCS field encoding
+* @param qwValue - VMCS field value
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmwrite(
+	IN const UINT64 qwVmcsField,
+	IN const UINT64 qwValue
+);
+
+/**
+* Perform VMXOFF opcode (Leave VMX Operation)
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmxoff(
+	VOID
+);
+
+/**
+* Perform VMXON opcode (Enter VMX Operation)
+* @param qwVmxonRegionPhysicalAddress - physical address of VMXON region
+* @return See VTX_RC
+*/
+extern
+VTX_RC
+__stdcall
+ASM64_Vmxon(
+	IN const UINT64 qwVmxonRegionPhysicalAddress
+);
+
+/**
+* Save values of all GP registers and segment selectors, and set RIP & RSP to
+* return address of this function.
+* @param ptContext - saved registers structure
+*/
+extern
+VOID
+__stdcall
+ASM64_CaptureContext(
+	OUT PCONTEXT ptContext
+);
+
+/**
+* Restore values of all GP registers, segment selectors, RIP & RSP from context.
+* On success, this function will not return but "jump" to ptContext->Rip
+* @param ptContext - registers to restore
+*/
+extern
+DECLSPEC_NORETURN
+VOID
+__cdecl
+ASM64_RestoreContext(
+	IN const PCONTEXT ptContext
+);
+
+/**
+* Restore values of all GP registers, and perform VMRESUME opcode.
+* On success, this function will not return but "jump" to VMCS_FIELD_GUEST_RIP
+* @param ptContext - registers to restore
+* @return See VTX_RC
+*/
+extern
+DECLSPEC_NORETURN
+VTX_RC
+__cdecl
+ASM64_RestoreContextAndVmresume(
+	IN const PCONTEXT ptContext
 );
 
 #endif /* __INTRINSICS_H__ */

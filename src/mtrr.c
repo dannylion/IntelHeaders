@@ -37,7 +37,7 @@ MTRR_IsMtrrSupported(
 {
 	CPUID_BASIC_FEATURES tCpuidFeatures;
 	ASM64_Cpuid(
-		(const UINT32 *)&tCpuidFeatures,
+		(UINT32 *)&tCpuidFeatures,
 		(UINT32)CPUID_FUNCTION_BASIC_FEATURES,
 		0);
 	return (0 != tCpuidFeatures.Mtrr);
@@ -60,6 +60,9 @@ MTRR_GetSmmRange(
 	UINT64 qwRangeStart = 0;
 	UINT64 qwRangeEnd = 0;
 	UINT64 qwMaxPhyAddr = MAXPHYADDR;
+
+	tSmrrPhysBase.qwValue = 0;
+	tSmrrPhysMask.qwValue = 0;
 
 	if (	(NULL == pqwSmmRangeStart)
 		||	(NULL == pqwSmmRangeEnd)
@@ -110,11 +113,11 @@ mtrr_GetMemTypeFromFixed(
 		return FALSE;
 	}
 
-	if (	(0 <= qwPhysicalAddress)
-		&&	(0x7FFFF >= qwPhysicalAddress))
+	if (0x7FFFF >= qwPhysicalAddress)
 	{
 		IA32_MTRR_FIX64K tFix64k;
-		tFix64k.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_FIX64K_00000);
+		tFix64k.qwValue = ASM64_Rdmsr(
+			MSR_CODE_IA32_MTRR_FIX64K_00000);
 		*peMemType = tFix64k.acRanges[qwPhysicalAddress / 0x10000];
 		return TRUE;
 	}
@@ -123,7 +126,8 @@ mtrr_GetMemTypeFromFixed(
 		&&	(0xBFFFF >= qwPhysicalAddress))
 	{
 		IA32_MTRR_FIX16K tFix16k;
-		tFix16k.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_FIX16K_80000 + (qwPhysicalAddress / 0x20000));
+		tFix16k.qwValue = ASM64_Rdmsr(
+			MSR_CODE_IA32_MTRR_FIX16K_80000 + (UINT32)(qwPhysicalAddress / 0x20000));
 		*peMemType = tFix16k.acRanges[qwPhysicalAddress / 0x4000];
 		return TRUE;
 	}
@@ -132,10 +136,14 @@ mtrr_GetMemTypeFromFixed(
 		&&	(0xFFFFF >= qwPhysicalAddress))
 	{
 		IA32_MTRR_FIX4K tFix4k;
-		tFix4k.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_FIX4K_C0000 + (qwPhysicalAddress / 0x8000));
+		tFix4k.qwValue = ASM64_Rdmsr(
+			MSR_CODE_IA32_MTRR_FIX4K_C0000 + (UINT32)(qwPhysicalAddress / 0x8000));
 		*peMemType = tFix4k.acRanges[qwPhysicalAddress / 0x1000];
 		return TRUE;
 	}
+
+	// Should never reach here
+	return FALSE;
 }
 
 //! Vol 3A, 11.11.2.3 Variable Range MTRRs
@@ -195,7 +203,7 @@ MTRR_GetMemTypeForPhysicalAddress(
 )
 {
 	BOOLEAN bSuccess = FALSE;
-	MTRR_MEMTYPE eMemType;
+	MTRR_MEMTYPE eMemType = MTRR_MEMTYPE_INVALID;
 	IA32_MTRRCAP tMtrrCap;
 	IA32_MTRR_DEF_TYPE tMtrrDefType;
 	UINT64 qwMaxPhyAddr = MAXPHYADDR;

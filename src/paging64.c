@@ -40,9 +40,9 @@ PAGING64_IsIa32ePagingEnabled(
 )
 {
 	BOOLEAN bPaging64 = FALSE;
-	CR0_REG tCr0 = { 0 };
-	CR4_REG tCr4 = { 0 };
-	IA32_EFER tEfer = { 0 };
+	CR0_REG tCr0;
+	CR4_REG tCr4;
+	IA32_EFER tEfer;
 
 	tCr0.dwValue = (UINT32)ASM64_ReadCr0();
 	tCr4.dwValue = (UINT32)ASM64_ReadCr4();
@@ -59,7 +59,7 @@ paging64_IsPatSupported(
 {
 	CPUID_BASIC_FEATURES tCpuidFeatures;
 	ASM64_Cpuid(
-		(const UINT32 *)&tCpuidFeatures,
+		(UINT32 *)&tCpuidFeatures,
 		(UINT32)CPUID_FUNCTION_BASIC_FEATURES,
 		0);
 	return (0 != tCpuidFeatures.Pat);

@@ -33,10 +33,10 @@
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="include\VT-x.h" />
     <ClInclude Include="include\VT-d.h" />
-    <ClInclude Include="src\mtrr.c" />
     <ClInclude Include="src\paging64_internal.h" />
   </ItemGroup>
   <ItemGroup>
+	<ClCompile Include="src\mtrr.c" />
     <ClCompile Include="src\apic.c" />
     <ClCompile Include="src\cpuid.c" />
     <ClCompile Include="src\paging64.c" />

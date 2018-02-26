@@ -38,7 +38,7 @@ CPUID_GetMaxPhyAddrBits(
 	CPUID_EX_MAXADDR tCpuidMaxAddrInfo;
 	
 	ASM64_Cpuid(
-		(const UINT32 *)&tCpuidExMaxFunc,
+		(UINT32 *)&tCpuidExMaxFunc,
 		(UINT32)CPUID_FUNCTION_EX_MAXFUNC,
 		0);
 
@@ -48,14 +48,14 @@ CPUID_GetMaxPhyAddrBits(
 		// 4.1.4 Enumeration of Paging Features by CPUID
 		// Default MAXPHYADDR with PAE is 36, and without is 32
 		ASM64_Cpuid(
-			(const UINT32 *)&tCpuidBasicFeatures,
+			(UINT32 *)&tCpuidBasicFeatures,
 			(UINT32)CPUID_FUNCTION_BASIC_FEATURES,
 			0);
 		return ((tCpuidBasicFeatures.Pae) ? 36 : 32);
 	}
 
 	ASM64_Cpuid(
-		(const UINT32 *)&tCpuidMaxAddrInfo,
+		(UINT32 *)&tCpuidMaxAddrInfo,
 		(UINT32)CPUID_FUNCTION_EX_MAXADDR,
 		0);
 	return (UINT8)tCpuidMaxAddrInfo.MaxPhysAddr;
