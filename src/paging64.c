@@ -26,13 +26,13 @@
 *			See Intel's: Software Developers Manual Vol 3A, Section 4.5 IA-32E PAGING
 */
 
-#include "paging64.h"
-#include "paging64_internal.h"
-#include "utils.h"
 #include "ntdatatypes.h"
+#include "utils.h"
+#include "intrinsics64.h"
 #include "cpuid.h"
 #include "mtrr.h"
-#include "intrinsics64.h"
+#include "paging64.h"
+#include "paging64_internal.h"
 
 BOOLEAN
 PAGING64_IsIa32ePagingEnabled(

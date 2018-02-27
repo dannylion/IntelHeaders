@@ -22,7 +22,7 @@
 * SOFTWARE.
 *
 * @file		intrinsics.h
-* @section	Define functions that are written in assembly that perform specific opcodes
+* @section	Define functions that perform specific opcodes in assembly
 */
 
 #ifndef __INTRINSICS_H__
@@ -376,6 +376,138 @@ UINT16
 __stdcall
 ASM64_ReadGS(
 	VOID
+);
+
+/**
+* Read DR0 value
+* @return value read
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadDr0(
+	VOID
+);
+
+/**
+* Read DR1 value
+* @return value read
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadDr1(
+	VOID
+);
+
+/**
+* Read DR2 value
+* @return value read
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadDr2(
+	VOID
+);
+
+/**
+* Read DR3 value
+* @return value read
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadDr3(
+	VOID
+);
+
+/**
+* Read DR6 value
+* @return value read
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadDr6(
+	VOID
+);
+
+/**
+* Read DR7 value
+* @return value read
+*/
+extern
+UINT64
+__stdcall
+ASM64_ReadDr7(
+	VOID
+);
+
+/**
+* Write to DR0
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDr0(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to DR1
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDr1(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to DR2
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDr2(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to DR3
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDr3(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to DR6
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDr6(
+	IN const UINT64 qwValue
+);
+
+/**
+* Write to DR7
+* @param qwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteDr7(
+	IN const UINT64 qwValue
 );
 
 /**

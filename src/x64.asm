@@ -22,7 +22,7 @@
 ; SOFTWARE.
 ;
 ; @file		x64.asm
-; @section	Define functions that are that perform specific opcodes
+; @section	Define functions that perform specific opcodes in assembly
 ;--
 
 .CODE
@@ -374,6 +374,126 @@ ASM64_ReadGS PROC
 	mov ax, gs
 	ret
 ASM64_ReadGS ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadDr0(
+; 	VOID
+; );
+ASM64_ReadDr0 PROC
+	mov rax, dr0
+	ret
+ASM64_ReadDr0 ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadDr1(
+; 	VOID
+; );
+ASM64_ReadDr1 PROC
+	mov rax, dr1
+	ret
+ASM64_ReadDr1 ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadDr2(
+; 	VOID
+; );
+ASM64_ReadDr2 PROC
+	mov rax, dr2
+	ret
+ASM64_ReadDr2 ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadDr3(
+; 	VOID
+; );
+ASM64_ReadDr3 PROC
+	mov rax, dr3
+	ret
+ASM64_ReadDr3 ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadDr6(
+; 	VOID
+; );
+ASM64_ReadDr6 PROC
+	mov rax, dr0
+	ret
+ASM64_ReadDr6 ENDP
+
+; UINT64
+; __stdcall
+; ASM64_ReadDr7(
+; 	VOID
+; );
+ASM64_ReadDr7 PROC
+	mov rax, dr7
+	ret
+ASM64_ReadDr7 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDr0(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteDr0 PROC
+	mov dr0, rcx
+	ret
+ASM64_WriteDr0 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDr1(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteDr1 PROC
+	mov dr1, rcx
+	ret
+ASM64_WriteDr1 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDr2(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteDr2 PROC
+	mov dr2, rcx
+	ret
+ASM64_WriteDr2 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDr3(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteDr3 PROC
+	mov dr3, rcx
+	ret
+ASM64_WriteDr3 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDr6(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteDr6 PROC
+	mov dr6, rcx
+	ret
+ASM64_WriteDr6 ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteDr7(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteDr7 PROC
+	mov dr7, rcx
+	ret
+ASM64_WriteDr7 ENDP
 
 ; UINT64
 ; __stdcall

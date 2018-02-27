@@ -25,8 +25,11 @@
 * @section	CPUID structures and functions (https://en.wikipedia.org/wiki/CPUID)
 */
 
-#include "cpuid.h"
+#include "ntdatatypes.h"
+#include "utils.h"
 #include "intrinsics64.h"
+#include "msr64.h"
+#include "cpuid.h"
 
 UINT8
 CPUID_GetMaxPhyAddrBits(

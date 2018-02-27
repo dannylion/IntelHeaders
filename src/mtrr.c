@@ -25,9 +25,11 @@
 * @section	11.11 MEMORY TYPE RANGE REGISTERS (MTRRS)
 */
 
+#include "ntdatatypes.h"
+#include "utils.h"
+#include "intrinsics64.h"
 #include "mtrr.h"
 #include "cpuid.h"
-#include "intrinsics64.h"
 
 //! Vol 3A, 11.11.1 MTRR Feature Identification
 BOOLEAN

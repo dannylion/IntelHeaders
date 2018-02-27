@@ -25,9 +25,11 @@
 * @section	Advanced Programmable Interrupt Controller (APIC) 
 */
 
-#include "apic.h"
-#include "msr64.h"
+#include "ntdatatypes.h"
+#include "utils.h"
 #include "intrinsics64.h"
+#include "msr64.h"
+#include "apic.h"
 
 typedef VOID(*APIC_callback_t)(VOID * pvContext);
 

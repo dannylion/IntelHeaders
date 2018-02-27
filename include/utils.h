@@ -30,13 +30,35 @@
 
 #include "ntdatatypes.h"
 
+// HACK: Define intrinsic functions that visual studio might add implicitly
+// to our code. These functions normally reside in standard libraries, 
+// such as LIBC, but since we removed all standard libraries from our code, 
+// these intrinsic functions, will cause: "LNK2001 unresolved external symbol"
+// Unless we define them ourselves with "pragma function"...
+void*
+__cdecl
+memcpy(
+	void* pvDst,
+	void const* pvSrc,
+	size_t cbSize
+);
+
+void *
+__cdecl
+memset(
+	void*  pvDst,
+	int    cValue,
+	size_t cbSize
+);
+
 /**
 * Copy an amount of bytes from the source buffer to the destination buffer
 * @param pvDst - destination buffer
 * @param pvSrc - source buffer
 * @param cbSize - amount of bytes to copy
+* @return TRUE on success, else FALSE
 */
-VOID
+BOOLEAN
 MemCopy(
 	OUT PVOID pvDst,
 	IN const PVOID pvSrc,
@@ -48,8 +70,9 @@ MemCopy(
 * @param pvDst - destination buffer
 * @param cChar - character to write
 * @param cbSize - amount of bytes to set
+* @return TRUE on success, else FALSE
 */
-VOID
+BOOLEAN
 MemFill(
 	OUT PVOID pvDst,
 	IN const char cChar,
@@ -60,8 +83,9 @@ MemFill(
 * Zero an amount of bytes in the destination buffer
 * @param pvDst - destination buffer
 * @param cbSize - amount of bytes to set
+* @return TRUE on success, else FALSE
 */
-VOID
+BOOLEAN
 MemZero(
 	OUT PVOID pvDst,
 	IN const UINT64 cbSize

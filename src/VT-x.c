@@ -25,8 +25,10 @@
 * @section	Intel VT-x structures, constants and utility functions and macros
 */
 
-#include "VT-x.h"
+#include "ntdatatypes.h"
+#include "utils.h"
 #include "intrinsics64.h"
+#include "VT-x.h"
 
 // Use X-Macros to define the VM instruction error messages array
 static LPCSTR g_VmInstructionErrorMessages[VM_INSTRUCTION_ERROR_MAX] = {

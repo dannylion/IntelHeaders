@@ -168,6 +168,8 @@ typedef signed int LONG32, *PLONG32;
 typedef unsigned int ULONG32, *PULONG32;
 typedef unsigned int DWORD32, *PDWORD32;
 
+typedef unsigned __int64 size_t;
+
 typedef __int64 INT_PTR, *PINT_PTR;
 typedef unsigned __int64 UINT_PTR, *PUINT_PTR;
 

@@ -51,9 +51,6 @@
     <ClInclude Include="include\cpuid.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\mtrr.c">
-      <Filter>Source Files</Filter>
-    </ClInclude>
     <ClInclude Include="src\paging64_internal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -61,6 +58,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\intrinsics64.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\dr64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -78,6 +78,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="src\utils.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\mtrr.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\dr64.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
