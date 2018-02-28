@@ -132,8 +132,8 @@ DR_AddBreakpoint(
 	CR4_REG tCr4;
 
 	if (	(NULL == pvAddress)
-		||	(DR_CONDITION_COUNT >= eCondition)
-		||	(DR_SIZE_COUNT >= eSize)
+		||	(DR_CONDITION_COUNT <= eCondition)
+		||	(DR_SIZE_COUNT <= eSize)
 		||	(	(DR_CONDITION_EXECUTE == eCondition)
 			&&	(DR_SIZE_1 != eSize)))
 	{

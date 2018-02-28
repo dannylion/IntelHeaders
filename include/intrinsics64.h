@@ -523,6 +523,81 @@ ASM64_Lar(
 );
 
 /**
+* Read byte from IO port
+* @param wIoPort - IO port number
+* @return value read
+*/
+extern
+UINT8
+__stdcall
+ASM64_IoReadByte(
+	IN const UINT16 wIoPort
+);
+
+/**
+* Read word from IO port
+* @param wIoPort - IO port number
+* @return value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_IoReadWord(
+	IN const UINT16 wIoPort
+);
+
+/**
+* Read double-word from IO port
+* @param wIoPort - IO port number
+* @return value read
+*/
+extern
+UINT32
+__stdcall
+ASM64_IoReadDword(
+	IN const UINT16 wIoPort
+);
+
+/**
+* Write byte to IO port
+* @param wIoPort - IO port number
+* @param cValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_IoWriteByte(
+	IN const UINT8 cValue,
+	IN const UINT16 wIoPort
+);
+
+/**
+* Write word to IO port
+* @param wIoPort - IO port number
+* @param wValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_IoWriteWord(
+	IN const UINT16 wValue,
+	IN const UINT16 wIoPort
+);
+
+/**
+* Write double-word to IO port
+* @param wIoPort - IO port number
+* @param dwValue - value to write
+*/
+extern
+VOID
+__stdcall
+ASM64_IoWriteDword(
+	IN const UINT32 dwValue,
+	IN const UINT16 wIoPort
+);
+
+/**
 * Perform INVD opcode (Invalidate Internal Caches)
 */
 extern

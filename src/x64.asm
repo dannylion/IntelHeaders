@@ -505,6 +505,87 @@ ASM64_Lar PROC
 	ret
 ASM64_Lar ENDP
 
+; UINT8
+; __stdcall
+; ASM64_IoReadByte(
+; 	IN const UINT16 wIoPort
+; );
+ASM64_IoReadByte PROC
+	push rdx
+	mov dx, cx
+	in al, dx
+	pop rdx
+	ret
+ASM64_IoReadByte ENDP
+
+; UINT16
+; __stdcall
+; ASM64_IoReadWord(
+; 	IN const UINT16 wIoPort
+; );
+ASM64_IoReadWord PROC
+	push rdx
+	mov dx, cx
+	in ax, dx
+	pop rdx
+	ret
+ASM64_IoReadWord ENDP
+
+; UINT32
+; __stdcall
+; ASM64_IoReadDword(
+; 	IN const UINT16 wIoPort
+; );
+ASM64_IoReadDword PROC
+	push rdx
+	mov dx, cx
+	in eax, dx
+	pop rdx
+	ret
+ASM64_IoReadDword ENDP
+
+; VOID
+; __stdcall
+; ASM64_IoWriteByte(
+; 	IN const UINT8 cValue,
+; 	IN const UINT16 wIoPort
+; );
+ASM64_IoWriteByte PROC
+	push rax
+	mov rax, rcx
+	out dx, al
+	pop rax
+	ret
+ASM64_IoWriteByte ENDP
+
+; VOID
+; __stdcall
+; ASM64_IoWriteWord(
+; 	IN const UINT16 wValue,
+; 	IN const UINT16 wIoPort
+; );
+ASM64_IoWriteWord PROC
+	push rax
+	mov rax, rcx
+	out dx, ax
+	pop rax
+	ret
+ASM64_IoWriteWord ENDP
+
+; VOID
+; __stdcall
+; ASM64_IoWriteDword(
+; 	IN const UINT32 dwValue,
+; 	IN const UINT16 wIoPort
+; );
+ASM64_IoWriteDword PROC
+	push rax
+	mov rax, rcx
+	out dx, eax
+	pop rax
+	ret
+ASM64_IoWriteDword ENDP
+
 ; VOID
 ; __stdcall
 ; ASM64_Invd(
