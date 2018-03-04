@@ -87,25 +87,25 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
     <ClCompile>
-	  <WholeProgramOptimization>true</WholeProgramOptimization>
-	  <Optimization>MinSpace</Optimization>
-	  <IntrinsicFunctions>true</IntrinsicFunctions>
-	  <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-	</ClCompile>
-	<Lib>
-	  <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
-	</Lib>
+      <WholeProgramOptimization>true</WholeProgramOptimization>
+      <Optimization>MinSpace</Optimization>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+    </ClCompile>
+    <Lib>
+      <GenerateDebugInformation>DebugFastLink</GenerateDebugInformation>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
     <ClCompile>
-	  <WholeProgramOptimization>false</WholeProgramOptimization>
-	  <Optimization>Disabled</Optimization>
-	  <IntrinsicFunctions>false</IntrinsicFunctions>
-	  <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
-	</ClCompile>
-	<Lib>
-	  <GenerateDebugInformation>Debug</GenerateDebugInformation>
-	</Lib>
+      <WholeProgramOptimization>false</WholeProgramOptimization>
+      <Optimization>Disabled</Optimization>
+      <IntrinsicFunctions>false</IntrinsicFunctions>
+      <InlineFunctionExpansion>Disabled</InlineFunctionExpansion>
+    </ClCompile>
+    <Lib>
+      <GenerateDebugInformation>Debug</GenerateDebugInformation>
+    </Lib>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

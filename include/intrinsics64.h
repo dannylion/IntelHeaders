@@ -125,6 +125,28 @@ ASM64_ReadCr8(
 	VOID
 );
 
+/*
+ * Read RFLAGS register
+ * @return RFLAGS value
+ */
+extern
+UINT64
+__stdcall
+ASM64_ReadRflags(
+	VOID
+);
+
+/*
+* Write RFLAGS register
+* @param qwValue - RFLAGS value
+*/
+extern
+VOID
+__stdcall
+ASM64_WriteRflags(
+	IN const UINT64 qwValue
+);
+
 /**
 * Perform LGDT opcode (write to GDTR)
 * @param pqwValue - GDTR value to write
@@ -144,7 +166,7 @@ extern
 VOID
 __stdcall
 ASM64_Sgdt(
-	IN const PUINT64 pqwValue
+	OUT PUINT64 pqwValue
 );
 
 /**
@@ -170,24 +192,46 @@ ASM64_Sidt(
 );
 
 /**
-* Perform LDTR opcode (write to TR)
-* @param wValue - TR value to write
+* Perform LLDT opcode (write LDTR)
+* @param pwValue - LDTR value to write
 */
 extern
 VOID
 __stdcall
-ASM64_Ldtr(
-	IN const UINT16 wValue
+ASM64_Lldt(
+	IN const PUINT16 pwValue
 );
 
 /**
-* Perform SLDT opcode (read from TR)
-* @return TR value read
+* Perform SLDT opcode (read LDTR)
+* @return LDTR value read
 */
 extern
 UINT16
 __stdcall
 ASM64_Sldt(
+	VOID
+);
+
+/**
+* Perform LTR opcode (write TR)
+* @param wValue - TR value to write
+*/
+extern
+UINT16
+__stdcall
+ASM64_Ltr(
+	IN const UINT16 wValue
+);
+
+/**
+* Perform STR opcode (read TR)
+* @return TR value read
+*/
+extern
+UINT16
+__stdcall
+ASM64_Str(
 	VOID
 );
 
@@ -376,6 +420,20 @@ UINT16
 __stdcall
 ASM64_ReadGS(
 	VOID
+);
+
+/**
+* Perform LSL opcode (Load Segment Limit)
+* @param wSegmentSelector - segment selector value
+* @param pdwSegmentLimit - Segment limit
+* @return TRUE on success, else FALSE
+*/
+extern
+BOOLEAN
+__stdcall
+ASM64_ReadSegmentLimit(
+	IN const UINT16 wSegmentSelector,
+	OUT PUINT32 pdwSegmentLimit
 );
 
 /**
@@ -740,7 +798,7 @@ ASM64_Vmfunc(
 *			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
 */
 extern
-DECLSPEC_NORETURN
+// DECLSPEC_NORETURN
 VTX_RC
 __stdcall
 ASM64_Vmlaunch(
@@ -753,7 +811,7 @@ ASM64_Vmlaunch(
 *			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
 */
 extern
-DECLSPEC_NORETURN
+// DECLSPEC_NORETURN
 VTX_RC
 __stdcall
 ASM64_Vmresume(
@@ -787,7 +845,7 @@ ASM64_Vmptrst(
 /**
 * Perform VMREAD opcode (Read field from current VMCS)
 * @param qwVmcsField - VMCS field encoding
-* @param pqwValue - VMCS field value
+* @param pulValue - VMCS field value
 * @return See VTX_RC
 */
 extern
@@ -795,13 +853,66 @@ VTX_RC
 __stdcall
 ASM64_Vmread(
 	IN const UINT64 qwVmcsField,
-	OUT PUINT64 pqwValue
+	OUT PULONG_PTR pulValue
 );
+
+__forceinline
+VTX_RC
+__stdcall
+ASM64_Vmread16(
+	IN const UINT64 qwVmcsField,
+	OUT PUINT16 pwValue
+)
+{
+	VTX_RC eRc = VTX_FAIL_INVALID;
+	UINT64 qwValue = 0;
+
+	if (NULL == pwValue)
+	{
+		return eRc;
+	}
+
+	eRc = ASM64_Vmread(qwVmcsField, &qwValue);
+	*pwValue = (UINT16)qwValue;
+	return eRc;
+}
+
+__forceinline
+VTX_RC
+__stdcall
+ASM64_Vmread32(
+	IN const UINT64 qwVmcsField,
+	OUT PUINT32 pdwValue
+)
+{
+	VTX_RC eRc = VTX_FAIL_INVALID;
+	UINT64 qwValue = 0;
+
+	if (NULL == pdwValue)
+	{
+		return eRc;
+	}
+
+	eRc = ASM64_Vmread(qwVmcsField, &qwValue);
+	*pdwValue = (UINT32)qwValue;
+	return eRc;
+}
+
+__forceinline
+VTX_RC
+__stdcall
+ASM64_Vmread64(
+	IN const UINT64 qwVmcsField,
+	OUT PUINT64 pqwValue
+)
+{
+	return ASM64_Vmread(qwVmcsField, (PULONG_PTR)pqwValue);
+}
 
 /**
 * Perform VMWRITE opcode (Write to a field of current VMCS)
 * @param qwVmcsField - VMCS field encoding
-* @param qwValue - VMCS field value
+* @param ulValue - VMCS field value
 * @return See VTX_RC
 */
 extern
@@ -809,8 +920,41 @@ VTX_RC
 __stdcall
 ASM64_Vmwrite(
 	IN const UINT64 qwVmcsField,
-	IN const UINT64 qwValue
+	IN const ULONG_PTR ulValue
 );
+
+__forceinline
+VTX_RC
+__stdcall
+ASM64_Vmwrite16(
+	IN const UINT64 qwVmcsField,
+	IN const UINT16 wValue
+)
+{
+	return ASM64_Vmwrite(qwVmcsField, (ULONG_PTR)wValue);
+}
+
+__forceinline
+VTX_RC
+__stdcall
+ASM64_Vmwrite32(
+	IN const UINT64 qwVmcsField,
+	IN const UINT32 dwValue
+)
+{
+	return ASM64_Vmwrite(qwVmcsField, (ULONG_PTR)dwValue);
+}
+
+__forceinline
+VTX_RC
+__stdcall
+ASM64_Vmwrite64(
+	IN const UINT64 qwVmcsField,
+	IN const UINT64 qwValue
+)
+{
+	return ASM64_Vmwrite(qwVmcsField, (ULONG_PTR)qwValue);
+}
 
 /**
 * Perform VMXOFF opcode (Leave VMX Operation)
@@ -825,14 +969,14 @@ ASM64_Vmxoff(
 
 /**
 * Perform VMXON opcode (Enter VMX Operation)
-* @param qwVmxonRegionPhysicalAddress - physical address of VMXON region
+* @param pqwVmxonRegionPhysicalAddress - physical address of VMXON region
 * @return See VTX_RC
 */
 extern
 VTX_RC
 __stdcall
 ASM64_Vmxon(
-	IN const UINT64 qwVmxonRegionPhysicalAddress
+	IN const PUINT64 pqwVmxonRegionPhysicalAddress
 );
 
 /**
@@ -853,7 +997,7 @@ ASM64_CaptureContext(
 * @param ptContext - registers to restore
 */
 extern
-DECLSPEC_NORETURN
+// DECLSPEC_NORETURN
 VOID
 __cdecl
 ASM64_RestoreContext(
@@ -867,7 +1011,7 @@ ASM64_RestoreContext(
 * @return See VTX_RC
 */
 extern
-DECLSPEC_NORETURN
+// DECLSPEC_NORETURN
 VTX_RC
 __cdecl
 ASM64_RestoreContextAndVmresume(

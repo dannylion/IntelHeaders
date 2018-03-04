@@ -145,6 +145,29 @@ ASM64_ReadCr8 PROC
 	ret
 ASM64_ReadCr8 ENDP
 
+; UINT64
+; __stdcall
+; ASM64_ReadRflags(
+; 	VOID
+; );
+ASM64_ReadRflags PROC
+	pushfq
+	mov rax, [rsp]
+	popfq
+	ret
+ASM64_ReadRflags ENDP
+
+; VOID
+; __stdcall
+; ASM64_WriteRflags(
+; 	IN const UINT64 qwValue
+; );
+ASM64_WriteRflags PROC
+	push rcx
+	popfq
+	ret
+ASM64_WriteRflags ENDP
+
 ; VOID
 ; __stdcall
 ; ASM64_Lgdt(
@@ -187,13 +210,13 @@ ASM64_Sidt ENDP
 
 ; VOID
 ; __stdcall
-; ASM64_Ldtr(
-; 	IN const UINT16 wValue
+; ASM64_Lldt(
+; 	IN const PUINT16 pwValue
 ; );
-ASM64_Ldtr PROC
-	ltr cx
+ASM64_Lldt PROC
+	lldt word ptr [rcx]
 	ret
-ASM64_Ldtr ENDP
+ASM64_Lldt ENDP
 
 ; UINT16
 ; __stdcall
@@ -204,6 +227,26 @@ ASM64_Sldt PROC
 	sldt ax
 	ret
 ASM64_Sldt ENDP
+
+; UINT16
+; __stdcall
+; ASM64_Ltr(
+; 	IN const UINT16 wValue
+; );
+ASM64_Ltr PROC
+	ltr cx
+	ret
+ASM64_Ltr ENDP
+
+; UINT16
+; __stdcall
+; ASM64_Str(
+; 	VOID
+; );
+ASM64_Str PROC
+	str ax
+	ret
+ASM64_Str ENDP
 
 ; VOID
 ; __stdcall
@@ -374,6 +417,26 @@ ASM64_ReadGS PROC
 	mov ax, gs
 	ret
 ASM64_ReadGS ENDP
+
+; BOOLEAN
+; __stdcall
+; ASM64_ReadSegmentLimit(
+; 	IN const UINT16 wSegmentSelector,
+; 	OUT PUINT32 pdwSegmentLimit
+; );
+ASM64_ReadSegmentLimit PROC
+	push rbx
+	lsl ebx, ecx
+	jnz l_success
+	xor rax, rax
+	pop rbx
+	ret
+l_success:
+	mov dword ptr [rdx], ebx
+	mov rax, 1
+	pop rbx
+	ret
+ASM64_ReadSegmentLimit ENDP
 
 ; UINT64
 ; __stdcall
@@ -863,7 +926,7 @@ ASM64_Vmxoff ENDP
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmxon(
-; 	IN const UINT64 qwVmxonRegionPhysicalAddress
+; 	IN const PUINT64 pqwVmxonRegionPhysicalAddress
 ; );
 ASM64_Vmxon PROC
 	vmxon qword ptr [rcx]
