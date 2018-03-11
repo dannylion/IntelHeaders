@@ -273,24 +273,24 @@ typedef enum _PAGE_TYPE64
 	PAGE_TYPE_4KB
 } PAGE_TYPE64, *PPAGE_TYPE64;
 
-// Page table (sizeof(PAGE_TABLE64) is about ~2MB)
+// Page table is about 2MB in size
 typedef struct _PAGE_TABLE64
 {
 	DECLSPEC_ALIGN(PAGE_SIZE) PML4E64 atPml4[PAGING64_PML4E_COUNT];
 	DECLSPEC_ALIGN(PAGE_SIZE) PDPTE64 atPdpt[PAGING64_PDPTE_COUNT];
-	DECLSPEC_ALIGN(PAGE_SIZE) PDE64 atPde[PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
-	UINT64 qwPhysicalAddress;
+	DECLSPEC_ALIGN(PAGE_SIZE) PDE64 atPd[PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
 } PAGE_TABLE64, *PPAGE_TABLE64;
+C_ASSERT(2105344 == sizeof(PAGE_TABLE64));
 
 // Everything we need to access a page table
 typedef struct _PAGE_TABLE64_HANDLE
 {
 	UINT64 qwPml4PhysicalAddress;
-	PML4E64 (*patPml4)[PAGING64_PML4E_COUNT];
+	PPML4E64 patPml4;
 	UINT64 qwPdptPhysicalAddress;
-	PDPTE64 (*patPdpt)[PAGING64_PDPTE_COUNT];
-	UINT64 qwPdePhysicalAddress;
-	PDE64 (*patPde)[PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
+	PPDPTE64 patPdpt;
+	UINT64 qwPdPhysicalAddress;
+	PPDE64 patPd;
 	BOOL bNxBitSupported;
 	BOOL bMtrrSupported;
 	BOOL bPatSupported;
@@ -348,7 +348,7 @@ PAGING64_InitPageTable(
 * @param phPageTable - Page Table handle to initialize
 * @param pfnPhysicalToVirtual - convert a physical address to virtual address
 * @param qwPml4PhysicalAddress - physical address of PML4 array
-* @param ptLog - log handle, can be NULL
+* @param ptLog - log handle
 * @return TRUE on success, else FALSE
 */
 BOOLEAN

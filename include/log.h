@@ -53,11 +53,11 @@ BOOLEAN
 // NOTE: When adding your own log priorities, don't use the below values
 typedef enum _LOG_PRIORITY
 {
-	LOG_ERROR = 1 << 0,
-	LOG_WARN = 1 << 1,
-	LOG_INFO = 1 << 2,
-	LOG_DEBUG = 1 << 3,
-	LOG_TRACE = 1 << 4,
+	LOG_PRIORITY_ERROR = 1 << 0,
+	LOG_PRIORITY_WARN = 1 << 1,
+	LOG_PRIORITY_INFO = 1 << 2,
+	LOG_PRIORITY_DEBUG = 1 << 3,
+	LOG_PRIORITY_TRACE = 1 << 4,
 	LOG_PRIORITY_ALL = UINT32_MAX // See all messages
 } LOG_PRIORITY, *PLOG_PRIORITY;
 
@@ -145,8 +145,9 @@ LOG_Write(
 // Define __INTEL_HEADERS_DISABLE_LOG__ to remove log writes done with LOG_WRITE
 // macro from the code
 #ifndef __INTEL_HEADERS_DISABLE_LOG__
+
 /**
-* Write a message to log and add a filename+line prefix and a "\r\n" suffix to it
+* Write a message to log (with no prefix or suffix)
 * @param ptLog - log handle structure pointer. MUST NOT BE NULL
 * @param eModule - log message originating module
 * @param ePriority - log message priority
@@ -159,13 +160,35 @@ LOG_Write(
 		{ \
 			break; \
 		} \
-		\
-		(VOID)LOG_Write((ptLog), "%s:%d ", __FILE__, __LINE__); \
 		(VOID)LOG_Write((ptLog), (pszFmt), __VA_ARGS__); \
-		(VOID)LOG_Write((ptLog), "\r\n"); \
 	} while(FALSE);
 #else
-#define LOG_WRITE(ptLog, pszFmt, ...)
+#define LOG_WRITE(ptLog, eModule, ePriority, pszFmt, ...)
 #endif
+
+// Warning: don't use this macro directly
+#define __LOG_PREFIX_BY_PRIORITY(ptLog, eModule, PriorityName, pszFmt, ...) \
+	do { \
+		LOG_WRITE((ptLog), (eModule), LOG_PRIORITY_##PriorityName, "(%s:%d) ["#PriorityName"] ", __FILE__, __LINE__); \
+		LOG_WRITE((ptLog), (eModule), LOG_PRIORITY_##PriorityName, (pszFmt), __VA_ARGS__); \
+		LOG_WRITE((ptLog), (eModule), LOG_PRIORITY_##PriorityName, "\r\n"); \
+	} while(FALSE);
+
+/**
+* Write a message to log and add a "(file:line) [priority] " prefix and a "\r\n" suffix to it
+* @param ptLog - log handle structure pointer. MUST NOT BE NULL
+* @param eModule - log message originating module
+* @param pszFmt - message format string
+*/
+#define LOG_ERROR(ptLog, eModule, pszFmt, ...) \
+	__LOG_PREFIX_BY_PRIORITY((ptLog), (eModule), ERROR, (pszFmt), __VA_ARGS__)
+#define LOG_WARN(ptLog, eModule, pszFmt, ...) \
+	__LOG_PREFIX_BY_PRIORITY((ptLog), (eModule), WARN, (pszFmt), __VA_ARGS__)
+#define LOG_INFO(ptLog, eModule, pszFmt, ...) \
+	__LOG_PREFIX_BY_PRIORITY((ptLog), (eModule), INFO, (pszFmt), __VA_ARGS__)
+#define LOG_DEBUG(ptLog, eModule, pszFmt, ...) \
+	__LOG_PREFIX_BY_PRIORITY((ptLog), (eModule), DEBUG, (pszFmt), __VA_ARGS__)
+#define LOG_TRACE(ptLog, eModule, pszFmt, ...) \
+	__LOG_PREFIX_BY_PRIORITY((ptLog), (eModule), TRACE, (pszFmt), __VA_ARGS__)
 
 #endif /* __INTEL_DEBUG_LOG_H__ */

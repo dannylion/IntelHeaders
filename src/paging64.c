@@ -88,11 +88,11 @@ PAGING64_OpenPageTableHandle(
 	BOOLEAN bSuccess = FALSE;
 	UINT64 qwPml4VirtualAddress = 0;
 	UINT64 qwPdptVirtualAddress = 0;
-	UINT64 qwPdeVirtualAddress = 0;
+	UINT64 qwPdVirtualAddress = 0;
 	UINT64 qwPdptPhysicalAddress = 0;
-	UINT64 qwPdePhysicalAddress = 0;
+	UINT64 qwPdPhysicalAddress = 0;
 	UINT64 qwPdtOffset = (sizeof(PML4E64) * PAGING64_PML4E_COUNT);
-	UINT64 qwPdeffset = (
+	UINT64 qwPdOffset = (
 			(sizeof(PML4E64) * PAGING64_PML4E_COUNT)
 		+	(sizeof(PPDPTE64) * PAGING64_PDPTE_COUNT));
 	IA32_EFER tEfer;
@@ -106,13 +106,20 @@ PAGING64_OpenPageTableHandle(
 	}
 
 	phPageTable->ptLog = ptLog;
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_OpenPageTableHandle(phPageTable=0x%016x, pfnPhysicalToVirtual=0x%016x, qwPml4PhysicalAddress=0x%016x, qwPml4PhysicalAddress=0x%016x, ptLog=0x%016x)",
+		(UINT64)phPageTable,
+		(UINT64)pfnPhysicalToVirtual,
+		qwPml4PhysicalAddress,
+		(UINT64)ptLog);
 
 	if (!PAGING64_IsIa32ePagingEnabled())
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_OpenPageTableHandle ERROR: 64bit paging is not enabled");
 		goto lblCleanup;
 	}
@@ -120,10 +127,9 @@ PAGING64_OpenPageTableHandle(
 	// Convert physical addresses of tables to virtual addresses
 	if (!(*pfnPhysicalToVirtual)(qwPml4PhysicalAddress, &qwPml4VirtualAddress))
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_OpenPageTableHandle ERROR: pfnPhysicalToVirtual failed (0x%016x)",
 			(UINT64)pfnPhysicalToVirtual);
 		goto lblCleanup;
@@ -131,19 +137,19 @@ PAGING64_OpenPageTableHandle(
 
 	// Calculate physical addresses of PDPT and PDE by adding an offset from PML4 address
 	qwPdptPhysicalAddress = qwPml4PhysicalAddress + qwPdtOffset;
-	qwPdePhysicalAddress = qwPdptPhysicalAddress + qwPdeffset;
+	qwPdPhysicalAddress = qwPdptPhysicalAddress + qwPdOffset;
 
 	// Calculate virtual addresses of PDPT and PDE by adding an offset from PML4 address
 	qwPdptVirtualAddress = qwPml4VirtualAddress + qwPdtOffset;
-	qwPdeVirtualAddress = qwPml4VirtualAddress + qwPdeffset;
+	qwPdVirtualAddress = qwPml4VirtualAddress + qwPdOffset;
 
 	// Initialize handle structure
 	phPageTable->qwPml4PhysicalAddress = qwPml4PhysicalAddress;
-	phPageTable->patPml4 = (PML4E64(*)[PAGING64_PML4E_COUNT])qwPml4VirtualAddress;
+	phPageTable->patPml4 = (PPML4E64)qwPml4VirtualAddress;
 	phPageTable->qwPdptPhysicalAddress = qwPdptPhysicalAddress;
-	phPageTable->patPdpt = (PDPTE64(*)[PAGING64_PDPTE_COUNT])qwPdptVirtualAddress;
-	phPageTable->qwPdePhysicalAddress = qwPdePhysicalAddress;
-	phPageTable->patPde = (PDE64(*)[PAGING64_PDE_COUNT][PAGING64_PTE_COUNT])qwPdeVirtualAddress;
+	phPageTable->patPdpt = (PPDPTE64)qwPdptVirtualAddress;
+	phPageTable->qwPdPhysicalAddress = qwPdPhysicalAddress;
+	phPageTable->patPd = (PPDE64)qwPdVirtualAddress;
 
 	tEfer.qwValue = ASM64_Rdmsr((UINT32)MSR_CODE_IA32_EFER);
 	phPageTable->bNxBitSupported = (BOOL)tEfer.Nxe;
@@ -164,10 +170,9 @@ PAGING64_OpenPageTableHandle(
 		phPageTable->acPatMemTypes[7] = (UINT8)tPat.Pa7;
 	}
 
-	LOG_WRITE(
+	LOG_INFO(
 		phPageTable->ptLog,
 		LOG_MODULE_PAGING,
-		LOG_INFO,
 		"PAGING64_OpenPageTableHandle: qwPageTablePhysicalAddress=0x%016x, bNxBitSupported=%d, bMtrrSupported=%d, bPatSupported=%d",
 		phPageTable->qwPml4PhysicalAddress,
 		phPageTable->bNxBitSupported,
@@ -176,6 +181,12 @@ PAGING64_OpenPageTableHandle(
 	
 	bSuccess = TRUE;
 lblCleanup:
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_OpenPageTableHandle return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
 
@@ -196,16 +207,26 @@ paging64_GetMappedEntryAtVirtualAddress(
 	PPTE64 ptPte = NULL;
 	BOOLEAN bFound = FALSE;
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> paging64_GetMappedEntryAtVirtualAddress(phPageTable=0x%016x, qwVirtualAddress=0x%016x, ppvEntry=0x%016x, pePageType=0x%016x)",
+		(UINT64)phPageTable,
+		qwVirtualAddress,
+		(UINT64)ppvEntry,
+		(UINT64)pePageType);
+
 	tVa.qwValue = qwVirtualAddress;
 
 	ptPml4e = (PPML4E64)&phPageTable->patPml4[tVa.OneGb.Pml4eIndex];
 	if (!ptPml4e->Present)
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
-			"paging64_GetMappedEntryAtVirtualAddress ERROR: PML4E not present (0x%016x)",
+			"paging64_GetMappedEntryAtVirtualAddress ERROR: PML4E %d not present (patPml4=0x%016x, ptPml4e=0x%016x)",
+			tVa.OneGb.Pml4eIndex,
+			(UINT64)phPageTable->patPml4,
 			(UINT64)ptPml4e);
 		goto lblCleanup;
 	}
@@ -216,11 +237,12 @@ paging64_GetMappedEntryAtVirtualAddress(
 		ptPdpte1gb = (PPDPTE1G64)&phPageTable->patPdpt[tVa.OneGb.PdpteIndex];
 		if (!ptPdpte1gb->Present)
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
-				"paging64_GetMappedEntryAtVirtualAddress ERROR: PPDPTE1G not present (0x%016x)",
+				"paging64_GetMappedEntryAtVirtualAddress ERROR: PPDPTE1G %d not present (patPdpt=0x%016x, ptPdpte1gb=0x%016x)",
+				tVa.OneGb.PdpteIndex,
+				(UINT64)phPageTable->patPdpt,
 				(UINT64)ptPdpte1gb);
 			goto lblCleanup;
 		}
@@ -235,11 +257,12 @@ paging64_GetMappedEntryAtVirtualAddress(
 	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.TwoMb.PdpteIndex];
 	if (!ptPdpte->Present)
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
-			"paging64_GetMappedEntryAtVirtualAddress ERROR: PDPTE not present (0x%016x)",
+			"paging64_GetMappedEntryAtVirtualAddress ERROR: PDPTE %d not present (patPdpt=0x%016x, ptPdpte=0x%016x)",
+			tVa.TwoMb.PdpteIndex,
+			(UINT64)phPageTable->patPdpt,
 			(UINT64)ptPdpte);
 		goto lblCleanup;
 	}
@@ -247,14 +270,15 @@ paging64_GetMappedEntryAtVirtualAddress(
 	if (ptPdpte->PageSize)
 	{
 		// PDPTE points to 2MB PDE
-		ptPde2mb = (PDE2MB64 *)&phPageTable->patPde[tVa.TwoMb.PdeIndex];
+		ptPde2mb = (PDE2MB64 *)&phPageTable->patPd[tVa.TwoMb.PdeIndex];
 		if (!ptPde2mb->Present)
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
-				"paging64_GetMappedEntryAtVirtualAddress ERROR: PDE2MB not present (0x%016x)",
+				"paging64_GetMappedEntryAtVirtualAddress ERROR: PDE2MB %d not present (patPd=0x%016x, ptPde2mb=0x%016x)",
+				tVa.TwoMb.PdeIndex,
+				(UINT64)phPageTable->patPd,
 				(UINT64)ptPde2mb);
 			goto lblCleanup;
 		}
@@ -266,27 +290,30 @@ paging64_GetMappedEntryAtVirtualAddress(
 	}
 
 	// PDPTE points to normal PDE
-	ptPde = (PPDE64)&phPageTable->patPde[tVa.FourKb.PdeIndex];
+	ptPde = (PPDE64)&phPageTable->patPd[tVa.FourKb.PdeIndex];
 	if (!ptPde->Present)
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
-			"paging64_GetMappedEntryAtVirtualAddress ERROR: PDE not present (0x%016x)",
+			"paging64_GetMappedEntryAtVirtualAddress ERROR: PDE %d not present (patPd=0x%016x, ptPde=0x%016x)",
+			tVa.FourKb.PdeIndex,
+			(UINT64)phPageTable->patPd,
 			(UINT64)ptPde);
 		goto lblCleanup;
 	}
 
 	// PDE points to 4KB PTE
-	ptPte = (PPTE64)(&phPageTable->patPde[tVa.FourKb.PdeIndex][tVa.FourKb.PteIndex]);
+	ptPte = (PPTE64)(&phPageTable->patPd[tVa.FourKb.PdeIndex * PAGING64_PDE_COUNT + tVa.FourKb.PteIndex]);
 	if (!ptPte->Present)
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
-			"paging64_GetMappedEntryAtVirtualAddress ERROR: PTE not present (0x%016x)",
+			"paging64_GetMappedEntryAtVirtualAddress ERROR: PTE %d:%d not present (patPd=0x%016x, ptPte=0x%016x)",
+			tVa.FourKb.PdeIndex,
+			tVa.FourKb.PteIndex,
+			(UINT64)phPageTable->patPd,
 			(UINT64)ptPte);
 		goto lblCleanup;
 	}
@@ -298,15 +325,19 @@ paging64_GetMappedEntryAtVirtualAddress(
 lblCleanup:
 	if (bFound)
 	{
-		LOG_WRITE(
+		LOG_DEBUG(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_INFO,
-			"paging64_GetMappedEntryAtVirtualAddress: ppvEntry=0x%016x, type=%d",
-			(UINT64)ppvEntry,
-			pePageType);
+			"paging64_GetMappedEntryAtVirtualAddress: pvEntry=0x%016x, ePageType=%d",
+			(UINT64)*ppvEntry,
+			*pePageType);
 	}
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- paging64_GetMappedEntryAtVirtualAddress return bFound=%d",
+		bFound);
 	return bFound;
 }
 
@@ -373,6 +404,16 @@ paging64_GetPageMemoryType(
 	PPDE2MB64 ptPde2mb = NULL;
 	PPTE64 ptPte = NULL;
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> paging64_GetPageMemoryType(phPageTable=0x%016x, qwPhysicalAddress=0x%016x, pvEntry=0x%016x, ePageType=%d, peMemType=0x%016x)",
+		(UINT64)phPageTable,
+		qwPhysicalAddress,
+		(UINT64)pvEntry,
+		ePageType,
+		(UINT64)peMemType);
+
 	// Extract PAT flags from page-table entry
 	switch (ePageType)
 	{
@@ -410,10 +451,9 @@ paging64_GetPageMemoryType(
 		// Vol 3A, Table 11-11. Selection of PAT Entries with PAT, PCD, and PWT Flags
 		ePatMemType = phPageTable->acPatMemTypes[cPatIndex];
 
-		LOG_WRITE(
+		LOG_DEBUG(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_DEBUG,
 			"paging64_GetPageMemoryType: PAT is supported, ePatMemType=%d from index=%d",
 			ePatMemType,
 			cPatIndex);
@@ -424,10 +464,9 @@ paging64_GetPageMemoryType(
 		{
 			// If PAT is not supported. The PAT flag in page-table entry must be 0,
 			// but in this case it's not... the entry is invalid
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
 				"paging64_GetPageMemoryType ERROR: PAT isn't supported and PAT flag in entry is set",
 				ePatMemType,
 				cPatIndex);
@@ -452,10 +491,9 @@ paging64_GetPageMemoryType(
 			break;
 		}
 
-		LOG_WRITE(
+		LOG_DEBUG(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_DEBUG,
 			"paging64_GetPageMemoryType: PAT isn't supported, ePatMemType=%d from index=%d",
 			ePatMemType,
 			cPatIndex);
@@ -469,10 +507,9 @@ paging64_GetPageMemoryType(
 			FALSE,
 			&eMtrrMemType))
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
 				"paging64_GetPageMemoryType ERROR: MTRR_GetMemTypeForPhysicalAddress failed");
 			goto lblCleanup;
 		}
@@ -489,13 +526,18 @@ lblCleanup:
 	{
 		*peMemType = eEffectiveMemType;
 
-		LOG_WRITE(
+		LOG_INFO(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_INFO,
 			"paging64_GetPageMemoryType: eEffectiveMemType=%d",
 			eEffectiveMemType);
 	}
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- paging64_GetPageMemoryType return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
 
@@ -527,6 +569,17 @@ PAGING64_VirtualToPhysical(
 		goto lblCleanup;
 	}
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_VirtualToPhysical(phPageTable=0x%016x, qwVirtualAddress=0x%016x, pqwPhysicalAddress=0x%016x, pePageType=0x%016x, pePagePermissions=0x%016x, peMemType=0x%016x)",
+		(UINT64)phPageTable,
+		qwVirtualAddress,
+		(UINT64)pqwPhysicalAddress,
+		(UINT64)pePageType,
+		(UINT64)pePagePermissions,
+		(UINT64)peMemType);
+
 	tVa.qwValue = qwVirtualAddress;
 
 	if (!paging64_GetMappedEntryAtVirtualAddress(
@@ -536,10 +589,9 @@ PAGING64_VirtualToPhysical(
 		&ePageType))
 	{
 		// Virtual address isn't mapped in page-table
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_VirtualToPhysical ERROR: paging64_GetMappedEntryAtVirtualAddress failed qwVirtualAddress=0x%016x",
 			qwVirtualAddress);
 		goto lblCleanup;
@@ -578,10 +630,9 @@ PAGING64_VirtualToPhysical(
 		ePageType,
 		&eMemType))
 	{
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_VirtualToPhysical ERROR: paging64_GetPageMemoryType failed pvEntry=0x%016x, ePageType=%d",
 			(UINT64)pvEntry,
 			ePageType);
@@ -592,11 +643,10 @@ PAGING64_VirtualToPhysical(
 		pvEntry,
 		ePageType);
 
-	LOG_WRITE(
+	LOG_DEBUG(
 		phPageTable->ptLog,
 		LOG_MODULE_PAGING,
-		LOG_ERROR,
-		"PAGING64_VirtualToPhysical: qwVirtualAddres=0x%016x->qwPhysicalAddres=0x%016x, ePageType=%d, ePermissions=0x%x, eMemType=%d",
+		"PAGING64_VirtualToPhysical: qwVirtualAddres=0x%016x maps qwPhysicalAddres=0x%016x, ePageType=%d, ePermissions=0x%x, eMemType=%d",
 		qwVirtualAddress,
 		qwPhysicalAddress,
 		ePageType,
@@ -613,6 +663,12 @@ lblCleanup:
 		*pePagePermissions = ePermissions;
 		*peMemType = eMemType;
 	}
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_VirtualToPhysical return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
 
@@ -641,6 +697,7 @@ PAGING64_IsVirtualMapped(
 	IN const UINT64 cbSize
 )
 {
+	BOOLEAN bSuccess = FALSE;
 	UINT64 qwPageSize = 0;
 	UINT64 qwCurrentVa = qwVirtualAddress;
 	UINT64 cbCurrentSize = 0;
@@ -648,6 +705,14 @@ PAGING64_IsVirtualMapped(
 	PAGE_TYPE64 ePageType = 0;
 	PAGE_PERMISSION ePagePermissions = 0;
 	IA32_PAT_MEMTYPE eMemType = 0;
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_IsVirtualMapped(phPageTable=0x%016x, qwVirtualAddress=0x%016x, cbSize=%d)",
+		(UINT64)phPageTable,
+		qwVirtualAddress,
+		cbSize);
 
 	// Check all pages in the virtual address range are mapped
 	while(cbCurrentSize < cbSize)
@@ -660,13 +725,12 @@ PAGING64_IsVirtualMapped(
 			&ePagePermissions,
 			&eMemType))
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
 				"PAGING64_IsVirtualMapped ERROR: PAGING64_VirtualToPhysical failed qwVirtualAddres=0x%016x",
 				qwCurrentVa);
-			return FALSE;
+			goto lblCleanup;
 		}
 
 		// Add current page size to current virtual address and size
@@ -675,16 +739,23 @@ PAGING64_IsVirtualMapped(
 		qwCurrentVa += qwPageSize;
 	}
 
-	LOG_WRITE(
+	// All pages are mapped
+	LOG_ERROR(
 		phPageTable->ptLog,
 		LOG_MODULE_PAGING,
-		LOG_ERROR,
 		"PAGING64_IsVirtualMapped: qwVirtualAddres=0x%016x, cbSize=%d mapped!",
 		qwVirtualAddress,
 		cbSize);
 
-	// All pages are mapped
-	return TRUE;
+	bSuccess = TRUE;
+
+lblCleanup:
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_IsVirtualMapped return bSuccess=%d",
+		bSuccess);
+	return bSuccess;
 }
 
 VOID
@@ -728,6 +799,14 @@ PAGING64_UnmapVirtual(
 	PVOID pvEntry = NULL;
 	BOOLEAN bEntryMapped = FALSE;
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_UnmapVirtual(phPageTable=0x%016x, qwVirtualAddress=0x%016x, cbSize=%d)",
+		(UINT64)phPageTable,
+		qwVirtualAddress,
+		cbSize);
+
 	// Mark all pages in requested range as not present
 	while (cbCurrentSize < cbSize)
 	{
@@ -738,10 +817,9 @@ PAGING64_UnmapVirtual(
 			&ePageType);
 		if (bEntryMapped)
 		{
-			LOG_WRITE(
+			LOG_DEBUG(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_DEBUG,
 				"PAGING64_UnmapVirtual: Marking entry not present pvEntry=0x%016x, ePageType=%d",
 				(UINT64)pvEntry,
 				ePageType);
@@ -755,6 +833,11 @@ PAGING64_UnmapVirtual(
 		cbCurrentSize += qwPageSize;
 		qwCurrentVa += qwPageSize;
 	}
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_UnmapVirtual");
 }
 
 BOOLEAN
@@ -901,11 +984,11 @@ paging64_SetPde2mb(
 	// Get pointers to all relevant page-table entries for page
 	ptPml4e = (PPML4E64)&phPageTable->patPml4[tVa.TwoMb.Pml4eIndex];
 	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.TwoMb.PdpteIndex];
-	ptPde2mb = (PPDE2MB64)&phPageTable->patPde[tVa.TwoMb.PdeIndex];
+	ptPde2mb = (PPDE2MB64)&phPageTable->patPd[tVa.TwoMb.PdeIndex];
 
 	// Calculate entries offsets from array start
 	qwPdpteOffset = ((UINT64)ptPdpte) - ((UINT64)&phPageTable->patPdpt);
-	qwPdeOffset = ((UINT64)ptPde2mb) - ((UINT64)&phPageTable->patPde);
+	qwPdeOffset = ((UINT64)ptPde2mb) - ((UINT64)&phPageTable->patPd);
 
 	// Initialize PML4E to point to PDPTE
 	MemFill(ptPml4e, 0, sizeof(*ptPml4e));
@@ -919,7 +1002,7 @@ paging64_SetPde2mb(
 	// Initialize PDPTE to point to PDE
 	MemFill(ptPdpte, 0, sizeof(*ptPdpte));
 	ptPdpte->Present = TRUE;
-	ptPdpte->Addr = phPageTable->qwPdePhysicalAddress + qwPdeOffset;
+	ptPdpte->Addr = phPageTable->qwPdPhysicalAddress + qwPdeOffset;
 	ptPdpte->Us = bSupervisor;
 	ptPdpte->Rw = bWrite;
 	ptPdpte->Pwt = bPwtFlag;
@@ -969,13 +1052,13 @@ paging64_SetPte(
 	// Get pointers to all relevant page-table entries for page
 	ptPml4e = (PPML4E64)&phPageTable->patPml4[tVa.FourKb.Pml4eIndex];
 	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.FourKb.PdpteIndex];
-	ptPde = (PPDE64)&phPageTable->patPde[tVa.FourKb.PdeIndex];
-	ptPte = (PPTE64)&phPageTable->patPde[tVa.FourKb.PdeIndex][tVa.FourKb.PteIndex];
+	ptPde = (PPDE64)&phPageTable->patPd[tVa.FourKb.PdeIndex];
+	ptPte = (PPTE64)&phPageTable->patPd[tVa.FourKb.PdeIndex * PAGING64_PDE_COUNT + tVa.FourKb.PteIndex];
 
 	// Calculate entries offsets from array start
 	qwPdpteOffset = ((UINT64)ptPdpte) - ((UINT64)&phPageTable->patPdpt);
-	qwPdeOffset = ((UINT64)ptPde) - ((UINT64)&phPageTable->patPde);
-	qwPteOffset = ((UINT64)ptPte) - ((UINT64)&phPageTable->patPde);
+	qwPdeOffset = ((UINT64)ptPde) - ((UINT64)&phPageTable->patPd);
+	qwPteOffset = ((UINT64)ptPte) - ((UINT64)&phPageTable->patPd);
 
 	// Initialize PML4E to point to PDPTE
 	MemFill(ptPml4e, 0, sizeof(*ptPml4e));
@@ -989,7 +1072,7 @@ paging64_SetPte(
 	// Initialize PDPTE to point to PDE
 	MemFill(ptPdpte, 0, sizeof(*ptPdpte));
 	ptPdpte->Present = TRUE;
-	ptPdpte->Addr = phPageTable->qwPdePhysicalAddress + qwPdeOffset;
+	ptPdpte->Addr = phPageTable->qwPdPhysicalAddress + qwPdeOffset;
 	ptPdpte->Us = bSupervisor;
 	ptPdpte->Rw = bWrite;
 	ptPdpte->Pwt = bPwtFlag;
@@ -998,7 +1081,7 @@ paging64_SetPte(
 	// Initialize PDE to point to PTE
 	MemFill(ptPde, 0, sizeof(*ptPde));
 	ptPde->Present = TRUE;
-	ptPde->Addr = phPageTable->qwPdePhysicalAddress + qwPteOffset;
+	ptPde->Addr = phPageTable->qwPdPhysicalAddress + qwPteOffset;
 	ptPde->Us = bSupervisor;
 	ptPde->Rw = bWrite;
 	ptPde->Pwt = bPwtFlag;
@@ -1036,6 +1119,17 @@ paging64_MapPage(
 	BOOLEAN bPatFlag = 0;
 	MTRR_MEMTYPE eMtrrMemType = MTRR_MEMTYPE_INVALID;
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> paging64_MapPage(phPageTable=0x%016x, qwVirtualAddress=0x%016x, qwPhysicalAddress=0x%016x, ePageType=%d, ePagePermission=%d, eMemType=%d)",
+		(UINT64)phPageTable,
+		qwVirtualAddress,
+		qwPhysicalAddress,
+		ePageType,
+		ePagePermission,
+		eMemType);
+
 	// Get the memory type for the physical address from MTRR to see if we
 	// can use the eMemType given, or not
 	if (phPageTable->bMtrrSupported)
@@ -1046,10 +1140,9 @@ paging64_MapPage(
 			FALSE,
 			&eMtrrMemType))
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
 				"paging64_MapPage ERROR: MTRR_GetMemTypeForPhysicalAddress failed qwPhysicalAddress=0x%016x",
 				qwPhysicalAddress);
 			goto lblCleanup;
@@ -1060,10 +1153,9 @@ paging64_MapPage(
 		// the mechanism that prevents caching has precedence
 		if (eMemType > eMtrrMemType)
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
 				"paging64_MapPage ERROR: According to MTRR we can't use eMemType=%d given (eMttrMemType=%d)",
 				eMemType,
 				eMtrrMemType);
@@ -1081,10 +1173,9 @@ paging64_MapPage(
 		&bPatFlag))
 	{
 		// No PAT entry contains the given memory type
-		LOG_WRITE(
+		LOG_ERROR(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"paging64_MapPage ERROR: paging64_GetPatFlagsForMemType failed eMemType=%d",
 			eMemType);
 		goto lblCleanup;
@@ -1124,10 +1215,9 @@ paging64_MapPage(
 		break;
 	}
 
-	LOG_WRITE(
+	LOG_INFO(
 		phPageTable->ptLog,
 		LOG_MODULE_PAGING,
-		LOG_INFO,
 		"paging64_MapPage: Page mapped qwVirtualAddress=0x%016x->qwPhysicalAddress=0x%016x, ePageType=%d, ePermission=0x%x, bPwt=%d, bPcd=%d, bPat=%d",
 		qwVirtualAddress,
 		qwPhysicalAddress,
@@ -1140,6 +1230,11 @@ paging64_MapPage(
 	bSuccess = TRUE;
 
 lblCleanup:
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- paging64_MapPage return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
 
@@ -1170,6 +1265,17 @@ PAGING64_MapPhysicalToVirtual(
 		// Invalid parameters
 		goto lblCleanup;
 	}
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_MapPhysicalToVirtual(phPageTable=0x%016x, qwPhysicalAddress=0x%016x, qwVirtualAddress=0x%016x, cbSize=%d, ePagePermission=0x%x, ePageType=%d)",
+		(UINT64)phPageTable,
+		qwPhysicalAddress,
+		qwVirtualAddress,
+		cbSize,
+		ePagePermission,
+		ePageType);
 	
 	// Verify none of the pages in the virtual address range are already mapped
 	for (nCurrentPage = 0; nCurrentPage < nPagesToMap; nCurrentPage++)
@@ -1180,11 +1286,11 @@ PAGING64_MapPhysicalToVirtual(
 			&pvEntry,
 			&ePageType))
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
-				"PAGING64_MapPhysicalToVirtual ERROR: A page is already mapped at the given range qwVirtualAddres=0x%016x, cbSize=%d",
+				"PAGING64_MapPhysicalToVirtual ERROR: A page is already mapped at the given range qwPageTablePhysicalAddress=0x%016x, qwVirtualAddres=0x%016x, cbSize=%d",
+				phPageTable->qwPml4PhysicalAddress,
 				qwVirtualAddress,
 				cbSize);
 			goto lblCleanup;
@@ -1206,11 +1312,11 @@ PAGING64_MapPhysicalToVirtual(
 			ePagePermission,
 			eMemType))
 		{
-			LOG_WRITE(
+			LOG_ERROR(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				LOG_ERROR,
-				"PAGING64_MapPhysicalToVirtual ERROR: paging64_MapPage failed qwVirtualAddress=0x%016x, qwPhysicalAddress=0x%016x, ePermissions=0x%x, eMemType=%d",
+				"PAGING64_MapPhysicalToVirtual ERROR: paging64_MapPage failed qwPageTablePhysicalAddress=0x%016x, qwVirtualAddress=0x%016x, qwPhysicalAddress=0x%016x, ePermissions=0x%x, eMemType=%d",
+				phPageTable->qwPml4PhysicalAddress,
 				qwCurrentVa,
 				qwCurrentPhysical,
 				ePagePermission,
@@ -1222,11 +1328,11 @@ PAGING64_MapPhysicalToVirtual(
 		qwCurrentPhysical += PAGE_SIZE_4KB;
 	}
 
-	LOG_WRITE(
+	LOG_INFO(
 		phPageTable->ptLog,
 		LOG_MODULE_PAGING,
-		LOG_INFO,
-		"PAGING64_MapPhysicalToVirtual: Range mapped qwVirtualAddress=0x%016x, cbSize=%d, ePermission=0x%x, eMemType=%d",
+		"PAGING64_MapPhysicalToVirtual: Range mapped qwPageTablePhysicalAddress=0x%016x, qwVirtualAddress=0x%016x, cbSize=%d, ePermission=0x%x, eMemType=%d",
+		phPageTable->qwPml4PhysicalAddress,
 		qwVirtualAddress,
 		cbSize,
 		ePagePermission,
@@ -1244,6 +1350,11 @@ lblCleanup:
 			cbSize);
 	}
 
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_MapPhysicalToVirtual return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
 
@@ -1268,15 +1379,22 @@ PAGING64_InitPageTable(
 	if (	(NULL == ptPageTable)
 		||	(NULL == pfnPhysicalToVirtual)
 		||	(NULL == qwVirtualAddress)
+		||	(NULL == ptLog)
 		||	(NULL == phOutPageTable))
 	{
-		LOG_WRITE(
-			ptLog,
-			LOG_MODULE_PAGING,
-			LOG_ERROR,
-			"PAGING64_InitPageTable ERROR: Invalid parameters");
+		// Invalid parameters
 		goto lblCleanup;
 	}
+
+	LOG_TRACE(
+		ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_InitPageTable(ptPageTable=0x%016x, pfnPhysicalToVirtual=0x%016x, qwVirtualAddress=0x%016x, ptLog=0x%016x, phOutPageTable=0x%016x)",
+		(UINT64)ptPageTable,
+		(UINT64)pfnPhysicalToVirtual,
+		qwVirtualAddress,
+		(UINT64)ptLog,
+		(UINT64)phOutPageTable);
 
 	// Open a handle to current page-table which CR3 points to
 	qwCurrentPml4PhysicalAddress = ASM64_ReadCr3();
@@ -1287,10 +1405,9 @@ PAGING64_InitPageTable(
 		ptLog))
 	{
 		// Failed to open a handle to current page-table
-		LOG_WRITE(
+		LOG_ERROR(
 			ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_InitPageTable ERROR: PAGING64_OpenPageTableHandle failed on CR3=0x%016x",
 			qwCurrentPml4PhysicalAddress);
 		goto lblCleanup;
@@ -1306,10 +1423,9 @@ PAGING64_InitPageTable(
 		&eMemType))
 	{
 		// Failed to translate virtual page-table pointer to a physical address
-		LOG_WRITE(
+		LOG_ERROR(
 			ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_InitPageTable ERROR: PAGING64_VirtualToPhysical CR3=0x%016x, qwVirtualAddress=0x%016x",
 			qwCurrentPml4PhysicalAddress,
 			(UINT64)ptPageTable);
@@ -1317,7 +1433,7 @@ PAGING64_InitPageTable(
 	}
 
 	// Zero out the page-table we wish to initialize
-	MemFill(ptPageTable, 0, sizeof(PAGE_TABLE64));
+	MemZero(ptPageTable, sizeof(PAGE_TABLE64));
 
 	// Open a handle to the page-table we wish to initialize
 	if (!PAGING64_OpenPageTableHandle(
@@ -1327,10 +1443,9 @@ PAGING64_InitPageTable(
 		ptLog))
 	{
 		// Failed to open a handle to current page-table
-		LOG_WRITE(
+		LOG_ERROR(
 			ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_InitPageTable ERROR: PAGING64_OpenPageTableHandle failed on ptPageTable=0x%016x",
 			(UINT64)ptPageTable);
 		goto lblCleanup;
@@ -1346,10 +1461,9 @@ PAGING64_InitPageTable(
 		IA32_PAT_MEMTYPE_UC))
 	{
 		// Failed to map the page-table in itself at a virtual address
-		LOG_WRITE(
+		LOG_ERROR(
 			ptLog,
 			LOG_MODULE_PAGING,
-			LOG_ERROR,
 			"PAGING64_InitPageTable ERROR: PAGING64_MapPhysicalToVirtual failed on qwPhysicalAddress=0x%016x, qwVirtualAddress=0x%016x, cbSize=%d",
 			qwPml4PhysicalAddress,
 			qwVirtualAddress,
@@ -1357,10 +1471,9 @@ PAGING64_InitPageTable(
 		goto lblCleanup;
 	}
 
-	LOG_WRITE(
+	LOG_INFO(
 		ptLog,
 		LOG_MODULE_PAGING,
-		LOG_INFO,
 		"PAGING64_InitPageTable: Page table initialized qwPhysicalAddress=0x%016x, qwVirtualAddress=0x%016x",
 		qwPml4PhysicalAddress,
 		qwVirtualAddress);
@@ -1369,6 +1482,11 @@ PAGING64_InitPageTable(
 	MemCopy(phOutPageTable, &hDstPageTable, sizeof(*phOutPageTable));
 
 lblCleanup:
+	LOG_TRACE(
+		ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_InitPageTable return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
 
@@ -1398,8 +1516,16 @@ PAGING64_CopyPageTable(
 	if (	(NULL == phDstPageTable)
 		||	(NULL == phSrcPageTable))
 	{
+		// Invalid parameters
 		goto lblCleanup;
 	}
+
+	LOG_TRACE(
+		phSrcPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> PAGING64_CopyPageTable(phDstPageTable=0x%016x, phSrcPageTable=0x%016x)",
+		(UINT64)phDstPageTable,
+		(UINT64)phSrcPageTable);
 	
 	// Iterate over all present entries in the source page-table
 	// and add the same mapping to the destination page-table
@@ -1439,10 +1565,9 @@ PAGING64_CopyPageTable(
 					qwVirtualAddress,
 					PAGE_SIZE_1GB))
 				{
-					LOG_WRITE(
+					LOG_ERROR(
 						phDstPageTable->ptLog,
 						LOG_MODULE_PAGING,
-						LOG_ERROR,
 						"PAGING64_CopyPageTable ERROR: PAGING64_IsVirtualMapped returned TRUE (1GB) qwVirtualAddress=0x%016x",
 						qwVirtualAddress);
 					goto lblCleanup;
@@ -1461,10 +1586,9 @@ PAGING64_CopyPageTable(
 					PAGE_TYPE_1GB,
 					&eMemType))
 				{
-					LOG_WRITE(
+					LOG_ERROR(
 						phDstPageTable->ptLog,
 						LOG_MODULE_PAGING,
-						LOG_ERROR,
 						"PAGING64_CopyPageTable ERROR: paging64_GetPageMemoryType failed qwPhysicalAddress=0x%016x, ptPdpte1gb=0x%016x",
 						qwPhysicalAddress,
 						(UINT64)ptPdpte1gb);
@@ -1480,10 +1604,9 @@ PAGING64_CopyPageTable(
 					ePermissions,
 					eMemType))
 				{
-					LOG_WRITE(
+					LOG_ERROR(
 						phDstPageTable->ptLog,
 						LOG_MODULE_PAGING,
-						LOG_ERROR,
 						"PAGING64_CopyPageTable ERROR: paging64_MapPage (1GB) failed on qwVirtualAddress=0x%016x, qwPhysicalAddress=0x%016x, ePermission=0x%x, eMemType=%d",
 						qwVirtualAddress,
 						qwPhysicalAddress,
@@ -1500,7 +1623,7 @@ PAGING64_CopyPageTable(
 			for (; wPdeIndex < PAGING64_PDE_COUNT; wPdeIndex++)
 			{
 				// Skip PDE if it's not present
-				ptPde = (PPDE64)&phSrcPageTable->patPde[wPdeIndex];
+				ptPde = (PPDE64)&phSrcPageTable->patPd[wPdeIndex];
 				if (!ptPde->Present)
 				{
 					continue;
@@ -1524,10 +1647,9 @@ PAGING64_CopyPageTable(
 						qwVirtualAddress,
 						PAGE_SIZE_2MB))
 					{
-						LOG_WRITE(
+						LOG_ERROR(
 							phDstPageTable->ptLog,
 							LOG_MODULE_PAGING,
-							LOG_ERROR,
 							"PAGING64_CopyPageTable ERROR: PAGING64_IsVirtualMapped returned TRUE (2MB) qwVirtualAddress=0x%016x",
 							qwVirtualAddress);
 
@@ -1547,10 +1669,9 @@ PAGING64_CopyPageTable(
 						PAGE_TYPE_2MB,
 						&eMemType))
 					{
-						LOG_WRITE(
+						LOG_ERROR(
 							phDstPageTable->ptLog,
 							LOG_MODULE_PAGING,
-							LOG_ERROR,
 							"PAGING64_CopyPageTable ERROR: paging64_GetPageMemoryType failed qwPhysicalAddress=0x%016x, ptPde2mb=0x%016x",
 							qwPhysicalAddress,
 							(UINT64)ptPde2mb);
@@ -1567,10 +1688,9 @@ PAGING64_CopyPageTable(
 						ePermissions,
 						eMemType))
 					{
-						LOG_WRITE(
+						LOG_ERROR(
 							phDstPageTable->ptLog,
 							LOG_MODULE_PAGING,
-							LOG_ERROR,
 							"PAGING64_CopyPageTable ERROR: paging64_MapPage (2MB) failed on qwVirtualAddress=0x%016x, qwPhysicalAddress=0x%016x, ePermission=0x%x, eMemType=%d",
 							qwVirtualAddress,
 							qwPhysicalAddress,
@@ -1587,7 +1707,7 @@ PAGING64_CopyPageTable(
 				for (; wPteIndex < PAGING64_PTE_COUNT; wPteIndex++)
 				{
 					// Skip PTE if it's not present
-					ptPte = (PPTE64)&phSrcPageTable->patPde[wPdeIndex][wPteIndex];
+					ptPte = (PPTE64)&phSrcPageTable->patPd[wPdeIndex * PAGING64_PDE_COUNT + wPteIndex];
 					if (!ptPte->Present)
 					{
 						continue;
@@ -1607,10 +1727,9 @@ PAGING64_CopyPageTable(
 						qwVirtualAddress,
 						PAGE_SIZE_4KB))
 					{
-						LOG_WRITE(
+						LOG_ERROR(
 							phDstPageTable->ptLog,
 							LOG_MODULE_PAGING,
-							LOG_ERROR,
 							"PAGING64_CopyPageTable ERROR: PAGING64_IsVirtualMapped returned TRUE (4KB) qwVirtualAddress=0x%016x",
 							qwVirtualAddress);
 
@@ -1630,10 +1749,9 @@ PAGING64_CopyPageTable(
 						PAGE_TYPE_4KB,
 						&eMemType))
 					{
-						LOG_WRITE(
+						LOG_ERROR(
 							phDstPageTable->ptLog,
 							LOG_MODULE_PAGING,
-							LOG_ERROR,
 							"PAGING64_CopyPageTable ERROR: paging64_GetPageMemoryType failed qwPhysicalAddress=0x%016x, ptPte=0x%016x",
 							qwPhysicalAddress,
 							(UINT64)ptPte);
@@ -1650,10 +1768,9 @@ PAGING64_CopyPageTable(
 						ePermissions,
 						eMemType))
 					{
-						LOG_WRITE(
+						LOG_ERROR(
 							phDstPageTable->ptLog,
 							LOG_MODULE_PAGING,
-							LOG_ERROR,
 							"PAGING64_CopyPageTable ERROR: paging64_MapPage (4KB) failed on qwVirtualAddress=0x%016x, qwPhysicalAddress=0x%016x, ePermission=0x%x, eMemType=%d",
 							qwVirtualAddress,
 							qwPhysicalAddress,
@@ -1667,10 +1784,9 @@ PAGING64_CopyPageTable(
 		}
 	}
 
-	LOG_WRITE(
+	LOG_INFO(
 		phDstPageTable->ptLog,
 		LOG_MODULE_PAGING,
-		LOG_INFO,
 		"PAGING64_CopyPageTable: Copied page-table qwSrcPhysical=0x%016x to qwDstPhysical=0x%016x",
 		phSrcPageTable->qwPml4PhysicalAddress,
 		phDstPageTable->qwPml4PhysicalAddress);
@@ -1678,5 +1794,10 @@ PAGING64_CopyPageTable(
 	bSuccess = TRUE;
 
 lblCleanup:
+	LOG_TRACE(
+		phSrcPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- PAGING64_CopyPageTable return bSuccess=%d",
+		bSuccess);
 	return bSuccess;
 }
