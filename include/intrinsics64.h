@@ -36,6 +36,7 @@
  * @return MSR value
  */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_Rdmsr(
@@ -48,6 +49,7 @@ ASM64_Rdmsr(
 * @param qwValue - MSR value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Wrmsr(
@@ -62,6 +64,7 @@ ASM64_Wrmsr(
 * @param dwSubFunction - CPUID sub-function/leaf id
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Cpuid(
@@ -75,6 +78,7 @@ ASM64_Cpuid(
 * @return CR0 value
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadCr0(
@@ -86,6 +90,7 @@ ASM64_ReadCr0(
 * @return CR2 value
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadCr2(
@@ -97,6 +102,7 @@ ASM64_ReadCr2(
 * @return CR3 value
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadCr3(
@@ -108,6 +114,7 @@ ASM64_ReadCr3(
 * @return CR4 value
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadCr4(
@@ -119,6 +126,7 @@ ASM64_ReadCr4(
 * @return CR8 value
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadCr8(
@@ -130,6 +138,7 @@ ASM64_ReadCr8(
  * @return RFLAGS value
  */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadRflags(
@@ -141,6 +150,7 @@ ASM64_ReadRflags(
 * @param qwValue - RFLAGS value
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteRflags(
@@ -152,6 +162,7 @@ ASM64_WriteRflags(
 * @param pqwValue - GDTR value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Lgdt(
@@ -163,6 +174,7 @@ ASM64_Lgdt(
 * @param pqwValue - GDTR value read
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Sgdt(
@@ -174,6 +186,7 @@ ASM64_Sgdt(
 * @param pqwValue - IDTR value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Lidt(
@@ -185,6 +198,7 @@ ASM64_Lidt(
 * @param pqwValue - IDTR value read
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Sidt(
@@ -196,6 +210,7 @@ ASM64_Sidt(
 * @param pwValue - LDTR value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Lldt(
@@ -207,6 +222,7 @@ ASM64_Lldt(
 * @return LDTR value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_Sldt(
@@ -218,6 +234,7 @@ ASM64_Sldt(
 * @param wValue - TR value to write
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_Ltr(
@@ -229,6 +246,7 @@ ASM64_Ltr(
 * @return TR value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_Str(
@@ -240,6 +258,7 @@ ASM64_Str(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteCr0(
@@ -251,6 +270,7 @@ ASM64_WriteCr0(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteCr2(
@@ -262,6 +282,7 @@ ASM64_WriteCr2(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteCr3(
@@ -273,6 +294,7 @@ ASM64_WriteCr3(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteCr4(
@@ -284,6 +306,7 @@ ASM64_WriteCr4(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteCr8(
@@ -295,6 +318,7 @@ ASM64_WriteCr8(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteCS(
@@ -306,6 +330,7 @@ ASM64_WriteCS(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteSS(
@@ -317,6 +342,7 @@ ASM64_WriteSS(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDS(
@@ -328,6 +354,7 @@ ASM64_WriteDS(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteES(
@@ -339,6 +366,7 @@ ASM64_WriteES(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteFS(
@@ -350,6 +378,7 @@ ASM64_WriteFS(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteGS(
@@ -361,6 +390,7 @@ ASM64_WriteGS(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_ReadCS(
@@ -372,6 +402,7 @@ ASM64_ReadCS(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_ReadSS(
@@ -383,6 +414,7 @@ ASM64_ReadSS(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_ReadDS(
@@ -394,6 +426,7 @@ ASM64_ReadDS(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_ReadES(
@@ -405,6 +438,7 @@ ASM64_ReadES(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_ReadFS(
@@ -416,6 +450,7 @@ ASM64_ReadFS(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_ReadGS(
@@ -429,6 +464,7 @@ ASM64_ReadGS(
 * @return TRUE on success, else FALSE
 */
 extern
+__forceinline
 BOOLEAN
 __stdcall
 ASM64_ReadSegmentLimit(
@@ -441,6 +477,7 @@ ASM64_ReadSegmentLimit(
 * @return value read
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadDr0(
@@ -452,6 +489,7 @@ ASM64_ReadDr0(
 * @return value read
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadDr1(
@@ -463,6 +501,7 @@ ASM64_ReadDr1(
 * @return value read
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadDr2(
@@ -474,6 +513,7 @@ ASM64_ReadDr2(
 * @return value read
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadDr3(
@@ -485,6 +525,7 @@ ASM64_ReadDr3(
 * @return value read
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadDr6(
@@ -496,6 +537,7 @@ ASM64_ReadDr6(
 * @return value read
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_ReadDr7(
@@ -507,6 +549,7 @@ ASM64_ReadDr7(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDr0(
@@ -518,6 +561,7 @@ ASM64_WriteDr0(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDr1(
@@ -529,6 +573,7 @@ ASM64_WriteDr1(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDr2(
@@ -540,6 +585,7 @@ ASM64_WriteDr2(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDr3(
@@ -551,6 +597,7 @@ ASM64_WriteDr3(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDr6(
@@ -562,6 +609,7 @@ ASM64_WriteDr6(
 * @param qwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_WriteDr7(
@@ -574,6 +622,7 @@ ASM64_WriteDr7(
 * @return Access Rights of given selector
 */
 extern
+__forceinline
 UINT64
 __stdcall
 ASM64_Lar(
@@ -586,6 +635,7 @@ ASM64_Lar(
 * @return value read
 */
 extern
+__forceinline
 UINT8
 __stdcall
 ASM64_IoReadByte(
@@ -598,6 +648,7 @@ ASM64_IoReadByte(
 * @return value read
 */
 extern
+__forceinline
 UINT16
 __stdcall
 ASM64_IoReadWord(
@@ -610,6 +661,7 @@ ASM64_IoReadWord(
 * @return value read
 */
 extern
+__forceinline
 UINT32
 __stdcall
 ASM64_IoReadDword(
@@ -622,6 +674,7 @@ ASM64_IoReadDword(
 * @param cValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_IoWriteByte(
@@ -635,6 +688,7 @@ ASM64_IoWriteByte(
 * @param wValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_IoWriteWord(
@@ -648,6 +702,7 @@ ASM64_IoWriteWord(
 * @param dwValue - value to write
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_IoWriteDword(
@@ -659,6 +714,7 @@ ASM64_IoWriteDword(
 * Perform INVD opcode (Invalidate Internal Caches)
 */
 extern
+__forceinline
 VOID
 __stdcall
 ASM64_Invd(
@@ -700,6 +756,7 @@ typedef struct _INVEPT_DESCRIPTOR
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Invept(
@@ -745,6 +802,7 @@ typedef struct _INVVPID_DESCRIPTOR
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Invvpid(
@@ -760,6 +818,7 @@ ASM64_Invvpid(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmcall(
@@ -773,6 +832,7 @@ ASM64_Vmcall(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmclear(
@@ -786,6 +846,7 @@ ASM64_Vmclear(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmfunc(
@@ -798,6 +859,7 @@ ASM64_Vmfunc(
 *			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
 */
 extern
+__forceinline
 // DECLSPEC_NORETURN
 VTX_RC
 __stdcall
@@ -811,6 +873,7 @@ ASM64_Vmlaunch(
 *			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
 */
 extern
+__forceinline
 // DECLSPEC_NORETURN
 VTX_RC
 __stdcall
@@ -824,6 +887,7 @@ ASM64_Vmresume(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmptrld(
@@ -836,6 +900,7 @@ ASM64_Vmptrld(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmptrst(
@@ -849,6 +914,7 @@ ASM64_Vmptrst(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread(
@@ -916,6 +982,7 @@ ASM64_Vmread64(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite(
@@ -961,6 +1028,7 @@ ASM64_Vmwrite64(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmxoff(
@@ -973,6 +1041,7 @@ ASM64_Vmxoff(
 * @return See VTX_RC
 */
 extern
+__forceinline
 VTX_RC
 __stdcall
 ASM64_Vmxon(

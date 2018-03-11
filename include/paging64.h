@@ -30,6 +30,7 @@
 #define __INTEL_PAGING64_H__
 
 #include "ntdatatypes.h"
+#include "log.h"
 #include "msr64.h"
 #include "cr64.h"
 
@@ -118,27 +119,27 @@ typedef union _VA_ADDRESS64
 
  //! Figure 4-8. Linear-Address Translation to a 4-KByte Page using IA-32e Paging
 	struct {
-		UINT64 Offset : 12;
-		UINT64 PteIndex : 9;
-		UINT64 PdeIndex : 9;
-		UINT64 PdpteIndex : 9;
-		UINT64 Pml4eIndex : 9;
-		UINT64 Reserved0 : 12;
+		UINT64 Offset : 12;		//!< 0-11
+		UINT64 PteIndex : 9;	//!< 12-20
+		UINT64 PdeIndex : 9;	//!< 21-29
+		UINT64 PdpteIndex : 9;	//!< 30-38
+		UINT64 Pml4eIndex : 9;	//!< 39-47
+		UINT64 Reserved0 : 16;	//!< 48-63
 	} FourKb;
  //! Figure 4-9. Linear-Address Translation to a 2-MByte Page using IA-32e Paging
 	struct {
-		UINT64 Offset : 21;
-		UINT64 PdeIndex : 9;
-		UINT64 PdpteIndex : 9;
-		UINT64 Pml4eIndex : 9;
-		UINT64 Reserved0 : 12;
+		UINT64 Offset : 21;		//!< 0-20
+		UINT64 PdeIndex : 9;	//!< 21-29
+		UINT64 PdpteIndex : 9;	//!< 30-38
+		UINT64 Pml4eIndex : 9;	//!< 39-47
+		UINT64 Reserved0 : 16;	//!< 48-63
 	} TwoMb;
  //! Figure 4-10. Linear-Address Translation to a 1-GByte Page using IA-32e Paging
 	struct {
-		UINT64 Offset : 30;
-		UINT64 PdpteIndex : 9;
-		UINT64 Pml4eIndex : 9;
-		UINT64 Reserved0 : 12;
+		UINT64 Offset : 30;		//!< 0-29
+		UINT64 PdpteIndex : 9;	//!< 30-38
+		UINT64 Pml4eIndex : 9;	//!< 39-47
+		UINT64 Reserved0 : 16;	//!< 48-63
 	} OneGb;
 } VA_ADDRESS64, *PVA_ADDRESS64;
 C_ASSERT(sizeof(UINT64) == sizeof(VA_ADDRESS64));
@@ -290,10 +291,11 @@ typedef struct _PAGE_TABLE64_HANDLE
 	PDPTE64 (*patPdpt)[PAGING64_PDPTE_COUNT];
 	UINT64 qwPdePhysicalAddress;
 	PDE64 (*patPde)[PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
-	BOOLEAN bNxBitSupported;
-	BOOLEAN bMtrrSupported;
-	BOOLEAN bPatSupported;
+	BOOL bNxBitSupported;
+	BOOL bMtrrSupported;
+	BOOL bPatSupported;
 	UINT8 acPatMemTypes[8];
+	PLOG_HANDLE ptLog;
 } PAGE_TABLE64_HANDLE, *PPAGE_TABLE64_HANDLE;
 
 /**
@@ -328,6 +330,7 @@ PAGING64_UefiPhysicalToVirtual(
 * @param ptPageTable - Page Table to initialize
 * @param pfnPhysicalToVirtual - convert a physical address to virtual address
 * @param qwVirtualAddress - virtual address to map the page-table at
+* @param ptLog - log handle, can be NULL
 * @param phOutPageTable - open handle to the new page-table
 * @return TRUE on success, else FALSE
 */
@@ -336,21 +339,24 @@ PAGING64_InitPageTable(
 	INOUT PPAGE_TABLE64 ptPageTable,
 	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
 	IN const UINT64 qwVirtualAddress,
+	IN const PLOG_HANDLE ptLog,
 	OUT PPAGE_TABLE64_HANDLE phOutPageTable
 );
 
 /**
 * Initialize the given page table handle
-* @param ptPtHandle - Page Table handle to initialize
+* @param phPageTable - Page Table handle to initialize
 * @param pfnPhysicalToVirtual - convert a physical address to virtual address
 * @param qwPml4PhysicalAddress - physical address of PML4 array
+* @param ptLog - log handle, can be NULL
 * @return TRUE on success, else FALSE
 */
 BOOLEAN
 PAGING64_OpenPageTableHandle(
-	INOUT PPAGE_TABLE64_HANDLE ptPtHandle,
+	INOUT PPAGE_TABLE64_HANDLE phPageTable,
 	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const UINT64 qwPml4PhysicalAddress
+	IN const UINT64 qwPml4PhysicalAddress,
+	IN const PLOG_HANDLE ptLog
 );
 
 /**

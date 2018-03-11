@@ -162,6 +162,8 @@ typedef unsigned short      UINT16, *PUINT16;
 typedef unsigned int        UINT32, *PUINT32;
 typedef unsigned __int64    UINT64, *PUINT64;
 
+typedef UINT64  UINTN;
+
 typedef signed int LONG32, *PLONG32;
 
 // The following types are guaranteed to be unsigned and 32 bits wide.
@@ -315,7 +317,7 @@ typedef union _LARGE_INTEGER {
 
 typedef unsigned char BOOLEAN;
 typedef BOOLEAN *PBOOLEAN;
-typedef int BOOL;
+typedef unsigned int BOOL;
 typedef BOOL *PBOOL;
 
 
@@ -420,6 +422,31 @@ typedef struct DECLSPEC_ALIGN(16) _CONTEXT
 	UINT64 LastExceptionFromRip;
 } CONTEXT, *PCONTEXT;
 
+// Macros and type copied from edk2\MdePkg\Include\Base.h
+// We added a __ prefix and suffix to avoid macro/type-redefinitions
+#ifndef __INT_SIZE_OF__
+#define __INT_SIZE_OF__(n) ((sizeof (n) + sizeof (UINTN) - 1) &~(sizeof (UINTN) - 1))
+#endif
+
+typedef char *__VA_LIST__;
+
+#ifndef __VA_START__
+#define __VA_START__(Marker, Parameter) \
+	(Marker = (__VA_LIST__) ((UINTN) & (Parameter) + __INT_SIZE_OF__ (Parameter)))
+#endif
+
+#ifndef __VA_ARG__
+#define __VA_ARG__(Marker, TYPE) \
+	(*(TYPE *) ((Marker += __INT_SIZE_OF__ (TYPE)) - __INT_SIZE_OF__ (TYPE)))
+#endif
+
+#ifndef __VA_END__
+#define __VA_END__(Marker) (Marker = (__VA_LIST__) 0)
+#endif
+
+#ifndef __VA_COPY__
+#define __VA_COPY__(Dest, Start) ((void)((Dest) = (Start)))
+#endif
 
 #pragma warning(pop)
 #endif /* ifndef WIN32 */

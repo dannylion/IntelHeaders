@@ -119,6 +119,7 @@
     <ClInclude Include="include\faults.h" />
     <ClInclude Include="include\gdt64.h" />
     <ClInclude Include="include\intrinsics64.h" />
+    <ClInclude Include="include\log.h" />
     <ClInclude Include="include\msr64.h" />
     <ClInclude Include="include\mtrr.h" />
     <ClInclude Include="include\ntdatatypes.h" />
