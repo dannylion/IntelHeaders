@@ -50,9 +50,9 @@
 #define PAGE_SIZE_2MB	(0x1000 * 512)
 #define PAGE_SIZE_1GB	(0x1000 * 512 * 512)
 
-#define PAGE_SHIFT_1GB 30L // PAGE_SIZE_1GB == 1 << 30
-#define PAGE_SHIFT_2MB 21L // PAGE_SIZE_2MB == 1 << 21
-#define PAGE_SHIFT_4KB 12L // PAGE_SIZE_4KB == 1 << 12
+#define PAGE_SHIFT_1GB 30L // PAGE_SIZE_1GB == (1 << 30)
+#define PAGE_SHIFT_2MB 21L // PAGE_SIZE_2MB == (1 << 21)
+#define PAGE_SHIFT_4KB 12L // PAGE_SIZE_4KB == (1 << 12)
 
 #define PAGE_OFFSET_MASK_1GB (PAGE_SIZE_1GB - 1)
 #define PAGE_OFFSET_MASK_2MB (PAGE_SIZE_2MB - 1)
@@ -196,7 +196,7 @@ typedef struct _PDPTE64
 	UINT64 Access: 1;			//!< 5 Accessed; indicates whether software has accessed the page
 	UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
 	UINT64 PageSize	: 1;		//!< 7 Page-Size; must be 0 to refernce PDE
-	UINT64 Reserved1 : 3;		//!< 8-11
+	UINT64 Reserved1 : 4;		//!< 8-11
 	UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
 	UINT64 Reserved2 : 11;		//!< 52-62
 	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable

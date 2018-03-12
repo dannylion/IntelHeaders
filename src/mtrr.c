@@ -61,7 +61,7 @@ MTRR_GetSmmRange(
 	UINT64 qwSmrrMask = 0;
 	UINT64 qwRangeStart = 0;
 	UINT64 qwRangeEnd = 0;
-	UINT64 qwMaxPhyAddr = MAXPHYADDR;
+	const UINT64 qwMaxPhyAddr = MAXPHYADDR;
 
 	tSmrrPhysBase.qwValue = 0;
 	tSmrrPhysMask.qwValue = 0;
@@ -156,11 +156,13 @@ mtrr_GetMemTypeFromVariable(
 	OUT PMTRR_MEMTYPE peMemType
 )
 {
+	BOOLEAN bFound = FALSE;
 	UINT32 dwCurrentIndex = 0;
 	UINT64 qwMtrrBase = 0;
 	UINT64 qwMtrrMask = 0;
 	UINT64 qwRangeStart = 0;
 	UINT64 qwRangeEnd = 0;
+	MTRR_MEMTYPE eMemType = MTRR_MEMTYPE_INVALID;
 	const UINT64 qwMaxPhysAddr = MAXPHYADDR;
 	
 	for (; dwCurrentIndex < ptMtrrCap->Vcnt; dwCurrentIndex++)
@@ -186,14 +188,23 @@ mtrr_GetMemTypeFromVariable(
 		if (	(qwRangeStart <= qwPhysicalAddress)
 			&&	(qwRangeEnd >= qwPhysicalAddress))
 		{
-			// MTRR contains the physical address given; get the memory type
-			*peMemType = tMtrrPhysBase.Type;
-			return TRUE;
+			bFound = TRUE;
+			
+			// MTRR contains the physical address given; get the memory type.
+			// If more than one MTRR range contains the address, the one that
+			// prevents caching has precedence
+			if (tMtrrPhysBase.Type < eMemType)
+			{
+				eMemType = tMtrrPhysBase.Type;
+			}
 		}
 	}
 
-	// No variable MTRR contained the given physical address
-	return FALSE;
+	if (bFound)
+	{
+		*peMemType = eMemType;
+	}
+	return bFound;
 }
 
 //! Vol 3A, 11.11.2.1 IA32_MTRR_DEF_TYPE MSR
@@ -208,12 +219,12 @@ MTRR_GetMemTypeForPhysicalAddress(
 	MTRR_MEMTYPE eMemType = MTRR_MEMTYPE_INVALID;
 	IA32_MTRRCAP tMtrrCap;
 	IA32_MTRR_DEF_TYPE tMtrrDefType;
-	UINT64 qwMaxPhyAddr = MAXPHYADDR;
+	const UINT64 qwMaxPhyAddr = MAXPHYADDR;
 	UINT64 qwSmrrStart = 0;
 	UINT64 qwSmrrEnd = 0;
 	MTRR_MEMTYPE eSmrrMemType = MTRR_MEMTYPE_INVALID;
 
-	if (	(qwMaxPhyAddr < qwPhysicalAddress)
+	if (	(qwMaxPhyAddr <= qwPhysicalAddress)
 		||	(NULL == peMemType))
 	{
 		// Invalid parameters
@@ -255,8 +266,10 @@ MTRR_GetMemTypeForPhysicalAddress(
 	}
 
 	// When the fixed-range MTRRs are enabled, they take priority over the
-	// variable-range MTRRs when overlaps in ranges occur
-	if (tMtrrDefType.Fe)
+	// variable-range MTRRs when overlaps in ranges occur. Fixed MTRRs only
+	// define the first 1MB of physical memory
+	if (	(tMtrrDefType.Fe)
+		&&	(0x100000 > qwPhysicalAddress))
 	{
 		if (mtrr_GetMemTypeFromFixed(
 			qwPhysicalAddress,
@@ -287,5 +300,5 @@ lblCleanup:
 	{
 		*peMemType = eMemType;
 	}
-	return eMemType;
+	return bSuccess;
 }

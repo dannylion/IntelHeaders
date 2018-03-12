@@ -63,3 +63,13 @@ CPUID_GetMaxPhyAddrBits(
 		0);
 	return (UINT8)tCpuidMaxAddrInfo.MaxPhysAddr;
 }
+
+UINT64
+CPUID_GetMaxPhyAddr(
+	VOID
+)
+{
+	const UINT64 qwMaxPhyAddrBits = CPUID_GetMaxPhyAddrBits();
+	UINT64 qwMaxPhyAddr = (1ULL << qwMaxPhyAddrBits) - 1ULL;
+	return qwMaxPhyAddr;
+}

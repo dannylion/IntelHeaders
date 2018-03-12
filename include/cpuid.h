@@ -386,17 +386,26 @@ typedef struct _CPUID_EX_MAXADDR
 C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_EX_MAXADDR));
 
 /**
-* Query CPUID for MAXPHYADDR value, which is the maximum number 
-* of bits in a physical address
-* @return MAXPHYADDR value
+* Query CPUID for the maximum number of bits in a physical address
+* @return Max bits in physical address
 */
 UINT8
 CPUID_GetMaxPhyAddrBits(
 	VOID
 );
 
+/**
+* Query CPUID for MAXPHYADDR value, which is the maximum number
+* of bits in a physical address
+* @return MAXPHYADDR value
+*/
+UINT64
+CPUID_GetMaxPhyAddr(
+	VOID
+);
+
 // Calculate the Max Physical Address mask
-#define MAXPHYADDR ((1 << CPUID_GetMaxPhyAddrBits()) - 1)
+#define MAXPHYADDR (CPUID_GetMaxPhyAddr())
 
 #pragma pack(pop)
 #pragma warning(pop)
