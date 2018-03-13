@@ -861,23 +861,18 @@ ASM64_Vmptrst ENDP
 ; 	OUT PUINT64 pqwValue
 ; );
 ASM64_Vmread PROC
-	push rbx
-	vmread rcx, rbx
+	vmread qword ptr [rdx], rcx
 	jz l_VtxFailValid	; if (ZF) jmp
     jc l_VtxFailInvalid	; if (CF) jmp
     xor rax, rax		; return VTX_SUCCESS
-	mov [rdx], rbx
-	pop rbx
 	ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
-	pop rbx
     ret
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	pop rbx
 	ret
 ASM64_Vmread ENDP
 
@@ -888,7 +883,7 @@ ASM64_Vmread ENDP
 ; 	IN const UINT64 qwValue
 ; );
 ASM64_Vmwrite PROC
-	vmwrite rcx, rdx
+	vmwrite rdx, rcx
 	jz l_VtxFailValid	; if (ZF) jmp
     jc l_VtxFailInvalid	; if (CF) jmp
     xor rax, rax		; return VTX_SUCCESS
