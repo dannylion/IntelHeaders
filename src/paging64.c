@@ -200,9 +200,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 {
 	VA_ADDRESS64 tVa;
 	PPML4E64 ptPml4e = NULL;
-	PPDPTE1G64 ptPdpte1gb = NULL;
 	PPDPTE64 ptPdpte = NULL;
-	PPDE2MB64 ptPde2mb = NULL;
 	PPDE64 ptPde = NULL;
 	PPTE64 ptPte = NULL;
 	BOOLEAN bFound = FALSE;
@@ -221,7 +219,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 	ptPml4e = (PPML4E64)&phPageTable->patPml4[tVa.OneGb.Pml4eIndex];
 	if (!ptPml4e->Present)
 	{
-		LOG_ERROR(
+		LOG_WARN(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
 			"paging64_GetMappedEntryAtVirtualAddress: PML4E %d not present (patPml4=0x%016llx, ptPml4e=0x%016llx)",
@@ -231,33 +229,11 @@ paging64_GetMappedEntryAtVirtualAddress(
 		goto lblCleanup;
 	}
 
-	if (ptPml4e->PageSize)
-	{
-		// PML4E points to 1GB PDPTE
-		ptPdpte1gb = (PPDPTE1G64)&phPageTable->patPdpt[tVa.OneGb.PdpteIndex];
-		if (!ptPdpte1gb->Present)
-		{
-			LOG_ERROR(
-				phPageTable->ptLog,
-				LOG_MODULE_PAGING,
-				"paging64_GetMappedEntryAtVirtualAddress: PPDPTE1G %d not present (patPdpt=0x%016llx, ptPdpte1gb=0x%016llx)",
-				tVa.OneGb.PdpteIndex,
-				(UINT64)phPageTable->patPdpt,
-				(UINT64)ptPdpte1gb);
-			goto lblCleanup;
-		}
-
-		bFound = TRUE;
-		*ppvEntry = (PVOID)ptPdpte1gb;
-		*pePageType = PAGE_TYPE_1GB;
-		goto lblCleanup;
-	}
-
-	// PML4E points to normal PDPTE
-	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.TwoMb.PdpteIndex];
+	// PML4E points to PDPTE
+	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.OneGb.PdpteIndex];
 	if (!ptPdpte->Present)
 	{
-		LOG_ERROR(
+		LOG_WARN(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
 			"paging64_GetMappedEntryAtVirtualAddress: PDPTE %d not present (patPdpt=0x%016llx, ptPdpte=0x%016llx)",
@@ -269,31 +245,18 @@ paging64_GetMappedEntryAtVirtualAddress(
 
 	if (ptPdpte->PageSize)
 	{
-		// PDPTE points to 2MB PDE
-		ptPde2mb = (PDE2MB64 *)&phPageTable->patPd[tVa.TwoMb.PdeIndex];
-		if (!ptPde2mb->Present)
-		{
-			LOG_ERROR(
-				phPageTable->ptLog,
-				LOG_MODULE_PAGING,
-				"paging64_GetMappedEntryAtVirtualAddress: PDE2MB %d not present (patPd=0x%016llx, ptPde2mb=0x%016llx)",
-				tVa.TwoMb.PdeIndex,
-				(UINT64)phPageTable->patPd,
-				(UINT64)ptPde2mb);
-			goto lblCleanup;
-		}
-
+		// PDPTE points to a 1GB page
 		bFound = TRUE;
-		*ppvEntry = (PVOID)ptPde2mb;
-		*pePageType = PAGE_TYPE_2MB;
+		*ppvEntry = (PVOID)ptPdpte;
+		*pePageType = PAGE_TYPE_1GB;
 		goto lblCleanup;
 	}
 
-	// PDPTE points to normal PDE
-	ptPde = (PPDE64)&phPageTable->patPd[tVa.FourKb.PdeIndex];
+	// PDPTE points to PDE
+	ptPde = (PPDE64)&phPageTable->patPd[tVa.TwoMb.PdeIndex];
 	if (!ptPde->Present)
 	{
-		LOG_ERROR(
+		LOG_WARN(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
 			"paging64_GetMappedEntryAtVirtualAddress: PDE %d not present (patPd=0x%016llx, ptPde=0x%016llx)",
@@ -303,11 +266,20 @@ paging64_GetMappedEntryAtVirtualAddress(
 		goto lblCleanup;
 	}
 
-	// PDE points to 4KB PTE
+	if (ptPde->PageSize)
+	{
+		// PDE points to a 2MB page
+		bFound = TRUE;
+		*ppvEntry = (PVOID)ptPde;
+		*pePageType = PAGE_TYPE_2MB;
+		goto lblCleanup;
+	}
+	
+	// PDE points to PTE
 	ptPte = (PPTE64)(&phPageTable->patPd[tVa.FourKb.PdeIndex * PAGING64_PDE_COUNT + tVa.FourKb.PteIndex]);
 	if (!ptPte->Present)
 	{
-		LOG_ERROR(
+		LOG_WARN(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
 			"paging64_GetMappedEntryAtVirtualAddress: PTE %d:%d not present (patPd=0x%016llx, ptPte=0x%016llx)",
@@ -318,6 +290,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 		goto lblCleanup;
 	}
 
+	// PTE points to a 4KB page
 	bFound = TRUE;
 	*ppvEntry = (PVOID)ptPte;
 	*pePageType = PAGE_TYPE_4KB;

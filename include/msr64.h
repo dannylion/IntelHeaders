@@ -649,6 +649,26 @@ typedef union _IA32_MTRR_DEF_TYPE
 } IA32_MTRR_DEF_TYPE, *PIA32_MTRR_DEF_TYPE;
 C_ASSERT(sizeof(UINT64) == sizeof(IA32_MTRR_DEF_TYPE));
 
+// MSR_CODE_IA32_VMX_BASIC = 0x480
+//! Vol 3C, A.1 BASIC VMX INFORMATION
+typedef union _IA32_VMX_BASIC
+{
+	UINT64 qwValue;
+	struct {
+		UINT64 RevisionId : 31;		//!< 0-30	VMCS revision identifier
+		UINT64 Reserved0 : 1;		//!< 31		0
+		UINT64 VmcsSize : 13;		//!< 32-44	Size of VMXON and VMCS regions
+		UINT64 Reserved1 : 3;		//!< 45-47	0
+		UINT64 Only32bit : 1;		//!< 48		Support only 32bit addresses in VMCS
+		UINT64 DualMonitor : 1;		//!< 49		Support dual monitor
+		UINT64 VmcsMemType : 4;		//!< 50-53	0=UC, 6=WB, else undefined
+		UINT64 IoExitInfo : 1;		//!< 54		INS/OUTS opcodes have exit information
+		UINT64 TrueMsrs : 1;		//!< 55		Support VMX true MSRs
+		UINT64 Reserved2 : 8;		//!< 56-63	0
+	};
+} IA32_VMX_BASIC, *PIA32_VMX_BASIC;
+C_ASSERT(sizeof(UINT64) == sizeof(IA32_VMX_BASIC));
+
 // MSR_CODE_IA32_VMX_MISC = 0x485
 // A.6 MISCELLANEOUS DATA
 typedef union _IA32_VMX_MISC
