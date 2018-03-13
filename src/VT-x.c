@@ -42,7 +42,7 @@ VTX_GetVmInstructionErrorMsg(
 	IN const VM_INSTRUCTION_ERROR eVmError
 )
 {
-	return g_VmInstructionErrorMessages[eVmError];
+	return g_VmInstructionErrorMessages[eVmError - 1];
 }
 
 VOID

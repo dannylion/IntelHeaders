@@ -38,7 +38,7 @@ ASM64_Rdmsr PROC
 	rdmsr ; rcx = dwMsrCode
 	mov rbx, rdx
 	shl rbx, 32
-	mov ebx, eax ; rbx = edx:eax
+	add rbx, rax ; rbx = edx:eax
 	
 	mov rax, rbx
 	pop rbx
@@ -53,15 +53,11 @@ ASM64_Rdmsr ENDP
 ; );
 ASM64_Wrmsr PROC
 	push rax
-	push rbx
 	
 	mov eax, edx ; eax = (UINT32)qwValue
-	mov rbx, rdx
-	shr rbx, 32 ; ebx = (UINT32)(qwValue >> 32)
-	mov edx, ebx ; edx = ebx
-	wrmsr ; rcx = dwMsrCode
+	shr rdx, 32
+	wrmsr ; rcx = dwMsrCode, edx:eax = qwValue
 
-	pop rbx
 	pop rax
 	ret
 ASM64_Wrmsr ENDP
@@ -865,18 +861,23 @@ ASM64_Vmptrst ENDP
 ; 	OUT PUINT64 pqwValue
 ; );
 ASM64_Vmread PROC
-	vmread qword ptr [rdx], rcx
+	push rbx
+	vmread rcx, rbx
 	jz l_VtxFailValid	; if (ZF) jmp
     jc l_VtxFailInvalid	; if (CF) jmp
     xor rax, rax		; return VTX_SUCCESS
+	mov [rdx], rbx
+	pop rbx
 	ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
+	pop rbx
     ret
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
+	pop rbx
 	ret
 ASM64_Vmread ENDP
 
@@ -887,7 +888,7 @@ ASM64_Vmread ENDP
 ; 	IN const UINT64 qwValue
 ; );
 ASM64_Vmwrite PROC
-	vmwrite rdx, rcx
+	vmwrite rcx, rdx
 	jz l_VtxFailValid	; if (ZF) jmp
     jc l_VtxFailInvalid	; if (CF) jmp
     xor rax, rax		; return VTX_SUCCESS
