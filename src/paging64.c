@@ -1112,7 +1112,7 @@ paging64_MapPage(
 	// can use the eMemType given, or not
 	if (phPageTable->bMtrrSupported)
 	{
-		// TODO: What do we do here if page is more than 4KB? (TBD)
+		// TODO: What do we do here if page end address exceeds MTRR range end? (TBD)
 		if (!MTRR_GetMemTypeForPhysicalAddress(
 			qwPhysicalAddress,
 			FALSE,
@@ -1341,7 +1341,6 @@ BOOLEAN
 PAGING64_InitPageTable(
 	INOUT PPAGE_TABLE64 ptPageTable,
 	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const UINT64 qwVirtualAddress,
 	IN const PLOG_HANDLE ptLog,
 	OUT PPAGE_TABLE64_HANDLE phOutPageTable
 )
@@ -1357,7 +1356,6 @@ PAGING64_InitPageTable(
 
 	if (	(NULL == ptPageTable)
 		||	(NULL == pfnPhysicalToVirtual)
-		||	(NULL == qwVirtualAddress)
 		||	(NULL == ptLog)
 		||	(NULL == phOutPageTable))
 	{
@@ -1368,10 +1366,9 @@ PAGING64_InitPageTable(
 	LOG_TRACE(
 		ptLog,
 		LOG_MODULE_PAGING,
-		"--> PAGING64_InitPageTable(ptPageTable=0x%016llx, pfnPhysicalToVirtual=0x%016llx, qwVirtualAddress=0x%016llx, ptLog=0x%016llx, phOutPageTable=0x%016llx)",
+		"--> PAGING64_InitPageTable(ptPageTable=0x%016llx, pfnPhysicalToVirtual=0x%016llx, ptLog=0x%016llx, phOutPageTable=0x%016llx)",
 		(UINT64)ptPageTable,
 		(UINT64)pfnPhysicalToVirtual,
-		qwVirtualAddress,
 		(UINT64)ptLog,
 		(UINT64)phOutPageTable);
 
@@ -1430,32 +1427,11 @@ PAGING64_InitPageTable(
 		goto lblCleanup;
 	}
 	
-	// Create a mapping for the page-table in itself at the given virtual address
-	if (!PAGING64_MapPhysicalToVirtual(
-		&hDstPageTable,
-		qwPml4PhysicalAddress,
-		qwVirtualAddress,
-		sizeof(*ptPageTable),
-		PAGE_READWRITE,
-		IA32_PAT_MEMTYPE_UC))
-	{
-		// Failed to map the page-table in itself at a virtual address
-		LOG_ERROR(
-			ptLog,
-			LOG_MODULE_PAGING,
-			"PAGING64_InitPageTable: PAGING64_MapPhysicalToVirtual failed on qwPhysicalAddress=0x%016llx, qwVirtualAddress=0x%016llx, cbSize=%d",
-			qwPml4PhysicalAddress,
-			qwVirtualAddress,
-			sizeof(*ptPageTable));
-		goto lblCleanup;
-	}
-
 	LOG_INFO(
 		ptLog,
 		LOG_MODULE_PAGING,
-		"PAGING64_InitPageTable: Page table initialized qwPhysicalAddress=0x%016llx, qwVirtualAddress=0x%016llx",
-		qwPml4PhysicalAddress,
-		qwVirtualAddress);
+		"PAGING64_InitPageTable: Page table initialized qwPhysicalAddress=0x%016llx",
+		qwPml4PhysicalAddress);
 
 	bSuccess = TRUE;
 	MemCopy(phOutPageTable, &hDstPageTable, sizeof(*phOutPageTable));
@@ -1492,6 +1468,7 @@ PAGING64_CopyPageTable(
 	UINT16 wPteIndex = 0;
 	const UINT64 qwMaxPhyAddr = MAXPHYADDR;
 	VA_ADDRESS64 tVa;
+	tVa.qwValue = 0;
 
 	if (	(NULL == phDstPageTable)
 		||	(NULL == phSrcPageTable))

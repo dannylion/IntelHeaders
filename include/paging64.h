@@ -324,13 +324,10 @@ PAGING64_UefiPhysicalToVirtual(
 );
 
 /**
-* Initialize a new page-table by zeroing out all the entries and then create
-* a mapping of the page-table in itself at the given virtual address, with
-* read+write access and Uncacheable(UC) memory type (so it can be edited later on)
+* Initialize a new page-table by zeroing out all the entries
 * @param ptPageTable - Page Table to initialize
 * @param pfnPhysicalToVirtual - convert a physical address to virtual address
-* @param qwVirtualAddress - virtual address to map the page-table at
-* @param ptLog - log handle, can be NULL
+* @param ptLog - log handle
 * @param phOutPageTable - open handle to the new page-table
 * @return TRUE on success, else FALSE
 */
@@ -338,7 +335,6 @@ BOOLEAN
 PAGING64_InitPageTable(
 	INOUT PPAGE_TABLE64 ptPageTable,
 	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const UINT64 qwVirtualAddress,
 	IN const PLOG_HANDLE ptLog,
 	OUT PPAGE_TABLE64_HANDLE phOutPageTable
 );

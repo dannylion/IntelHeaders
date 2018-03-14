@@ -421,16 +421,14 @@ ASM64_ReadGS ENDP
 ; 	OUT PUINT32 pdwSegmentLimit
 ; );
 ASM64_ReadSegmentLimit PROC
-	push rbx
-	lsl ebx, ecx
-	jnz l_success
+	and ecx, 0FFFFh
+	lsl ecx, ecx
+	jz l_success
 	xor rax, rax
-	pop rbx
 	ret
 l_success:
-	mov dword ptr [rdx], ebx
+	mov dword ptr [rdx], ecx
 	mov rax, 1
-	pop rbx
 	ret
 ASM64_ReadSegmentLimit ENDP
 
@@ -857,7 +855,7 @@ ASM64_Vmptrst ENDP
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmread(
-; 	IN const UINT64 qwVmcsField,
+; 	IN const ULONG_PTR ulVmcsField,
 ; 	OUT PUINT64 pqwValue
 ; );
 ASM64_Vmread PROC
@@ -879,11 +877,11 @@ ASM64_Vmread ENDP
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmwrite(
-; 	IN const UINT64 qwVmcsField,
+; 	IN const ULONG_PTR ulVmcsField,
 ; 	IN const UINT64 qwValue
 ; );
 ASM64_Vmwrite PROC
-	vmwrite rdx, rcx
+	vmwrite rcx, rdx
 	jz l_VtxFailValid	; if (ZF) jmp
     jc l_VtxFailInvalid	; if (CF) jmp
     xor rax, rax		; return VTX_SUCCESS

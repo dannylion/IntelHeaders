@@ -909,7 +909,7 @@ ASM64_Vmptrst(
 
 /**
 * Perform VMREAD opcode (Read field from current VMCS)
-* @param qwVmcsField - VMCS field encoding
+* @param ulVmcsField - VMCS field encoding
 * @param pulValue - VMCS field value
 * @return See VTX_RC
 */
@@ -918,7 +918,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	OUT PULONG_PTR pulValue
 );
 
@@ -926,7 +926,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread16(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	OUT PUINT16 pwValue
 )
 {
@@ -938,7 +938,7 @@ ASM64_Vmread16(
 		return eRc;
 	}
 
-	eRc = ASM64_Vmread(qwVmcsField, &qwValue);
+	eRc = ASM64_Vmread(ulVmcsField, &qwValue);
 	*pwValue = (UINT16)qwValue;
 	return eRc;
 }
@@ -947,7 +947,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread32(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	OUT PUINT32 pdwValue
 )
 {
@@ -959,7 +959,7 @@ ASM64_Vmread32(
 		return eRc;
 	}
 
-	eRc = ASM64_Vmread(qwVmcsField, &qwValue);
+	eRc = ASM64_Vmread(ulVmcsField, &qwValue);
 	*pdwValue = (UINT32)qwValue;
 	return eRc;
 }
@@ -968,16 +968,16 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread64(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	OUT PUINT64 pqwValue
 )
 {
-	return ASM64_Vmread(qwVmcsField, (PULONG_PTR)pqwValue);
+	return ASM64_Vmread(ulVmcsField, (PULONG_PTR)pqwValue);
 }
 
 /**
 * Perform VMWRITE opcode (Write to a field of current VMCS)
-* @param qwVmcsField - VMCS field encoding
+* @param ulVmcsField - VMCS field encoding
 * @param ulValue - VMCS field value
 * @return See VTX_RC
 */
@@ -986,7 +986,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	IN const ULONG_PTR ulValue
 );
 
@@ -994,33 +994,33 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite16(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	IN const UINT16 wValue
 )
 {
-	return ASM64_Vmwrite(qwVmcsField, (ULONG_PTR)wValue);
+	return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)wValue);
 }
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite32(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	IN const UINT32 dwValue
 )
 {
-	return ASM64_Vmwrite(qwVmcsField, (ULONG_PTR)dwValue);
+	return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)dwValue);
 }
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite64(
-	IN const UINT64 qwVmcsField,
+	IN const ULONG_PTR ulVmcsField,
 	IN const UINT64 qwValue
 )
 {
-	return ASM64_Vmwrite(qwVmcsField, (ULONG_PTR)qwValue);
+	return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)qwValue);
 }
 
 /**
