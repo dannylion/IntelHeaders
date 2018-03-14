@@ -566,7 +566,7 @@ PAGING64_VirtualToPhysical(
 		&ePageType))
 	{
 		// Virtual address isn't mapped in page-table
-		LOG_ERROR(
+		LOG_WARN(
 			phPageTable->ptLog,
 			LOG_MODULE_PAGING,
 			"PAGING64_VirtualToPhysical: paging64_GetMappedEntryAtVirtualAddress failed qwVirtualAddress=0x%016llx",
@@ -703,7 +703,7 @@ PAGING64_IsVirtualMapped(
 			&ePagePermissions,
 			&eMemType))
 		{
-			LOG_ERROR(
+			LOG_WARN(
 				phPageTable->ptLog,
 				LOG_MODULE_PAGING,
 				"PAGING64_IsVirtualMapped: PAGING64_VirtualToPhysical failed qwVirtualAddres=0x%016llx",
@@ -718,7 +718,7 @@ PAGING64_IsVirtualMapped(
 	}
 
 	// All pages are mapped
-	LOG_ERROR(
+	LOG_DEBUG(
 		phPageTable->ptLog,
 		LOG_MODULE_PAGING,
 		"PAGING64_IsVirtualMapped: qwVirtualAddres=0x%016llx, cbSize=%d mapped!",
