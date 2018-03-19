@@ -253,7 +253,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 	}
 
 	// PDPTE points to PDE
-	ptPde = (PPDE64)&phPageTable->patPd[tVa.TwoMb.PdeIndex];
+	ptPde = (PPDE64)&phPageTable->patPd[tVa.TwoMb.PdeIndex * PAGING64_PDE_COUNT];
 	if (!ptPde->Present)
 	{
 		LOG_WARN(
@@ -335,21 +335,21 @@ paging64_GetPagePermissions(
 		ptPdpte1gb = (PPDPTE1G64)pvEntry;
 		eSupervisor = (ptPdpte1gb->Us) ? PAGE_SUPERVISOR : 0;
 		eWrite = (ptPdpte1gb->Rw) ? PAGE_WRITE : 0;
-		eExecute = (!ptPdpte1gb->ExecuteDisable) ? PAGE_EXECUTE : 0;
+		eExecute = (!ptPdpte1gb->Nx) ? PAGE_EXECUTE : 0;
 		break;
 
 	case PAGE_TYPE_2MB:
 		ptPde2mb = (PPDE2MB64)pvEntry;
 		eSupervisor = (ptPde2mb->Us) ? PAGE_SUPERVISOR : 0;
 		eWrite = (ptPde2mb->Rw) ? PAGE_WRITE : 0;
-		eExecute = (!ptPde2mb->ExecuteDisable) ? PAGE_EXECUTE : 0;
+		eExecute = (!ptPde2mb->Nx) ? PAGE_EXECUTE : 0;
 		break;
 
 	case PAGE_TYPE_4KB:
 		ptPte = (PPTE64)pvEntry;
 		eSupervisor = (ptPte->Us) ? PAGE_SUPERVISOR : 0;
 		eWrite = (ptPte->Rw) ? PAGE_WRITE : 0;
-		eExecute = (!ptPte->ExecuteDisable) ? PAGE_EXECUTE : 0;
+		eExecute = (!ptPte->Nx) ? PAGE_EXECUTE : 0;
 		break;
 	}
 
@@ -395,21 +395,21 @@ paging64_GetPageMemoryType(
 		ptPdpte1gb = (PPDPTE1G64)pvEntry;
 		bPwt = (BOOLEAN)ptPdpte1gb->Pwt;
 		bPcd = (BOOLEAN)ptPdpte1gb->Pcd;
-		bPcd = (BOOLEAN)ptPdpte1gb->Pat;
+		bPat = (BOOLEAN)ptPdpte1gb->Pat;
 		break;
 
 	case PAGE_TYPE_2MB:
 		ptPde2mb = (PPDE2MB64)pvEntry;
 		bPwt = (BOOLEAN)ptPde2mb->Pwt;
 		bPcd = (BOOLEAN)ptPde2mb->Pcd;
-		bPcd = (BOOLEAN)ptPde2mb->Pat;
+		bPat = (BOOLEAN)ptPde2mb->Pat;
 		break;
 
 	case PAGE_TYPE_4KB:
 		ptPte = (PPTE64)pvEntry;
 		bPwt = (BOOLEAN)ptPte->Pwt;
 		bPcd = (BOOLEAN)ptPte->Pcd;
-		bPcd = (BOOLEAN)ptPte->Pat;
+		bPat = (BOOLEAN)ptPte->Pat;
 		break;
 	}
 	
@@ -580,19 +580,19 @@ PAGING64_VirtualToPhysical(
 	case PAGE_TYPE_1GB:
 		ptPdpte1gb = (PPDPTE1G64)pvEntry;
 		qwPhysicalAddress = (
-				((ptPdpte1gb->Addr << PAGE_SHIFT_1GB) & qwMaxPhyAddr)
+				((ptPdpte1gb->Addr << 21) & qwMaxPhyAddr)
 			|	(tVa.OneGb.Offset & PAGE_OFFSET_MASK_1GB));
 		break;
 	case PAGE_TYPE_2MB:
 		ptPde2mb = (PPDE2MB64)pvEntry;
 		qwPhysicalAddress = (
-				((ptPde2mb->Addr << PAGE_SHIFT_2MB) & qwMaxPhyAddr)
+				((ptPde2mb->Addr << 12) & qwMaxPhyAddr)
 			|	(tVa.TwoMb.Offset & PAGE_OFFSET_MASK_2MB));
 		break;
 	case PAGE_TYPE_4KB:
 		ptPte = (PPTE64)pvEntry;
 		qwPhysicalAddress = (
-				((ptPte->Addr << PAGE_SHIFT_4KB) & qwMaxPhyAddr)
+				((ptPte->Addr << 3) & qwMaxPhyAddr)
 			|	(tVa.FourKb.Offset & PAGE_OFFSET_MASK_4KB));
 		break;
 	default:
@@ -827,23 +827,35 @@ paging64_GetPatFlagsForMemType(
 	OUT PBOOLEAN pbPatFlag
 )
 {
-	UINT8 i = 0;
-	UINT8 cPatIndex = 0;
+	BOOLEAN bSuccess = FALSE;
+	UINT8 ucPatIndex = 0;
+	IA32_PAT_MEMTYPE ePatMemType = 0;
+
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> paging64_GetPatFlagsForMemType(phPageTable=0x%016llx, eMemType=%d, pbPwtFlag=0x%016llx, pbPcdFlag=0x%016llx, pbPatFlag=0x%016llx)",
+		(UINT64)phPageTable,
+		eMemType,
+		(UINT64)pbPwtFlag,
+		(UINT64)pbPcdFlag,
+		(UINT64)pbPatFlag);
 
 	if (phPageTable->bPatSupported)
 	{
 		//! Vol 3A, Table 11-11. Selection of PAT Entries with PAT, PCD, and PWT Flags
 		// Iterate over all PAT entries from MSR and see which one contains
 		// the given memory type
-		for (; i < ARRAYSIZE(phPageTable->acPatMemTypes); i++)
+		for (; ucPatIndex < ARRAYSIZE(phPageTable->acPatMemTypes); ucPatIndex++)
 		{
-			cPatIndex = phPageTable->acPatMemTypes[i];
-			if (cPatIndex == eMemType)
+			ePatMemType = (IA32_PAT_MEMTYPE)phPageTable->acPatMemTypes[ucPatIndex];
+			if (ePatMemType == eMemType)
 			{
-				*pbPwtFlag = (0 != (cPatIndex & (1 << 0)));
-				*pbPcdFlag = (0 != (cPatIndex & (1 << 1)));
-				*pbPatFlag = (0 != (cPatIndex & (1 << 2)));
-				return TRUE;
+				*pbPwtFlag = (0 != (ucPatIndex & (1 << 0)));
+				*pbPcdFlag = (0 != (ucPatIndex & (1 << 1)));
+				*pbPatFlag = (0 != (ucPatIndex & (1 << 2)));
+				bSuccess = TRUE;
+				break;
 			}
 		}
 	}
@@ -858,30 +870,41 @@ paging64_GetPatFlagsForMemType(
 			*pbPwtFlag = 0;
 			*pbPcdFlag = 0;
 			*pbPatFlag = 0;
-			return TRUE;
+			bSuccess = TRUE;
+			break;
 		case IA32_PAT_MEMTYPE_WT:
 			// WT is by default at entry 1 (See PAT1_DEFAULT_MEMTYPE)
 			*pbPwtFlag = 1;
 			*pbPcdFlag = 0;
 			*pbPatFlag = 0;
-			return TRUE;
+			bSuccess = TRUE;
+			break;
 		case IA32_PAT_MEMTYPE_UCM:
 			// UC- is by default at entry 2 (See PAT2_DEFAULT_MEMTYPE)
 			*pbPwtFlag = 0;
 			*pbPcdFlag = 1;
 			*pbPatFlag = 0;
-			return TRUE;
+			bSuccess = TRUE;
+			break;
 		case IA32_PAT_MEMTYPE_UC:
 			// UC is by default at entry 3 (See PAT3_DEFAULT_MEMTYPE)
 			*pbPwtFlag = 1;
 			*pbPcdFlag = 1;
 			*pbPatFlag = 0;
-			return TRUE;
+			bSuccess = TRUE;
+			break;
 		}
 	}
 
-	// No PAT entry contains the given memory type
-	return FALSE;
+	LOG_TRACE(
+		phPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- paging64_GetPatFlagsForMemType return bSuccess=%d (Pwt=%d, Pcd=%d, Pat=%d)",
+		bSuccess,
+		*pbPwtFlag,
+		*pbPcdFlag,
+		*pbPatFlag);
+	return bSuccess;
 }
 
 VOID
@@ -900,6 +923,9 @@ paging64_SetPdpte1gb(
 	UINT64 qwPdpteOffset = 0;
 	BOOLEAN bSupervisor = (0 != (ePagePermission & PAGE_SUPERVISOR));
 	BOOLEAN bWrite = (0 != (ePagePermission & PAGE_WRITE));
+	BOOLEAN bNoExecute = (
+			phPageTable->bNxBitSupported
+		&&	(0 == (ePagePermission & PAGE_EXECUTE)));
 	VA_ADDRESS64 tVa;
 
 	tVa.qwValue = qwVirtualAddress;
@@ -914,9 +940,10 @@ paging64_SetPdpte1gb(
 	// Initialize PML4E to point to PDPTE
 	MemFill(ptPml4e, 0, sizeof(*ptPml4e));
 	ptPml4e->Present = TRUE;
-	ptPml4e->Addr = phPageTable->qwPdptPhysicalAddress + qwPdpteOffset;
+	ptPml4e->Addr = (phPageTable->qwPdptPhysicalAddress + qwPdpteOffset) >> 12;
 	ptPml4e->Us = bSupervisor;
 	ptPml4e->Rw = bWrite;
+	ptPml4e->Nx = bNoExecute;
 	ptPml4e->Pwt = bPwtFlag;
 	ptPml4e->Pcd = bPcdFlag;
 
@@ -924,14 +951,10 @@ paging64_SetPdpte1gb(
 	MemFill(ptPdpte1gb, 0, sizeof(*ptPdpte1gb));
 	ptPdpte1gb->Present = TRUE;
 	ptPdpte1gb->PageSize = 1;
-	ptPdpte1gb->Addr = qwPhysicalAddress >> PAGE_SHIFT_1GB;
+	ptPdpte1gb->Addr = qwPhysicalAddress >> 21;
 	ptPdpte1gb->Us = bSupervisor;
-	if (	phPageTable->bNxBitSupported
-		&&	(0 == (ePagePermission & PAGE_EXECUTE)))
-	{
-		ptPdpte1gb->ExecuteDisable = TRUE;
-	}
 	ptPdpte1gb->Rw = bWrite;
+	ptPdpte1gb->Nx = bNoExecute;
 	ptPdpte1gb->Pwt = bPwtFlag;
 	ptPdpte1gb->Pcd = bPcdFlag;
 	ptPdpte1gb->Pat = bPatFlag;
@@ -955,6 +978,9 @@ paging64_SetPde2mb(
 	UINT64 qwPdeOffset = 0;
 	BOOLEAN bSupervisor = (0 != (ePagePermission & PAGE_SUPERVISOR));
 	BOOLEAN bWrite = (0 != (ePagePermission & PAGE_WRITE));
+	BOOLEAN bNoExecute = (
+			phPageTable->bNxBitSupported
+		&&	(0 == (ePagePermission & PAGE_EXECUTE)));
 	VA_ADDRESS64 tVa;
 
 	tVa.qwValue = qwVirtualAddress;
@@ -962,7 +988,7 @@ paging64_SetPde2mb(
 	// Get pointers to all relevant page-table entries for page
 	ptPml4e = (PPML4E64)&phPageTable->patPml4[tVa.TwoMb.Pml4eIndex];
 	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.TwoMb.PdpteIndex];
-	ptPde2mb = (PPDE2MB64)&phPageTable->patPd[tVa.TwoMb.PdeIndex];
+	ptPde2mb = (PPDE2MB64)&phPageTable->patPd[tVa.TwoMb.PdeIndex * PAGING64_PDE_COUNT];
 
 	// Calculate entries offsets from array start
 	qwPdpteOffset = ((UINT64)ptPdpte) - ((UINT64)&phPageTable->patPdpt);
@@ -970,34 +996,32 @@ paging64_SetPde2mb(
 
 	// Initialize PML4E to point to PDPTE
 	MemFill(ptPml4e, 0, sizeof(*ptPml4e));
-	ptPml4e->Present = TRUE;
-	ptPml4e->Addr = phPageTable->qwPdptPhysicalAddress + qwPdpteOffset;
+	ptPml4e->Present = 1;
+	ptPml4e->Addr = (phPageTable->qwPdptPhysicalAddress + qwPdpteOffset) >> 12;
 	ptPml4e->Us = bSupervisor;
 	ptPml4e->Rw = bWrite;
+	ptPml4e->Nx = bNoExecute;
 	ptPml4e->Pwt = bPwtFlag;
 	ptPml4e->Pcd = bPcdFlag;
 
 	// Initialize PDPTE to point to PDE
 	MemFill(ptPdpte, 0, sizeof(*ptPdpte));
-	ptPdpte->Present = TRUE;
-	ptPdpte->Addr = phPageTable->qwPdPhysicalAddress + qwPdeOffset;
+	ptPdpte->Present = 1;
+	ptPdpte->Addr = (phPageTable->qwPdPhysicalAddress + qwPdeOffset) >> 12;
 	ptPdpte->Us = bSupervisor;
 	ptPdpte->Rw = bWrite;
+	ptPdpte->Nx = bNoExecute;
 	ptPdpte->Pwt = bPwtFlag;
 	ptPdpte->Pcd = bPcdFlag;
 
 	// Initialize PDE to point to physical address
 	MemFill(ptPde2mb, 0, sizeof(*ptPde2mb));
-	ptPde2mb->Present = TRUE;
+	ptPde2mb->Present = 1;
 	ptPde2mb->PageSize = 1;
-	ptPde2mb->Addr = qwPhysicalAddress >> PAGE_SHIFT_2MB;
+	ptPde2mb->Addr = qwPhysicalAddress >> 12;
 	ptPde2mb->Us = bSupervisor;
-	if (	phPageTable->bNxBitSupported
-		&&	(0 == (ePagePermission & PAGE_EXECUTE)))
-	{
-		ptPde2mb->ExecuteDisable = TRUE;
-	}
 	ptPde2mb->Rw = bWrite;
+	ptPde2mb->Nx = bNoExecute;
 	ptPde2mb->Pwt = bPwtFlag;
 	ptPde2mb->Pcd = bPcdFlag;
 	ptPde2mb->Pat = bPatFlag;
@@ -1023,6 +1047,9 @@ paging64_SetPte(
 	UINT64 qwPteOffset = 0;
 	BOOLEAN bSupervisor = (0 != (ePagePermission & PAGE_SUPERVISOR));
 	BOOLEAN bWrite = (0 != (ePagePermission & PAGE_WRITE));
+	BOOLEAN bNoExecute = (
+			phPageTable->bNxBitSupported
+		&&	(0 == (ePagePermission & PAGE_EXECUTE)));
 	VA_ADDRESS64 tVa;
 
 	tVa.qwValue = qwVirtualAddress;
@@ -1030,7 +1057,7 @@ paging64_SetPte(
 	// Get pointers to all relevant page-table entries for page
 	ptPml4e = (PPML4E64)&phPageTable->patPml4[tVa.FourKb.Pml4eIndex];
 	ptPdpte = (PPDPTE64)&phPageTable->patPdpt[tVa.FourKb.PdpteIndex];
-	ptPde = (PPDE64)&phPageTable->patPd[tVa.FourKb.PdeIndex];
+	ptPde = (PPDE64)&phPageTable->patPd[tVa.FourKb.PdeIndex * PAGING64_PDE_COUNT];
 	ptPte = (PPTE64)&phPageTable->patPd[tVa.FourKb.PdeIndex * PAGING64_PDE_COUNT + tVa.FourKb.PteIndex];
 
 	// Calculate entries offsets from array start
@@ -1041,41 +1068,40 @@ paging64_SetPte(
 	// Initialize PML4E to point to PDPTE
 	MemFill(ptPml4e, 0, sizeof(*ptPml4e));
 	ptPml4e->Present = TRUE;
-	ptPml4e->Addr = phPageTable->qwPdptPhysicalAddress + qwPdpteOffset;
+	ptPml4e->Addr = (phPageTable->qwPdptPhysicalAddress + qwPdpteOffset) >> 12;
 	ptPml4e->Us = bSupervisor;
 	ptPml4e->Rw = bWrite;
+	ptPml4e->Nx = bNoExecute;
 	ptPml4e->Pwt = bPwtFlag;
 	ptPml4e->Pcd = bPcdFlag;
 
 	// Initialize PDPTE to point to PDE
 	MemFill(ptPdpte, 0, sizeof(*ptPdpte));
 	ptPdpte->Present = TRUE;
-	ptPdpte->Addr = phPageTable->qwPdPhysicalAddress + qwPdeOffset;
+	ptPdpte->Addr = (phPageTable->qwPdPhysicalAddress + qwPdeOffset) >> 12;
 	ptPdpte->Us = bSupervisor;
 	ptPdpte->Rw = bWrite;
+	ptPdpte->Nx = bNoExecute;
 	ptPdpte->Pwt = bPwtFlag;
 	ptPdpte->Pcd = bPcdFlag;
 
 	// Initialize PDE to point to PTE
 	MemFill(ptPde, 0, sizeof(*ptPde));
 	ptPde->Present = TRUE;
-	ptPde->Addr = phPageTable->qwPdPhysicalAddress + qwPteOffset;
+	ptPde->Addr = (phPageTable->qwPdPhysicalAddress + qwPteOffset) >> 12;
 	ptPde->Us = bSupervisor;
 	ptPde->Rw = bWrite;
+	ptPde->Nx = bNoExecute;
 	ptPde->Pwt = bPwtFlag;
 	ptPde->Pcd = bPcdFlag;
 
 	// Initialize PTE to point to physical address
 	MemFill(ptPte, 0, sizeof(*ptPte));
 	ptPte->Present = TRUE;
-	ptPte->Addr = qwPhysicalAddress >> PAGE_SHIFT_4KB;
+	ptPte->Addr = qwPhysicalAddress >> 3;
 	ptPte->Us = bSupervisor;
 	ptPte->Rw = bWrite;
-	if (	phPageTable->bNxBitSupported
-		&&	(0 == (ePagePermission & PAGE_EXECUTE)))
-	{
-		ptPte->ExecuteDisable = TRUE;
-	}
+	ptPte->Nx = bNoExecute;
 	ptPte->Pwt = bPwtFlag;
 	ptPte->Pcd = bPcdFlag;
 	ptPte->Pat = bPatFlag;
@@ -1530,7 +1556,7 @@ PAGING64_CopyPageTable(
 					goto lblCleanup;
 				}
 
-				qwPhysicalAddress = (ptPdpte1gb->Addr << PAGE_SHIFT_1GB) & qwMaxPhyAddr;
+				qwPhysicalAddress = (ptPdpte1gb->Addr << 21) & qwMaxPhyAddr;
 
 				ePermissions = paging64_GetPagePermissions(
 					(PVOID)ptPdpte1gb,
@@ -1580,7 +1606,7 @@ PAGING64_CopyPageTable(
 			for (; wPdeIndex < PAGING64_PDE_COUNT; wPdeIndex++)
 			{
 				// Skip PDE if it's not present
-				ptPde = (PPDE64)&phSrcPageTable->patPd[wPdeIndex];
+				ptPde = (PPDE64)&phSrcPageTable->patPd[wPdeIndex * PAGING64_PDE_COUNT];
 				if (!ptPde->Present)
 				{
 					continue;
@@ -1613,7 +1639,7 @@ PAGING64_CopyPageTable(
 						goto lblCleanup;
 					}
 
-					qwPhysicalAddress = (ptPde2mb->Addr << PAGE_SHIFT_2MB) & qwMaxPhyAddr;
+					qwPhysicalAddress = (ptPde2mb->Addr << 12) & qwMaxPhyAddr;
 
 					ePermissions = paging64_GetPagePermissions(
 						(PVOID)ptPde2mb,
@@ -1693,7 +1719,7 @@ PAGING64_CopyPageTable(
 						goto lblCleanup;
 					}
 
-					qwPhysicalAddress = (ptPte->Addr << PAGE_SHIFT_4KB) & qwMaxPhyAddr;
+					qwPhysicalAddress = (ptPte->Addr << 3) & qwMaxPhyAddr;
 
 					ePermissions = paging64_GetPagePermissions(
 						(PVOID)ptPte,

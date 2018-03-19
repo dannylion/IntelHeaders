@@ -42,11 +42,11 @@ memcpy(
 	size_t cbSize
 )
 {
-	char * pcSrc = NULL;
-	char * pcDst = NULL;
-	PUINT64 pqwSrc = (PUINT64)pvSrc;
-	PUINT64 pqwDst = (PUINT64)pvDst;
-	UINT64 i;
+	PUINT8 pcSrc = NULL;
+	PUINT8 pcDst = NULL;
+	PULONG_PTR pqwSrc = (PULONG_PTR)pvSrc;
+	PULONG_PTR pqwDst = (PULONG_PTR)pvDst;
+	ULONG_PTR i;
 
 	if (	(NULL == pvDst)
 		||	(NULL == pvSrc)
@@ -56,20 +56,18 @@ memcpy(
 		return NULL;
 	}
 
-	// Copy bytes in UINT64 increments to make things a bit faster
-	for (i = cbSize / sizeof(UINT64); 0 < i; i--)
+	// Copy bytes in ULONG_PTR increments to make things a bit faster
+	for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
 	{
-		*pqwDst = *pqwSrc;
-		pqwDst++;
-		pqwSrc++;
+		pqwDst[i] = pqwSrc[i];
 	}
 
 	// Copy the remaining bytes as regular chars
-	pcSrc = (char *)pqwSrc;
-	pcDst = (char *)pqwDst;
-	for (i = cbSize % sizeof(UINT64); 0 < i; i--)
+	pcSrc = (PUINT8)((ULONG_PTR)pvSrc + i * sizeof(ULONG_PTR));
+	pcDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
+	for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
 	{
-		pcDst[i - 1] = pcSrc[i - 1];
+		pcDst[i] = pcSrc[i];
 	}
 
 	return pvDst;
@@ -84,12 +82,12 @@ memset(
 	size_t cbSize
 )
 {
-	char cValue = (char)iValue;
-	char * pcDst = NULL;
-	PUINT64 pqwDst = (PUINT64)pvDst;
-	UINT64 qwValue = 0;
-	PUINT64 pqwValue = &qwValue;
-	UINT64 i = cbSize / sizeof(UINT64);
+	UINT8 ucValue = (UINT8)iValue;
+	PUINT8 pucDst = NULL;
+	PULONG_PTR pqwDst = (PULONG_PTR)pvDst;
+	ULONG_PTR qwValue = 0;
+	PUINT8 pucValue = (PUINT8)&qwValue;
+	ULONG_PTR i = 0;
 
 	if (	(NULL == pvDst)
 		||	(0 == cbSize))
@@ -98,24 +96,23 @@ memset(
 		return NULL;
 	}
 
-	// Build a UINT64 with all bytes set to cChar
-	for (i = 0; i < sizeof(UINT64); i++)
+	// Build a ULONG_PTR with all bytes set to ucValue
+	for (i = 0; i < sizeof(qwValue); i++)
 	{
-		*pqwValue = cValue;
+		pucValue[i] = ucValue;
 	}
 
-	// Set bytes in UINT64 increments to make things a bit faster
-	for (i = cbSize / sizeof(UINT64); 0 < i; i--)
+	// Set bytes in ULONG_PTR increments to make things a bit faster
+	for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
 	{
-		*pqwDst = qwValue;
-		pqwDst++;
+		pqwDst[i] = qwValue;
 	}
 
 	// Set the remaining bytes as regular chars
-	pcDst = (char *)pqwDst;
-	for (i = cbSize % sizeof(UINT64); 0 < i; i--)
+	pucDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
+	for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
 	{
-		pcDst[i - 1] = cValue;
+		pucDst[i] = ucValue;
 	}
 
 	return pvDst;
@@ -148,4 +145,50 @@ MemZero(
 )
 {
 	return (pvDst == memset(pvDst, 0, cbSize));
+}
+
+BOOLEAN
+MemEqual(
+	IN const PVOID pvBuffer1,
+	IN const PVOID pvBuffer2,
+	IN const UINT64 cbSize
+)
+{
+	BOOLEAN bSuccess = FALSE;
+	PULONG_PTR pqwBuffer1 = (PULONG_PTR)pvBuffer1;
+	PULONG_PTR pqwBuffer2 = (PULONG_PTR)pvBuffer2;
+	PUINT8 pucBuffer1 = NULL;
+	PUINT8 pucBuffer2 = NULL;
+	ULONG_PTR i = 0;
+
+	if (	(NULL == pvBuffer1)
+		||	(NULL == pvBuffer2)
+		||	(0 == cbSize))
+	{
+		// Invalid parameters
+		return NULL;
+	}
+
+	for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
+	{
+		if (pqwBuffer1[i] != pqwBuffer2[i])
+		{
+			goto lblCleanup;
+		}
+	}
+
+	// Set the remaining bytes as regular chars
+	pucBuffer1 = (PUINT8)((ULONG_PTR)pvBuffer1 + i * sizeof(ULONG_PTR));
+	pucBuffer2 = (PUINT8)((ULONG_PTR)pvBuffer2 + i * sizeof(ULONG_PTR));
+	for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
+	{
+		if (pucBuffer1[i] != pucBuffer2[i])
+		{
+			goto lblCleanup;
+		}
+	}
+
+	bSuccess = TRUE;
+lblCleanup:
+	return bSuccess;
 }

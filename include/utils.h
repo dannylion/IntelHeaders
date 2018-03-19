@@ -91,4 +91,18 @@ MemZero(
 	IN const UINT64 cbSize
 );
 
+/**
+* Check if the buffers are equal
+* @param pvBuffer1 - first buffer
+* @param pvBuffer2 - second buffer
+* @param cbSize - amount of bytes
+* @return TRUE the buffers are equal, else FALSE
+*/
+BOOLEAN
+MemEqual(
+	IN const PVOID pvBuffer1,
+	IN const PVOID pvBuffer2,
+	IN const UINT64 cbSize
+);
+
 #endif /* __INTEL_UTILS_H__ */

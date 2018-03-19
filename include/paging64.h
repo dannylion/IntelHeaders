@@ -50,9 +50,9 @@
 #define PAGE_SIZE_2MB	(0x1000 * 512)
 #define PAGE_SIZE_1GB	(0x1000 * 512 * 512)
 
-#define PAGE_SHIFT_1GB 30L // PAGE_SIZE_1GB == (1 << 30)
-#define PAGE_SHIFT_2MB 21L // PAGE_SIZE_2MB == (1 << 21)
-#define PAGE_SHIFT_4KB 12L // PAGE_SIZE_4KB == (1 << 12)
+#define PAGE_SHIFT_1GB 30L
+#define PAGE_SHIFT_2MB 21L
+#define PAGE_SHIFT_4KB 12L
 
 #define PAGE_OFFSET_MASK_1GB (PAGE_SIZE_1GB - 1)
 #define PAGE_OFFSET_MASK_2MB (PAGE_SIZE_2MB - 1)
@@ -145,123 +145,141 @@ typedef union _VA_ADDRESS64
 C_ASSERT(sizeof(UINT64) == sizeof(VA_ADDRESS64));
 
 //! Vol 3A, Table 4-14. Format of an IA-32e PML4 Entry (PML4E) that References a Page-Directory-Pointer Table
-typedef struct _PML4E64
+typedef union _PML4E64
 {
-	UINT64 Present : 1;			//!< 0 Present
-	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;				//!< 3 Page-level write-through
-	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-	UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Ignored0 : 1;		//!< 6 
-	UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0
-	UINT64 Ignored1 : 4;		//!< 8-11
-	UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-	UINT64 Ignored2 : 11;		//!< 52-62
-	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 qwValue;
+	struct {
+		UINT64 Present : 1;			//!< 0 Present
+		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+		UINT64 Pwt : 1;				//!< 3 Page-level write-through
+		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+		UINT64 Ignored0 : 1;		//!< 6 
+		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0
+		UINT64 Ignored1 : 4;		//!< 8-11
+		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
+		UINT64 Ignored2 : 11;		//!< 52-62
+		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	};
 } PML4E64, *PPML4E64;
 C_ASSERT(sizeof(UINT64) == sizeof(PML4E64));
 
 //! Vol 3A, Table 4-15. Format of an IA-32e Page-Directory-Pointer-Table Entry (PDPTE) that Maps a 1-GByte Page
-typedef struct _PDPTE1G64
+typedef union _PDPTE1G64
 {
-	UINT64 Present : 1;			//!< 0 Present
-	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;				//!< 3 Page-level write-through
-	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-	UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-	UINT64 PageSize : 1;		//!< 7 Page-Size; Must be 1 for 1GB pages
-	UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
-	UINT64 Ignored0 : 3;		//!< 9-11
-	UINT64 Pat : 1;				//!< 12 Page Attribute Table;
-	UINT64 Reserved0 : 17;		//!< 13-29
-	UINT64 Addr : 22;			//!< 30-51 Physical address that the entry points to
-	UINT64 Ignored1 : 7;		//!< 52-58
-	UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
-								//!< protection key of the page
-	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 qwValue;
+	struct {
+		UINT64 Present : 1;			//!< 0 Present
+		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+		UINT64 Pwt : 1;				//!< 3 Page-level write-through
+		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
+		UINT64 PageSize : 1;		//!< 7 Page-Size; Must be 1 for 1GB pages
+		UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
+		UINT64 Ignored0 : 3;		//!< 9-11
+		UINT64 Pat : 1;				//!< 12 Page Attribute Table;
+		UINT64 Reserved0 : 17;		//!< 13-29
+		UINT64 Addr : 22;			//!< 30-51 Physical address that the entry points to
+		UINT64 Ignored1 : 7;		//!< 52-58
+		UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
+									//!< protection key of the page
+		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	};
 } PDPTE1G64, *PPDPTE1G64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDPTE1G64));
 
 //! Vol 3A, Table 4-16. Format of an IA-32e Page-Directory-Pointer-Table Entry (PDPTE) that References a Page Directory
-typedef struct _PDPTE64
+typedef union _PDPTE64
 {
-	UINT64 Present: 1;			//!< 0 Present
-	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;				//!< 3 Page-level write-through
-	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-	UINT64 Access: 1;			//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-	UINT64 PageSize	: 1;		//!< 7 Page-Size; must be 0 to refernce PDE
-	UINT64 Reserved1 : 4;		//!< 8-11
-	UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-	UINT64 Reserved2 : 11;		//!< 52-62
-	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 qwValue;
+	struct {
+		UINT64 Present : 1;			//!< 0 Present
+		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+		UINT64 Pwt : 1;				//!< 3 Page-level write-through
+		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
+		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0 to refernce PDE
+		UINT64 Reserved1 : 4;		//!< 8-11
+		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
+		UINT64 Reserved2 : 11;		//!< 52-62
+		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	};
 } PDPTE64, *PPDPTE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDPTE64));
 
 //! Vol 3A, Table 4-17. Format of an IA-32e Page-Directory Entry that Maps a 2-MByte Page
-typedef struct _PDE2MB64
+typedef union _PDE2MB64
 {
-	UINT64 Present : 1;			//!< 0 Present
-	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;				//!< 3 Page-level write-through
-	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-	UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-	UINT64 PageSize : 1;		//!< 7 Page-Size; must be 1 for 2MB pages
-	UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
-	UINT64 Ignored0 : 3;		//!< 9-11
-	UINT64 Pat : 1;				//!< 12 Page Attribute Table;
-	UINT64 Reserved0 : 8;		//!< 13-20
-	UINT64 Addr : 31;			//!< 21-51 Physical address that the entry points to
-	UINT64 Ignored1 : 7;		//!< 52-58
-	UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
-								//!< protection key of the page
-	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 qwValue;
+	struct {
+		UINT64 Present : 1;			//!< 0 Present
+		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+		UINT64 Pwt : 1;				//!< 3 Page-level write-through
+		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
+		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 1 for 2MB pages
+		UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
+		UINT64 Ignored0 : 3;		//!< 9-11
+		UINT64 Pat : 1;				//!< 12 Page Attribute Table;
+		UINT64 Reserved0 : 8;		//!< 13-20
+		UINT64 Addr : 31;			//!< 21-51 Physical address that the entry points to
+		UINT64 Ignored1 : 7;		//!< 52-58
+		UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
+									//!< protection key of the page
+		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	};
 } PDE2MB64, *PPDE2MB64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDE2MB64));
 
 //! Vol 3A, Table 4-18. Format of an IA-32e Page-Directory Entry that References a Page Table
-typedef struct _PDE64
+typedef union _PDE64
 {
-	UINT64 Present : 1;			//!< 0 Present
-	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;				//!< 3 Page-level write-through
-	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-	UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Reserved0 : 1;		//!< 6
-	UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0 to reference PTE
-	UINT64 Reserved1 : 4;		//!< 8-11
-	UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-	UINT64 Reserved2 : 11;		//!< 52-62
-	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 qwValue;
+	struct {
+		UINT64 Present : 1;			//!< 0 Present
+		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+		UINT64 Pwt : 1;				//!< 3 Page-level write-through
+		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+		UINT64 Reserved0 : 1;		//!< 6
+		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0 to reference PTE
+		UINT64 Reserved1 : 4;		//!< 8-11
+		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
+		UINT64 Reserved2 : 11;		//!< 52-62
+		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	};
 } PDE64, *PPDE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDE64));
 
 //! Vol 3A, Table 4-19. Format of an IA-32e Page-Table Entry that Maps a 4-KByte Page
-typedef struct _PTE64
+typedef union _PTE64
 {
-	UINT64 Present : 1;			//!< 0 Present
-	UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-	UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-	UINT64 Pwt : 1;				//!< 3 Page-level write-through
-	UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-	UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-	UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-	UINT64 Pat : 1;				//!< 7 Page Attribute Table;
-	UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
-	UINT64 Ignored0 : 3;		//!< 9-11
-	UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-	UINT64 Ignored1 : 7;		//!< 52-58
-	UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
-								//!< protection key of the page
-	UINT64 ExecuteDisable : 1;	//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	UINT64 qwValue;
+	struct {
+		UINT64 Present : 1;			//!< 0 Present
+		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
+		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
+		UINT64 Pwt : 1;				//!< 3 Page-level write-through
+		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
+		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
+		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
+		UINT64 Pat : 1;				//!< 7 Page Attribute Table;
+		UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
+		UINT64 Ignored0 : 3;		//!< 9-11
+		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
+		UINT64 Ignored1 : 7;		//!< 52-58
+		UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
+									//!< protection key of the page
+		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
+	};
 } PTE64, *PPTE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PTE64));
 
