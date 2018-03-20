@@ -30,6 +30,7 @@
 #define __INTEL_DEBUG_LOG_H__
 
 #include "ntdatatypes.h"
+#include "utils.h"
 
 /**
  * Write a message to log using the given format and parameters list.
@@ -75,6 +76,7 @@ typedef struct _LOG_HANDLE
 	PVOID pvContext;
 	LOG_PRIORITY ePriorityFilterMask;
 	LOG_MODULE eModulesFilterMask;
+	SPINLOCK tLock;
 } LOG_HANDLE, *PLOG_HANDLE;
 
 /**
@@ -160,7 +162,9 @@ LOG_Write(
 		{ \
 			break; \
 		} \
+		LOCK_SpinlockAcquire(&(ptLog)->tLock); \
 		(VOID)LOG_Write((ptLog), (pszFmt), __VA_ARGS__); \
+		LOCK_SpinlockRelease(&(ptLog)->tLock); \
 	} while(FALSE);
 #else
 #define LOG_WRITE(ptLog, eModule, ePriority, pszFmt, ...)
@@ -169,9 +173,16 @@ LOG_Write(
 // Warning: don't use this macro directly
 #define __LOG_PREFIX_BY_PRIORITY(ptLog, eModule, PriorityName, pszFmt, ...) \
 	do { \
-		LOG_WRITE((ptLog), (eModule), LOG_PRIORITY_##PriorityName, "(%s:%d) ["#PriorityName"] ", __FILE__, __LINE__); \
-		LOG_WRITE((ptLog), (eModule), LOG_PRIORITY_##PriorityName, (pszFmt), __VA_ARGS__); \
-		LOG_WRITE((ptLog), (eModule), LOG_PRIORITY_##PriorityName, "\r\n"); \
+		if (	(0 == ((ptLog)->ePriorityFilterMask & LOG_PRIORITY_##PriorityName)) \
+			||	(0 == ((ptLog)->eModulesFilterMask & (eModule)))) \
+		{ \
+			break; \
+		} \
+		LOCK_SpinlockAcquire(&(ptLog)->tLock); \
+		(VOID)LOG_Write((ptLog), "(%s:%d) ["#PriorityName"] ", __FILE__, __LINE__); \
+		(VOID)LOG_Write((ptLog), (pszFmt), __VA_ARGS__); \
+		(VOID)LOG_Write((ptLog), "\r\n"); \
+		LOCK_SpinlockRelease(&(ptLog)->tLock); \
 	} while(FALSE);
 
 /**

@@ -54,6 +54,10 @@
 #define ANYSIZE_ARRAY 1
 #endif
 
+#ifndef STATIC
+#define STATIC static
+#endif
+
 #ifndef CONST
 #define CONST const
 #endif
@@ -115,7 +119,11 @@
 #endif
 
 #ifndef FIELD_OFFSET
-#define FIELD_OFFSET(type, field)    ((LONG)(LONG_PTR)&(((type *)0)->field))
+#define FIELD_OFFSET(type, field) ((LONG)(LONG_PTR)&(((type *)0)->field))
+#endif
+
+#ifndef FIELD_SIZE
+#define FIELD_SIZE(type, field) (sizeof(((type *)0)->field))
 #endif
 
 #define MINCHAR			0x80
@@ -447,6 +455,9 @@ typedef char *__VA_LIST__;
 #ifndef __VA_COPY__
 #define __VA_COPY__(Dest, Start) ((void)((Dest) = (Start)))
 #endif
+
+typedef UINT8 SPINLOCK;
+typedef SPINLOCK *PSPINLOCK;
 
 #pragma warning(pop)
 #endif /* ifndef WIN32 */

@@ -27,6 +27,37 @@
 
 .CODE
 
+; VOID
+; __stdcall
+; LOCK_SpinlockAcquire(
+; 	IN PSPINLOCK ptLock
+; );
+LOCK_SpinlockAcquire PROC
+	push rax
+	push rbx
+	mov rbx, 1
+
+l_spin:
+	xor rax, rax
+	cmpxchg byte ptr [rcx], bl
+	pause
+	jnz l_spin
+
+	pop rbx
+	pop rax
+	ret
+LOCK_SpinlockAcquire ENDP
+
+; VOID
+; __stdcall
+; LOCK_SpinlockRelease(
+; 	IN PSPINLOCK ptLock
+; );
+LOCK_SpinlockRelease PROC
+	mov byte ptr [rcx], 0
+	ret
+LOCK_SpinlockRelease ENDP
+
 ; UINT64
 ; __stdcall
 ; ASM64_Rdmsr(

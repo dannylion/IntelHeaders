@@ -30,6 +30,30 @@
 
 #include "ntdatatypes.h"
 
+/**
+* Acquire spinlock
+* @param ptLock - pointer to spinlock data
+*/
+extern
+__forceinline
+VOID
+__stdcall
+LOCK_SpinlockAcquire(
+	IN PSPINLOCK ptLock
+);
+
+/**
+* Release spinlock
+* @param ptLock - pointer to spinlock data
+*/
+extern
+__forceinline
+VOID
+__stdcall
+LOCK_SpinlockRelease(
+	IN PSPINLOCK ptLock
+);
+
 // HACK: Define intrinsic functions that visual studio might add implicitly
 // to our code. These functions normally reside in standard libraries, 
 // such as LIBC, but since we removed all standard libraries from our code, 

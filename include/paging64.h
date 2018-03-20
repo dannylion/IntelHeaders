@@ -286,35 +286,80 @@ C_ASSERT(sizeof(UINT64) == sizeof(PTE64));
 // All available page types
 typedef enum _PAGE_TYPE64
 {
-	PAGE_TYPE_1GB = 0,
+	PAGE_TYPE_4KB = 0,
 	PAGE_TYPE_2MB,
-	PAGE_TYPE_4KB
+	PAGE_TYPE_1GB,	
 } PAGE_TYPE64, *PPAGE_TYPE64;
 
-// Page table is about 2MB in size
+// 1 PML4 points to up to 512 PDPTE
+// 1 PDPT points to up to 1*512=512GB
+// 1 PD points to up to 2MB*512=1GB
+// 1 PT points to up to 4KB*512=2MB
+// This page table can point to a max of 128GB and it's size is 269MB
 typedef struct _PAGE_TABLE64
 {
 	DECLSPEC_ALIGN(PAGE_SIZE) PML4E64 atPml4[PAGING64_PML4E_COUNT];
 	DECLSPEC_ALIGN(PAGE_SIZE) PDPTE64 atPdpt[PAGING64_PDPTE_COUNT];
-	DECLSPEC_ALIGN(PAGE_SIZE) PDE64 atPd[PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
+	DECLSPEC_ALIGN(PAGE_SIZE) PDE64 atPd[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT];
+	DECLSPEC_ALIGN(PAGE_SIZE) PTE64 atPt[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
 } PAGE_TABLE64, *PPAGE_TABLE64;
-C_ASSERT(2105344 == sizeof(PAGE_TABLE64));
+C_ASSERT(1075847168 == sizeof(PAGE_TABLE64));
+
+// Max virtual address that can be used with this page-table is:
+#define PAGE_TABLE64_MAX_VIRTUAL_ADDRESS 0x0000007fffffffff
+
+/**
+* Convert a physical address to a virtual address
+* @param qwPhysicalAddress - physical address to convert
+* @param pqwVirtualAddress - virtual address that maps the physical address
+* @return TRUE on success, else FALSE
+*/
+typedef BOOLEAN(*PAGING64_PHYSICAL_TO_VIRTUAL_PFN)(
+	IN const UINT64 qwPhysicalAddress,
+	OUT PUINT64 pqwVirtualAddress
+);
+BOOLEAN
+PAGING64_UefiPhysicalToVirtual(
+	IN const UINT64 qwPhysicalAddress,
+	OUT PUINT64 pqwVirtualAddress
+);
 
 // Everything we need to access a page table
 typedef struct _PAGE_TABLE64_HANDLE
 {
-	UINT64 qwPml4PhysicalAddress;
-	PPML4E64 patPml4;
-	UINT64 qwPdptPhysicalAddress;
-	PPDPTE64 patPdpt;
-	UINT64 qwPdPhysicalAddress;
-	PPDE64 patPd;
-	BOOL bNxBitSupported;
-	BOOL bMtrrSupported;
-	BOOL bPatSupported;
-	UINT8 acPatMemTypes[8];
-	PLOG_HANDLE ptLog;
+	PPML4E64 patPml4;					// Virtual address of PML4 table
+	UINT64 qwPml4PhysicalAddress;		// Physical address of PML4 table
+	BOOL bOneGbSupported;				// 1GB pages are supported by processor
+	BOOL bNxBitSupported;				// NX bit is supported by processor
+	BOOL bMtrrSupported;				// MTRR is supported by processor
+	BOOL bPatSupported;					// PAT is supported by processor
+	UINT8 acPatMemTypes[8];				// PAT memory types per index from IA32_PAT MSR
+	PLOG_HANDLE ptLog;					// Log handle
+
+	// Function pointer to a function that converts physical addresses to virtual
+	PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual;
+
+	// NOTE: We use these to edit the page-table assuming they're continuous in both
+	// virtual memory and physical memory
+	PAGE_TYPE64 eMinPageType;			// Page-Table doesn't contain entries to pages 
+										// below this size
+	UINT64 qwMaxVirtualAddress;			// Max virtual address that can be mapped 
+										// with page-table
+	UINT64 qwPdptPhysicalAddress;		// Physical address of PDPT
+	UINT64 qwPdArrayPhysicalAddress;	// Physical address of 1st PD in PD tables array
+	UINT64 qwPtArrayPhysicalAddress;	// Physical address of 1st PT in PT tables array
+	PPDPTE64 patPdpt;					// Virtual address of PDPT table
+
+	// Virtual address of 1st PD in PD tables array
+	PDE64 (*patPdArray)[PAGING64_PDPTE_COUNT];
+
+	// Virtual address of 1st PT in PT tables array
+	PTE64 (*patPtArray)[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT];
 } PAGE_TABLE64_HANDLE, *PPAGE_TABLE64_HANDLE;
+C_ASSERT(sizeof(PVOID) == FIELD_SIZE(PAGE_TABLE64_HANDLE, patPdArray));
+C_ASSERT(sizeof(PVOID) == FIELD_SIZE(PAGE_TABLE64_HANDLE, patPtArray));
+C_ASSERT(0x1000 == sizeof(PDE64[PAGING64_PDPTE_COUNT]));
+C_ASSERT(0x200000 == sizeof(PTE64[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT]));
 
 /**
 * Verify IA-32e paging is enabled (64bit)
@@ -326,26 +371,12 @@ PAGING64_IsIa32ePagingEnabled(
 );
 
 /**
-* Convert a physical address to a virtual address
-* @param qwPhysicalAddress - physical address to convert
-* @param pqwVirtualAddress - virtual address that maps the physical address
-* @return TRUE on success, else FALSE
-*/
-typedef BOOLEAN (*PAGING64_PHYSICAL_TO_VIRTUAL_PFN)(
-	IN const UINT64 qwPhysicalAddress,
-	OUT PUINT64 pqwVirtualAddress
-);
-BOOLEAN
-PAGING64_UefiPhysicalToVirtual(
-	IN const UINT64 qwPhysicalAddress,
-	OUT PUINT64 pqwVirtualAddress
-);
-
-/**
 * Initialize a new page-table by zeroing out all the entries
 * @param ptPageTable - Page Table to initialize
 * @param pfnPhysicalToVirtual - convert a physical address to virtual address
 * @param ptLog - log handle
+* @param qwMaxVirtualAddress - max virtual address that can be mapped by page-table
+* @param eMinPageType - page-Table won't contain entries to pages below this size
 * @param phOutPageTable - open handle to the new page-table
 * @return TRUE on success, else FALSE
 */
@@ -354,6 +385,8 @@ PAGING64_InitPageTable(
 	INOUT PPAGE_TABLE64 ptPageTable,
 	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
 	IN const PLOG_HANDLE ptLog,
+	IN const UINT64 qwMaxVirtualAddress,
+	IN const PAGE_TYPE64 eMinPageType,
 	OUT PPAGE_TABLE64_HANDLE phOutPageTable
 );
 
@@ -441,7 +474,8 @@ PAGING64_MapPhysicalToVirtual(
 );
 
 /**
-* Copy all the entries from source page-table to destination page-table
+* Copy all present entries from source page-table to destination page-table
+* that are below the destination page-table max virtual address
 * @param phDstPageTable - Destination Page-Table to copy entries to
 * @param phSrcPageTable - Source Page-Table to copy entries from
 * @return TRUE on success, else FALSE

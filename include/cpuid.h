@@ -354,7 +354,7 @@ typedef struct _CPUID_EX_FEATURES
 	UINT32 Mmx : 1;				//!< EDX 23		MMX instructions
 	UINT32 Fxsr : 1;			//!< EDX 24		FXSAVE, FXRSTOR instructions, CR4 bit 9
 	UINT32 Fxsropt : 1;			//!< EDX 25		FXSAVE/FXRSTOR optimizations
-	UINT32 Pdpe1gb : 1;			//!< EDX 26		1GB pages
+	UINT32 OneGbPages : 1;		//!< EDX 26		1GB pages
 	UINT32 Rdtscp : 1;			//!< EDX 27		RDTSCP instruction
 	UINT32 ReservedA : 1;		//!< EDX 28		0
 	UINT32 Lm : 1;				//!< EDX 29		Long mode
@@ -401,6 +401,15 @@ CPUID_GetMaxPhyAddrBits(
 */
 UINT64
 CPUID_GetMaxPhyAddr(
+	VOID
+);
+
+/**
+* Check if 1GB pages are supported by the processor
+* @return TRUE if 1GB pages are supported, else FALSE
+*/
+BOOLEAN
+CPUID_CheckOneGbPageSupport(
 	VOID
 );
 

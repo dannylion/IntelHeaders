@@ -73,3 +73,28 @@ CPUID_GetMaxPhyAddr(
 	UINT64 qwMaxPhyAddr = (1ULL << qwMaxPhyAddrBits) - 1ULL;
 	return qwMaxPhyAddr;
 }
+
+BOOLEAN
+CPUID_CheckOneGbPageSupport(
+	VOID
+)
+{
+	CPUID_EX_MAXFUNC tCpuidExMaxFunc;
+	CPUID_EX_FEATURES tCpuidExFeatures;
+
+	ASM64_Cpuid(
+		(UINT32 *)&tCpuidExMaxFunc,
+		(UINT32)CPUID_FUNCTION_EX_MAXFUNC,
+		0);
+
+	if (CPUID_FUNCTION_EX_FEATURES > tCpuidExMaxFunc.dwMaxExFunc)
+	{
+		return FALSE;
+	}
+
+	ASM64_Cpuid(
+		(UINT32 *)&tCpuidExFeatures,
+		(UINT32)CPUID_FUNCTION_EX_FEATURES,
+		0);
+	return (BOOLEAN)tCpuidExFeatures.OneGbPages;
+}

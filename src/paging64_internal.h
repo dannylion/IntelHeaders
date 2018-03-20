@@ -42,11 +42,54 @@
 #pragma warning( disable : 4201)
 #pragma pack(push, 1)
 
+/**
+* Get page size by type enum
+* @param ePageType - page type 4KB/2MB/1GB
+* @return Page size that matches type
+*/
+STATIC
+__inline
+UINT64
+paging64_PageSizeByType(
+	IN const PAGE_TYPE64 ePageType
+);
+
+/**
+* Run the appropriate PAGE_ALIGN macro by the given page-type on the address
+* @param ePageType - page type 4KB/2MB/1GB
+* @param qwAddress - address to align
+* @return Aligned address
+*/
+STATIC
+__inline
+UINT64
+paging64_AlignByPageType(
+	IN const PAGE_TYPE64 ePageType,
+	IN const UINT64 qwAddress
+);
+
+/**
+* Run the appropriate ADDRESS_AND_SIZE_TO_SPAN_PAGES macro by the given page-type
+* @param ePageType - page type 4KB/2MB/1GB
+* @param qwAddress - buffer address
+* @param cbSize - buffer size
+* @return Number of pages to span buffer
+*/
+STATIC
+__inline
+UINT64
+paging64_AddressAndSizeToSpanPagesByPageType(
+	IN const PAGE_TYPE64 ePageType,
+	IN const UINT64 qwAddress,
+	IN const UINT64 cbSize
+);
+
 //! Vol 3A, 11.12.1 Detecting Support for the PAT Feature
 /**
 * Verify if PAT is supported
 * @return TRUE on success, else FALSE
 */
+STATIC
 BOOLEAN
 paging64_IsPatSupported(
 	VOID
@@ -60,6 +103,7 @@ paging64_IsPatSupported(
 * @param pePageType - type of found page (1GB/2MB/4KB)
 * @return TRUE on success, else FALSE
 */
+STATIC
 BOOLEAN
 paging64_GetMappedEntryAtVirtualAddress(
 	IN const PPAGE_TABLE64_HANDLE phPageTable,
@@ -74,6 +118,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 * @param ePageType - type of page 1GB/2MB/4KB
 * @return See PAGE_PERMISSON enum
 */
+STATIC
 PAGE_PERMISSION
 paging64_GetPagePermissions(
 	IN const PVOID pvEntry,
@@ -89,6 +134,7 @@ paging64_GetPagePermissions(
 * @param peMemType - memory type used in this page
 * @return TRUE on success, else FALSE
 */
+STATIC
 BOOLEAN
 paging64_GetPageMemoryType(
 	IN const PPAGE_TABLE64_HANDLE phPageTable,
@@ -103,6 +149,7 @@ paging64_GetPageMemoryType(
 * @param pvEntry - pointer to page table entry
 * @param ePageType - type of page 1gb/2mb/4kb
 */
+STATIC
 VOID
 paging64_UnmapPage(
 	INOUT PVOID pvEntry,
@@ -118,6 +165,7 @@ paging64_UnmapPage(
 * @param pbPatFlag - PAT flag calculated from PAT entry index
 * @return TRUE on success, else FALSE
 */
+STATIC
 BOOLEAN
 paging64_GetPatFlagsForMemType(
 	IN const PPAGE_TABLE64_HANDLE phPageTable,
@@ -137,7 +185,9 @@ paging64_GetPatFlagsForMemType(
 * @param bPwtFlag - Part of the PAT index that holds the page memory type
 * @param bPcdFlag - Part of the PAT index that holds the page memory type
 * @param bPatFlag - Part of the PAT index that holds the page memory type
+* @return TRUE on success, else FALSE
 */
+STATIC
 VOID
 paging64_SetPdpte1gb(
 	INOUT PPAGE_TABLE64_HANDLE phPageTable,
@@ -159,7 +209,9 @@ paging64_SetPdpte1gb(
 * @param bPwtFlag - Part of the PAT index that holds the page memory type
 * @param bPcdFlag - Part of the PAT index that holds the page memory type
 * @param bPatFlag - Part of the PAT index that holds the page memory type
+* @return TRUE on success, else FALSE
 */
+STATIC
 VOID
 paging64_SetPde2mb(
 	INOUT PPAGE_TABLE64_HANDLE phPageTable,
@@ -181,7 +233,9 @@ paging64_SetPde2mb(
 * @param bPwtFlag - Part of the PAT index that holds the page memory type
 * @param bPcdFlag - Part of the PAT index that holds the page memory type
 * @param bPatFlag - Part of the PAT index that holds the page memory type
+* @return TRUE on success, else FALSE
 */
+STATIC
 VOID
 paging64_SetPte(
 	INOUT PPAGE_TABLE64_HANDLE phPageTable,
@@ -203,6 +257,7 @@ paging64_SetPte(
 * @param ePagePermission - permissions to grant
 * @param eMemType - memory type to use
 */
+STATIC
 BOOLEAN
 paging64_MapPage(
 	INOUT PPAGE_TABLE64_HANDLE phPageTable,
