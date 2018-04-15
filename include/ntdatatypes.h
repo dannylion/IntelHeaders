@@ -28,10 +28,6 @@
 #ifndef __NT_DATA_TYPES_H__
 #define __NT_DATA_TYPES_H__
 
-#ifdef WIN32
-#include <ntddk.h>
-#else
-
 // Disable 'warning C4214: nonstandard extension used: bit field types other than int'
 // Disable 'warning C4201: nonstandard extension used: nameless struct/union'
 #pragma warning(push)
@@ -170,7 +166,8 @@ typedef unsigned short      UINT16, *PUINT16;
 typedef unsigned int        UINT32, *PUINT32;
 typedef unsigned __int64    UINT64, *PUINT64;
 
-typedef UINT64  UINTN;
+typedef UINT64 UINTN;
+typedef UINTN *PUINTN;
 
 typedef signed int LONG32, *PLONG32;
 
@@ -460,5 +457,4 @@ typedef UINT8 SPINLOCK;
 typedef SPINLOCK *PSPINLOCK;
 
 #pragma warning(pop)
-#endif /* ifndef WIN32 */
 #endif /* __NT_DATA_TYPES_H__ */

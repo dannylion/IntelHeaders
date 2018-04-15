@@ -145,6 +145,19 @@ typedef struct _GDT_TABLE
 typedef GDT_TABLE IDT_TABLE;
 typedef PGDT_TABLE PIDT_TABLE;
 
+// Vol 3A, Figure 7-11. 64-Bit TSS Format
+typedef struct _TSS64
+{
+	UINT32 Reserved0;
+	UINT64 Rsp0;		// Stack pointers (RSP) for privilege levels 0-2
+	UINT64 Rsp1;
+	UINT64 Rsp2;
+	UINT64 Ist[8];		// interrupt stack table (IST) pointers
+	UINT64 Reserved1;
+	UINT16 Reserved2;
+	UINT16 IoMapBase;	// Offset to the I/O permission bitmap from the TSS base
+} TSS64, *PTSS64;
+
 #pragma pack(pop)
 #pragma warning(pop)
 #endif /* __INTEL_GDT_H__ */

@@ -14,7 +14,7 @@
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{99B7310B-035B-4936-8F79-6D71E1E51FB9}</ProjectGuid>
     <ProjectName>IntelHeaders</ProjectName>
-    <WindowsTargetPlatformVersion>$(LatestTargetPlatformVersion)</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Label="Configuration">
@@ -31,8 +31,8 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup>
     <IncludePath>$(ProjectDir)\include</IncludePath>
-    <OutDir>$(SolutionDir)bin\$(Configuration)\$(Platform)\</OutDir>
-    <IntDir>$(ProjectDir)bin\obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
+    <OutDir>$(SolutionDir)build\$(Configuration)\$(Platform)\</OutDir>
+    <IntDir>$(ProjectDir)build\obj\$(ProjectName)\$(Configuration)\$(Platform)\</IntDir>
     <LibraryPath />
     <LibraryWPath />
     <ReferencePath />

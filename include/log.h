@@ -44,7 +44,7 @@
  */
 typedef
 BOOLEAN
-(*PFN_LOG_WRITE)(
+(*LOG_WRITE_PFN)(
 	IN const PVOID pvContext,
 	IN const char * pszFmt,
 	IN __VA_LIST__ tVaList
@@ -72,7 +72,7 @@ typedef enum _LOG_MODULE
 
 typedef struct _LOG_HANDLE
 {
-	PFN_LOG_WRITE pfnLogWrite;
+	LOG_WRITE_PFN pfnLogWrite;
 	PVOID pvContext;
 	LOG_PRIORITY ePriorityFilterMask;
 	LOG_MODULE eModulesFilterMask;
@@ -92,7 +92,7 @@ __forceinline
 BOOLEAN
 LOG_InitHandle(
 	OUT PLOG_HANDLE ptLog,
-	IN const PFN_LOG_WRITE pfnLogWrite,
+	IN const LOG_WRITE_PFN pfnLogWrite,
 	IN const PVOID pvContext,
 	IN const LOG_MODULE eModulesFilterMask,
 	IN const LOG_PRIORITY ePriorityFilterMask
@@ -108,6 +108,7 @@ LOG_InitHandle(
 	ptLog->pvContext = pvContext;
 	ptLog->eModulesFilterMask = eModulesFilterMask;
 	ptLog->ePriorityFilterMask = ePriorityFilterMask;
+	ptLog->tLock = 0;
 	return TRUE;
 }
 

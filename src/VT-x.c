@@ -31,7 +31,7 @@
 #include "VT-x.h"
 
 // Use X-Macros to define the VM instruction error messages array
-static LPCSTR g_VmInstructionErrorMessages[VM_INSTRUCTION_ERROR_MAX] = {
+static LPCSTR g_aszVmInstructionErrorMessages[VM_INSTRUCTION_ERROR_MAX] = {
 #define X(EnumName,EnumValue,ErrorMsg) ErrorMsg,
 	VM_INSTRUCTION_ERRORS
 #undef X
@@ -42,7 +42,12 @@ VTX_GetVmInstructionErrorMsg(
 	IN const VM_INSTRUCTION_ERROR eVmError
 )
 {
-	return g_VmInstructionErrorMessages[eVmError - 1];
+	if (VM_INSTRUCTION_ERROR_MAX <= eVmError)
+	{
+		return "Unknown error";
+	}
+
+	return g_aszVmInstructionErrorMessages[eVmError - 1];
 }
 
 VOID

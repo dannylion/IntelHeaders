@@ -684,6 +684,16 @@ ASM64_Invd PROC
 	ret
 ASM64_Invd ENDP
 
+; VOID
+; __stdcall
+; ASM64_Wbinvd(
+; 	VOID
+; );
+ASM64_Wbinvd PROC
+	wbinvd
+	ret
+ASM64_Wbinvd ENDP
+
 ; VTX_RC
 ; __stdcall
 ; ASM64_Invept(

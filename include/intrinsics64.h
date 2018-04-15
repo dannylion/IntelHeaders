@@ -721,6 +721,17 @@ ASM64_Invd(
 	VOID
 );
 
+/**
+* Perform WBINVD opcode (Write Back and Invalidate Cache)
+*/
+extern
+__forceinline
+VOID
+__stdcall
+ASM64_Wbinvd(
+	VOID
+);
+
 //! Vol 3C, 30.2 CONVENTIONS
 typedef enum _VTX_RC
 {

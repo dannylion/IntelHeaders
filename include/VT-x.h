@@ -337,6 +337,16 @@ typedef enum _VMEXIT_REASON
 	VMEXIT_REASONS_MAX
 } VMEXIT_REASON, *PVMEXIT_REASON;
 
+//! Vol 3C, 24.4.2 Guest Non-Register State
+// (VMCS_FIELD_GUEST_ACTIVITY_STATE)
+typedef enum _VMX_GUEST_ACTIVITY_STATE
+{
+	VMX_GUEST_ACTIVITY_STATE_ACTIVE = 0,
+	VMX_GUEST_ACTIVITY_STATE_HLT = 1,
+	VMX_GUEST_ACTIVITY_STATE_SHUTDOWN = 2,
+	VMX_GUEST_ACTIVITY_STATE_WAIT_FOR_SIPI = 3,
+} VMX_GUEST_ACTIVITY_STATE, *PVMX_GUEST_ACTIVITY_STATE;
+
 //! Vol 3C, Table 24-5. Definitions of Pin-Based VM-Execution Controls
 // (VMCS_FIELD_PINBASED_CTLS)
 typedef union _VMX_PINBASED_CTLS
@@ -1197,9 +1207,80 @@ VTX_AdjustCr4(
 */
 VOID
 VTX_AdjustCtl(
-	IN	const UINT32	dwAdjustMsrCode,
-	OUT	PUINT32			pdwCtlValue
+	IN	const UINT32 dwAdjustMsrCode,
+	OUT	PUINT32	pdwCtlValue
 );
+
+/**
+* Log VMX instruction error on the line it occurred in code 
+* (hence we a macro and not a function)
+* @param ptLog - initialized LOG_HANDLE
+* @param eModule - module where the error occurred (LOG_MODULE enum)
+* @param eRc - local VTX_RC variable
+*/
+#define LOG_VMX_INSTRUCTION_ERROR(ptLog, eModule, eRc) \
+	do \
+	{ \
+		LPCSTR pszVmxErrorMsg = NULL; \
+		VM_INSTRUCTION_ERROR eVmxError = VM_INSTRUCTION_ERROR_MAX; \
+		if (VTX_FAIL_VALID == (eRc)) \
+		{ \
+			(VOID)ASM64_Vmread32(VMCS_FIELD_VM_INSTRUCTION_ERROR, &eVmxError); \
+			pszVmxErrorMsg = VTX_GetVmInstructionErrorMsg(eVmxError); \
+			LOG_ERROR((ptLog), (eModule), "VMX instruction error %d - %s", \
+				eVmxError, pszVmxErrorMsg); \
+		} \
+	} while (FALSE);
+
+/**
+* Write to a VMCS field and goto label if VMWRITE failed
+* NOTE: Don't use this macro directly! Use the below macros instead
+* @param Bits - VMCS field bits 16/32/64
+* @param dwVmcsField - VMCS field encoding to write to
+* @param Value - value to assign VMCS field
+* @param eRc - local VTX_RC variable
+* @param label - label to goto on failure
+*/
+#define __VMWRITE_ON_ERROR_GOTO(Bits, dwVmcsField, Value, eRc, label) \
+	do \
+	{ \
+		(eRc) = ASM64_Vmwrite#Bits((dwVmcsField), (Value)); \
+		if (VTX_SUCCESS != (eRc)) \
+		{ \
+			goto label; \
+		} \
+	} while (FALSE);
+#define VMWRITE16_ON_ERROR_GOTO(dwVmcsField, wValue, eRc, label) \
+	__VMWRITE_ON_ERROR_GOTO(16, (dwVmcsField), (wValue), (eRc), label)
+#define VMWRITE32_ON_ERROR_GOTO(dwVmcsField, dwValue, eRc, label) \
+	__VMWRITE_ON_ERROR_GOTO(32, (dwVmcsField), (dwValue), (eRc), label)
+#define VMWRITE64_ON_ERROR_GOTO(dwVmcsField, qwValue, eRc, label) \
+	__VMWRITE_ON_ERROR_GOTO(64, (dwVmcsField), (qwValue), (eRc), label)
+
+/**
+* Read a VMCS field and goto label if VMREAD failed
+* NOTE: Don't use this macro directly! Use the below macros instead
+* @param Bits - VMCS field bits 16/32/64
+* @param dwVmcsField - VMCS field encoding to write to
+* @param Value - value to assign VMCS field
+* @param eRc - local VTX_RC variable
+* @param label - label to goto on failure
+*/
+#define __VMREAD_ON_ERROR_GOTO(Bits, dwVmcsField, ptValue, eRc, label) \
+	do \
+	{ \
+		(eRc) = ASM64_Vmread#Bits((dwVmcsField), (ptValue)); \
+		if (VTX_SUCCESS != (eRc)) \
+		{ \
+			goto label; \
+		} \
+	} while (FALSE);
+#define VMREAD16_ON_ERROR_GOTO(dwVmcsField, pwValue, eRc, label) \
+	__VMREAD_ON_ERROR_GOTO(16, (dwVmcsField), (pwValue), (eRc), label);
+#define VMREAD32_ON_ERROR_GOTO(dwVmcsField, pdwValue, eRc, label) \
+	__VMREAD_ON_ERROR_GOTO(32, (dwVmcsField), (pdwValue), (eRc), label)
+#define VMREAD64_ON_ERROR_GOTO(dwVmcsField, pqwValue, eRc, label) \
+	__VMREAD_ON_ERROR_GOTO(64, (dwVmcsField), (pqwValue), (eRc), label)
 
 //! Vol 3C, 24.6 VM-EXECUTION CONTROL FIELDS
 #define VMX_ADJUST_PINBASED_CTLS(pdwCtlValue) \
