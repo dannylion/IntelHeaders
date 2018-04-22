@@ -44,9 +44,10 @@ memcpy(
 {
 	PUINT8 pcSrc = NULL;
 	PUINT8 pcDst = NULL;
-	PULONG_PTR pqwSrc = (PULONG_PTR)pvSrc;
-	PULONG_PTR pqwDst = (PULONG_PTR)pvDst;
-	ULONG_PTR i;
+	PULONG_PTR pulSrc = (PULONG_PTR)pvSrc;
+	PULONG_PTR pulDst = (PULONG_PTR)pvDst;
+	UINTN i = 0;
+	UINTN nIterCount = 0;
 
 	if (	(NULL == pvDst)
 		||	(NULL == pvSrc)
@@ -57,15 +58,17 @@ memcpy(
 	}
 
 	// Copy bytes in ULONG_PTR increments to make things a bit faster
-	for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
+	nIterCount = (cbSize / sizeof(ULONG_PTR));
+	for (i = 0; i < nIterCount; i++)
 	{
-		pqwDst[i] = pqwSrc[i];
+		pulDst[i] = pulSrc[i];
 	}
 
 	// Copy the remaining bytes as regular chars
 	pcSrc = (PUINT8)((ULONG_PTR)pvSrc + i * sizeof(ULONG_PTR));
 	pcDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
-	for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
+	nIterCount = (cbSize % sizeof(ULONG_PTR));
+	for (i = 0; i < nIterCount; i++)
 	{
 		pcDst[i] = pcSrc[i];
 	}

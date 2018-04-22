@@ -111,10 +111,10 @@ ASM64_Cpuid PROC
 	cpuid
 
 	; adwRegs = { EAX, EBX, ECX, EDX }
-	mov [r9 + 0], eax
-	mov [r9 + 4], ebx
-	mov [r9 + 8], ecx
-	mov [r9 + 12], edx
+	mov dword ptr [r9 + 0], eax
+	mov dword ptr [r9 + 4], ebx
+	mov dword ptr [r9 + 8], ecx
+	mov dword ptr [r9 + 12], edx
 
 	pop r9
 	pop rbx

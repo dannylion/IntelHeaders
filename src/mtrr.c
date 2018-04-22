@@ -109,6 +109,12 @@ mtrr_GetMemTypeFromFixed(
 	OUT PMTRR_MEMTYPE peMemType
 )
 {
+	UINT32 dwMtrrMsr = 0;
+	UINT32 dwMtrrRangeIndex = 0;
+	IA32_MTRR_FIX64K tFix64k;
+	IA32_MTRR_FIX16K tFix16k;
+	IA32_MTRR_FIX4K tFix4k;
+
 	// Verify physical address is within range of fixed MTRR MSRs
 	if (0xFFFFF < qwPhysicalAddress)
 	{
@@ -117,30 +123,34 @@ mtrr_GetMemTypeFromFixed(
 
 	if (0x7FFFF >= qwPhysicalAddress)
 	{
-		IA32_MTRR_FIX64K tFix64k;
-		tFix64k.qwValue = ASM64_Rdmsr(
-			MSR_CODE_IA32_MTRR_FIX64K_00000);
-		*peMemType = tFix64k.acRanges[qwPhysicalAddress / 0x10000];
+		dwMtrrMsr = MSR_CODE_IA32_MTRR_FIX64K_00000;
+		tFix64k.qwValue = ASM64_Rdmsr(dwMtrrMsr);
+		dwMtrrRangeIndex = (UINT32)(qwPhysicalAddress / 0x10000);
+		*peMemType = tFix64k.acRanges[dwMtrrRangeIndex];
 		return TRUE;
 	}
 
 	if (	(0x80000 <= qwPhysicalAddress)
 		&&	(0xBFFFF >= qwPhysicalAddress))
 	{
-		IA32_MTRR_FIX16K tFix16k;
-		tFix16k.qwValue = ASM64_Rdmsr(
-			MSR_CODE_IA32_MTRR_FIX16K_80000 + (UINT32)(qwPhysicalAddress / 0x20000));
-		*peMemType = tFix16k.acRanges[qwPhysicalAddress / 0x4000];
+		dwMtrrMsr = (
+				MSR_CODE_IA32_MTRR_FIX16K_80000
+			+	(UINT32)((qwPhysicalAddress - 0x80000) / 0x20000));
+		tFix16k.qwValue = ASM64_Rdmsr(dwMtrrMsr);
+		dwMtrrRangeIndex = (qwPhysicalAddress % 0x20000) / 0x4000;
+		*peMemType = tFix16k.acRanges[dwMtrrRangeIndex];
 		return TRUE;
 	}
 	
 	if (	(0xC0000 <= qwPhysicalAddress)
 		&&	(0xFFFFF >= qwPhysicalAddress))
 	{
-		IA32_MTRR_FIX4K tFix4k;
-		tFix4k.qwValue = ASM64_Rdmsr(
-			MSR_CODE_IA32_MTRR_FIX4K_C0000 + (UINT32)(qwPhysicalAddress / 0x8000));
-		*peMemType = tFix4k.acRanges[qwPhysicalAddress / 0x1000];
+		dwMtrrMsr = (
+				MSR_CODE_IA32_MTRR_FIX4K_C0000
+			+	(UINT32)((qwPhysicalAddress - 0xC0000) / 0x8000));
+		tFix4k.qwValue = ASM64_Rdmsr(dwMtrrMsr);
+		dwMtrrRangeIndex = (qwPhysicalAddress % 0x8000) / 0x1000;
+		*peMemType = tFix4k.acRanges[dwMtrrRangeIndex];
 		return TRUE;
 	}
 
@@ -171,8 +181,10 @@ mtrr_GetMemTypeFromVariable(
 		IA32_MTRR_PHYSBASE tMtrrPhysBase;
 		IA32_MTRR_PHYSMASK tMtrrPhysMask;
 
-		tMtrrPhysBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_PHYSBASE0 + (2 * dwCurrentIndex));
-		tMtrrPhysMask.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_PHYSMASK0 + (2 * dwCurrentIndex));
+		tMtrrPhysBase.qwValue = ASM64_Rdmsr(
+			MSR_CODE_IA32_MTRR_PHYSBASE0 + (2 * dwCurrentIndex));
+		tMtrrPhysMask.qwValue = ASM64_Rdmsr(
+			MSR_CODE_IA32_MTRR_PHYSMASK0 + (2 * dwCurrentIndex));
 
 		if (!tMtrrPhysMask.Valid)
 		{

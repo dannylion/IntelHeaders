@@ -43,6 +43,17 @@
 #pragma pack(push, 1)
 
 /**
+* Verify the page-table handle structure contains valid values
+* @param ptPageTable - page type 4KB/2MB/1GB
+* @return TRUE on success, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_VerifyPageTableHandle(
+	IN const PPAGING64_PT_HANDLE ptPageTable
+);
+
+/**
 * Get page size by type enum
 * @param ePageType - page type 4KB/2MB/1GB
 * @return Page size that matches type
@@ -97,7 +108,7 @@ paging64_IsPatSupported(
 
 /**
 * Traverse the page table to find the entry that matches the virtual address
-* @param ptPageTable - Page-Table handle initialized by PAGING64_InitPageTableHandle
+* @param ptPageTable - Page-Table handle initialized by PAGING64_InitStaticPageTableHandle
 * @param qwVirtualAddress - virtual address to find in page-table
 * @param ppvEntry - page-table entry found
 * @param pePageType - type of found page (1GB/2MB/4KB)
@@ -106,7 +117,7 @@ paging64_IsPatSupported(
 STATIC
 BOOLEAN
 paging64_GetMappedEntryAtVirtualAddress(
-	IN const PPAGE_TABLE64_HANDLE phPageTable,
+	IN const PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwVirtualAddress,
 	OUT PVOID *ppvEntry,
 	OUT PPAGE_TYPE64 pePageType
@@ -127,7 +138,7 @@ paging64_GetPagePermissions(
 
 /**
 * Get the effective memory type of the given page by checking MTRR & PAT
-* @param phPageTable - open handle to the page-table
+* @param ptPageTable - open handle to the page-table
 * @param qwPhysicalAddress - physical address that the entry points to
 * @param pvEntry - pointer to entry structure
 * @param ePageType - type of page 1GB/2MB/4KB
@@ -137,7 +148,7 @@ paging64_GetPagePermissions(
 STATIC
 BOOLEAN
 paging64_GetPageMemoryType(
-	IN const PPAGE_TABLE64_HANDLE phPageTable,
+	IN const PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwPhysicalAddress,
 	IN const PVOID pvEntry,
 	IN const PAGE_TYPE64 ePageType,
@@ -145,7 +156,79 @@ paging64_GetPageMemoryType(
 );
 
 /**
-* Mark given page as not present to unmap it
+* Check if all entries in the table are marked as not-present
+* @param patPdpt - PDPT table
+* @return TRUE if table is empty, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_IsPdptTableEmpty(
+	IN const PPDPTE64 patPdpt
+);
+
+/**
+* Check if all entries in the table are marked as not-present
+* @param patPd - PD table
+* @return TRUE if table is empty, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_IsPdTableEmpty(
+	IN const PPDE64 patPd
+);
+
+/**
+* Check if all entries in the table are marked as not-present
+* @param patPt - PT table
+* @return TRUE if table is empty, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_IsPtTableEmpty(
+	IN const PPTE64 patPt
+);
+
+/**
+* Free all unused PT-tables pointed to by this PD-table, then free the
+* PD-table if it's also empty
+* @param ptPageTable - dynamic page-table handle
+* @param patPd - PD-Table to free unused entries from
+*/
+STATIC
+VOID
+paging64_CollectGarbageFromPdTable(
+	IN PPAGING64_PT_HANDLE ptPageTable,
+	IN PPDE64 patPd
+);
+
+/**
+* Free all unused PD-tables pointed to by this PDPT-table, then free the
+* PDPT-table if it's also empty
+* @param ptPageTable - dynamic page-table handle
+* @param patPdpt - PDPT-Table to free unused entries from
+*/
+STATIC
+VOID
+paging64_CollectGarbageFromPdptTable(
+	IN PPAGING64_PT_HANDLE ptPageTable,
+	IN PPDPTE64 patPdpt
+);
+
+/**
+* Free all unused PDPT-tables pointed to by this PML4-table, then free the
+* PML4-table if it's also empty
+* @param ptPageTable - dynamic page-table handle
+* @param patPml4 - PML4-Table to free unused entries from
+*/
+STATIC
+VOID
+paging64_CollectGarabageFromPml4Table(
+	IN PPAGING64_PT_HANDLE ptPageTable,
+	IN PPML4E64 patPml4
+);
+
+/**
+* Unmap an entry from the page-table by clearing it's present bit
 * @param pvEntry - pointer to page table entry
 * @param ePageType - type of page 1gb/2mb/4kb
 */
@@ -158,7 +241,7 @@ paging64_UnmapPage(
 
 /**
 * Seek a PAT entry that holds the given memory type and return its index through the flags
-* @param phPageTable - page table handle initialized by PAGING64_InitPageTableHandle
+* @param ptPageTable - page table handle initialized by PAGING64_InitStaticPageTableHandle
 * @param eMemType - See IA32_PAT_MEMTYPE in msr64.h
 * @param pbPwtFlag - PWT flag calculated from PAT entry index
 * @param pbPcdFlag - PCD flag calculated from PAT entry index
@@ -168,7 +251,7 @@ paging64_UnmapPage(
 STATIC
 BOOLEAN
 paging64_GetPatFlagsForMemType(
-	IN const PPAGE_TABLE64_HANDLE phPageTable,
+	IN const PPAGING64_PT_HANDLE ptPageTable,
 	IN const IA32_PAT_MEMTYPE eMemType,
 	OUT PBOOLEAN pbPwtFlag,
 	OUT PBOOLEAN pbPcdFlag,
@@ -176,11 +259,71 @@ paging64_GetPatFlagsForMemType(
 );
 
 /**
+* Get the virtual address of PDPTE entry for given virtual address from PML4E
+* in the page-table and the physical address of the PDPT table it's in
+* @param ptPageTable - open page table handle
+* @param tVa - virtual address to entries of
+* @param ptPml4e - PML4E entry that points to PDPT table
+* @param pqwPdptPhysicalAddress - physical address of PDPT table
+* @param pptPdpte - virtual address of PDPTE in PDPT table
+* @return TRUE on success, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_GetPdpte(
+	IN const PPAGING64_PT_HANDLE ptPageTable,
+	IN const VA_ADDRESS64 tVa,
+	IN const PPML4E64 ptPml4e,
+	OUT PUINT64 pqwPdptPhysicalAddress,
+	OUT PPDPTE64 *pptPdpte
+);
+
+/**
+* Get the virtual address of PDE entry for given virtual address from PDPTE
+* in the page-table and the physical address of the PD table it's in
+* @param ptPageTable - open page table handle
+* @param tVa - virtual address to entries of
+* @param ptPdpte - PDPTE entry that points to PD table
+* @param pqwPdPhysicalAddress - physical address of PD table
+* @param pptPde - virtual address of PDE in PD table
+* @return TRUE on success, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_GetPde(
+	IN const PPAGING64_PT_HANDLE ptPageTable,
+	IN const VA_ADDRESS64 tVa,
+	IN const PPDPTE64 ptPdpte,
+	OUT PUINT64 pqwPdPhysicalAddress,
+	OUT PPDE64 *pptPde
+);
+
+/**
+* Get the virtual address of PTE entry for given virtual address from PDE
+* in the page-table and the physical address of the PT table it's in
+* @param ptPageTable - open page table handle
+* @param tVa - virtual address to entries of
+* @param ptPde - PDE entry that points to PT table
+* @param pqwPtPhysicalAddress - physical address of PT table
+* @param pptPte - virtual address of PTE in PT table
+* @return TRUE on success, else FALSE
+*/
+STATIC
+BOOLEAN
+paging64_GetPte(
+	IN const PPAGING64_PT_HANDLE ptPageTable,
+	IN const VA_ADDRESS64 tVa,
+	IN const PPDE64 ptPde,
+	OUT PUINT64 pqwPtPhysicalAddress,
+	OUT PPTE64 *pptPte
+);
+
+/**
 * Set the given memory type flags, permissions and physical address in all entries
 * in page table that will point to the 1GB page at the given virtual address
-* @param phPageTable - page table to set entries in
+* @param ptPageTable - page table to set entries in
 * @param qwVirtualAddress - virtual address of page
-* @param qwPhysicalAddress - physical address of page
+* @param qwPhysicalAddressToMap - physical address of page to map
 * @param ePagePermission - permissions granted
 * @param bPwtFlag - Part of the PAT index that holds the page memory type
 * @param bPcdFlag - Part of the PAT index that holds the page memory type
@@ -188,11 +331,11 @@ paging64_GetPatFlagsForMemType(
 * @return TRUE on success, else FALSE
 */
 STATIC
-VOID
+BOOLEAN
 paging64_SetPdpte1gb(
-	INOUT PPAGE_TABLE64_HANDLE phPageTable,
+	INOUT PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddress,
+	IN const UINT64 qwPhysicalAddressToMap,
 	IN const PAGE_PERMISSION ePagePermission,
 	IN const BOOLEAN bPwtFlag,
 	IN const BOOLEAN bPcdFlag,
@@ -202,9 +345,9 @@ paging64_SetPdpte1gb(
 /**
 * Set the given memory type flags, permissions and physical address in all entries
 * in page table that will point to the 2MB page at the given virtual address
-* @param phPageTable - page table to set entries in
+* @param ptPageTable - page table to set entries in
 * @param qwVirtualAddress - virtual address of page
-* @param qwPhysicalAddress - physical address of page
+* @param qwPhysicalAddressToMap - physical address of page to map
 * @param ePagePermission - permissions granted
 * @param bPwtFlag - Part of the PAT index that holds the page memory type
 * @param bPcdFlag - Part of the PAT index that holds the page memory type
@@ -212,11 +355,11 @@ paging64_SetPdpte1gb(
 * @return TRUE on success, else FALSE
 */
 STATIC
-VOID
+BOOLEAN
 paging64_SetPde2mb(
-	INOUT PPAGE_TABLE64_HANDLE phPageTable,
+	INOUT PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddress,
+	IN const UINT64 qwPhysicalAddressToMap,
 	IN const PAGE_PERMISSION ePagePermission,
 	IN const BOOLEAN bPwtFlag,
 	IN const BOOLEAN bPcdFlag,
@@ -226,9 +369,9 @@ paging64_SetPde2mb(
 /**
 * Set the given memory type flags, permissions and physical address in all entries
 * in page table that will point to the 4KB page at the given virtual address
-* @param phPageTable - page table to set entries in
+* @param ptPageTable - page table to set entries in
 * @param qwVirtualAddress - virtual address of page
-* @param qwPhysicalAddress - physical address of page
+* @param qwPhysicalAddressToMap - physical address of page to map
 * @param ePagePermission - permissions granted
 * @param bPwtFlag - Part of the PAT index that holds the page memory type
 * @param bPcdFlag - Part of the PAT index that holds the page memory type
@@ -236,11 +379,11 @@ paging64_SetPde2mb(
 * @return TRUE on success, else FALSE
 */
 STATIC
-VOID
+BOOLEAN
 paging64_SetPte(
-	INOUT PPAGE_TABLE64_HANDLE phPageTable,
+	INOUT PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddress,
+	IN const UINT64 qwPhysicalAddressToMap,
 	IN const PAGE_PERMISSION ePagePermission,
 	IN const BOOLEAN bPwtFlag,
 	IN const BOOLEAN bPcdFlag,
@@ -250,7 +393,7 @@ paging64_SetPte(
 /**
 * Set the given memory type flags, permissions and physical address in all entries
 * in page table that will point to the 4KB page at the given virtual address
-* @param phPageTable - page table to set entries in
+* @param ptPageTable - page table to set entries in
 * @param qwVirtualAddress - virtual address of page
 * @param qwPhysicalAddress - physical address of page
 * @param eMemType - page type 1GB/2MB/4KB
@@ -260,12 +403,48 @@ paging64_SetPte(
 STATIC
 BOOLEAN
 paging64_MapPage(
-	INOUT PPAGE_TABLE64_HANDLE phPageTable,
+	INOUT PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwVirtualAddress,
 	IN const UINT64 qwPhysicalAddress,
 	IN const PAGE_TYPE64 ePageType,
 	IN const PAGE_PERMISSION ePagePermission,
 	IN const IA32_PAT_MEMTYPE eMemType
+);
+
+/**
+* Free all PT-tables pointed to by this PD-table, then free the PD-table
+* @param ptPageTable - dynamic page-table handle
+* @param patPd - PD-Table to destroy
+*/
+STATIC
+VOID
+paging64_DestroyPdTable(
+	IN PPAGING64_PT_HANDLE ptPageTable,
+	IN PPDE64 patPd
+);
+
+/**
+* Free all PD-tables pointed to by this PDPT-table, then free the PDPT-table
+* @param ptPageTable - dynamic page-table handle
+* @param patPd - PDPT-Table to destroy
+*/
+STATIC
+VOID
+paging64_DestroyPdptTable(
+	IN PPAGING64_PT_HANDLE ptPageTable,
+	IN PPDPTE64 patPdpt
+);
+
+/**
+* Free all PDPT-tables pointed to by this PML4-table, then free the PML4-table
+* @param ptPageTable - dynamic page-table handle
+* @param patPd - PML4-Table to destroy
+*/
+STATIC
+VOID
+paging64_DestroyPml4Table(
+	IN PPAGING64_PT_HANDLE ptPageTable,
+	IN PPML4E64 patPml4
 );
 
 #pragma pack(pop)
