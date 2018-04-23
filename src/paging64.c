@@ -373,6 +373,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 			tVa.OneGb.Pml4eIndex,
 			(UINT64)ptPageTable->patPml4,
 			(UINT64)ptPml4e);
+		*pePageType = PAGE_TYPE_1GB;
 		goto lblCleanup;
 	}
 
@@ -395,6 +396,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 			tVa.TwoMb.PdpteIndex,
 			(UINT64)patPdpt,
 			(UINT64)ptPdpte);
+		*pePageType = PAGE_TYPE_1GB;
 		goto lblCleanup;
 	}
 
@@ -426,6 +428,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 			tVa.FourKb.PdeIndex,
 			(UINT64)patPd,
 			(UINT64)ptPde);
+		*pePageType = PAGE_TYPE_2MB;
 		goto lblCleanup;
 	}
 
@@ -457,6 +460,7 @@ paging64_GetMappedEntryAtVirtualAddress(
 			tVa.FourKb.PteIndex,
 			(UINT64)patPt,
 			(UINT64)ptPte);
+		*pePageType = PAGE_TYPE_4KB;
 		goto lblCleanup;
 	}
 
@@ -2216,6 +2220,76 @@ lblCleanup:
 }
 
 BOOLEAN
+paging64_MapRangeUsingPageType(
+	INOUT PPAGING64_PT_HANDLE ptPageTable,
+	INOUT const UINT64 qwStartVa,
+	INOUT const UINT64 qwStartPhysical,
+	IN const UINT64 qwEndVa,
+	IN const PAGE_TYPE64 ePageType,
+	IN const PAGE_PERMISSION ePagePermission,
+	IN const IA32_PAT_MEMTYPE eMemType
+)
+{
+	BOOLEAN bSuccess = FALSE;
+	UINT64 qwCurrentVa = qwStartVa;
+	UINT64 qwCurrentPhysical= qwStartPhysical;
+	const UINT64 qwPageSize = paging64_PageSizeByType(ePageType);
+	const UINT64 qwRangeEndVa = paging64_AlignByPageType(ePageType, qwEndVa);
+
+	LOG_TRACE(
+		ptPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"--> paging64_MapRangeUsingPageType(ptPageTable=0x%016llx, "
+		"qwStartVa=0x%016llx, qwStartPhysical=0x%016llx, qwEndVa=0x%016llx, "
+		"ePageType=%d, ePagePermission=0x%x, eMemType=%d)",
+		ptPageTable,
+		qwStartVa,
+		qwStartPhysical,
+		qwEndVa,
+		ePageType,
+		ePagePermission,
+		eMemType);
+
+	while (qwCurrentVa < qwRangeEndVa)
+	{
+		if (!paging64_MapPage(
+			ptPageTable,
+			qwCurrentVa,
+			qwCurrentPhysical,
+			ePageType,
+			ePagePermission,
+			eMemType))
+		{
+			LOG_ERROR(
+				ptPageTable->ptLog,
+				LOG_MODULE_PAGING,
+				"paging64_MapRangeUsingPageType: paging64_MapPage failed "
+				"qwPageTablePhysicalAddress=0x%016llx, qwVirtualAddress=0x%016llx, "
+				"qwPhysicalAddress=0x%016llx, ePermissions=0x%x, eMemType=%d",
+				ptPageTable->qwPml4PhysicalAddress,
+				qwCurrentVa,
+				qwCurrentPhysical,
+				ePagePermission,
+				eMemType);
+			goto lblCleanup;
+		}
+
+		qwCurrentVa += qwPageSize;
+		qwCurrentPhysical += qwPageSize;
+	}
+
+	bSuccess = TRUE;
+
+lblCleanup:
+	LOG_TRACE(
+		ptPageTable->ptLog,
+		LOG_MODULE_PAGING,
+		"<-- paging64_MapRangeUsingPageType return bSuccess=%d",
+		bSuccess);
+	return bSuccess;
+}
+
+BOOLEAN
 PAGING64_MapPhysicalToVirtual(
 	INOUT PPAGING64_PT_HANDLE ptPageTable,
 	IN const UINT64 qwPhysicalAddress,
@@ -2237,6 +2311,7 @@ PAGING64_MapPhysicalToVirtual(
 	UINT64 qwEndPhysical = 0;
 	UINT64 qwCurrentPhysical = 0;
 	UINT64 cbMinPageSize = 0;
+	UINT64 qwCurrentRangeEndVa = 0;
 	BOOLEAN bIsLocked = FALSE;
 	const UINT64 qwMaxPhyAddr = MAXPHYADDR;
 
@@ -2306,9 +2381,8 @@ PAGING64_MapPhysicalToVirtual(
 	}
 
 	// Verify none of the pages in the virtual address range are already mapped
-	for (qwCurrentVa = qwStartVa;
-		qwCurrentVa < qwEndVa;
-		qwCurrentVa += cbMinPageSize)
+	qwCurrentVa = qwStartVa;
+	while (qwCurrentVa < qwEndVa)
 	{
 		if (paging64_GetMappedEntryAtVirtualAddress(
 			ptPageTable,
@@ -2327,37 +2401,67 @@ PAGING64_MapPhysicalToVirtual(
 				cbSize);
 			goto lblCleanup;
 		}
+
+		// Skip the non-present entry
+		qwCurrentVa += paging64_PageSizeByType(ePageType);
 	}
 
 	// Map pages until all of the requested range is in the page-table
 	bStartedMapping = TRUE;
-	for (qwCurrentVa = qwStartVa, qwCurrentPhysical = qwStartPhysical;
-		qwCurrentVa < qwEndVa;
-		qwCurrentVa += cbMinPageSize, qwCurrentPhysical += cbMinPageSize)
+	qwCurrentVa = qwStartVa;
+	qwCurrentPhysical = qwStartPhysical;
+
+	// Map the range using the least amount of entries possible
+	// First we map what we can with 1GB pages, then 2MB and finally 4KB.
+	// We do not map page-types that are below the minimum page-type
+	for (ePageType = PAGE_TYPE_1GB;
+		ptPageTable->eMinPageType <= ePageType;
+		ePageType--)
 	{
-		if (!paging64_MapPage(
+		qwCurrentRangeEndVa = paging64_AlignByPageType(ePageType, qwEndVa);
+		if (qwCurrentVa >= qwCurrentRangeEndVa)
+		{
+			// Can't map entries with current page-type
+			continue;
+		}
+
+		// Map everything we can with the current page-type
+		if (!paging64_MapRangeUsingPageType(
 			ptPageTable,
 			qwCurrentVa,
 			qwCurrentPhysical,
-			ptPageTable->eMinPageType,
+			qwCurrentRangeEndVa,
+			ePageType,
 			ePagePermission,
 			eMemType))
 		{
 			LOG_ERROR(
 				ptPageTable->ptLog,
 				LOG_MODULE_PAGING,
-				"PAGING64_MapPhysicalToVirtual: paging64_MapPage failed "
-				"qwPageTablePhysicalAddress=0x%016llx, qwVirtualAddress=0x%016llx, "
-				"qwPhysicalAddress=0x%016llx, ePermissions=0x%x, eMemType=%d",
-				ptPageTable->qwPml4PhysicalAddress,
-				qwCurrentVa,
-				qwCurrentPhysical,
-				ePagePermission,
-				eMemType);
+				"PAGING64_MapPhysicalToVirtual: paging64_MapRangeUsingPageType "
+				"ePageType=%d failed",
+				ePageType);
 			goto lblCleanup;
 		}
-	}
 
+		qwCurrentPhysical += (qwCurrentRangeEndVa - qwCurrentVa);
+		qwCurrentVa = qwCurrentRangeEndVa;
+	}
+	
+	// Verify we mapped the entire range
+	if (qwCurrentVa != qwEndVa)
+	{
+		LOG_ERROR(
+			ptPageTable->ptLog,
+			LOG_MODULE_PAGING,
+			"PAGING64_MapPhysicalToVirtual: range wasn't entirely mapped "
+			"qwStartVa=0x%016llx, qwEndVa=0x%016llx, qwCurrentVa=0x%016llx",
+			qwStartVa,
+			qwEndVa,
+			qwCurrentVa);
+		goto lblCleanup;
+	}
+	
 	LOG_INFO(
 		ptPageTable->ptLog,
 		LOG_MODULE_PAGING,

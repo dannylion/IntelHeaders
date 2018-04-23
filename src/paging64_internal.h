@@ -111,7 +111,7 @@ paging64_IsPatSupported(
 * @param ptPageTable - Page-Table handle initialized by PAGING64_InitStaticPageTableHandle
 * @param qwVirtualAddress - virtual address to find in page-table
 * @param ppvEntry - page-table entry found
-* @param pePageType - type of found page (1GB/2MB/4KB)
+* @param pePageType - found page type, or on error the type that wasn't present (1GB/2MB/4KB)
 * @return TRUE on success, else FALSE
 */
 STATIC
@@ -445,6 +445,29 @@ VOID
 paging64_DestroyPml4Table(
 	IN PPAGING64_PT_HANDLE ptPageTable,
 	IN PPML4E64 patPml4
+);
+
+/**
+* Map the range given in the page-table using only pages of the specified type (1GB/2MB/4KB)
+* NOTE: We don't map pages that might exceed the given range!
+* @param ptPageTable - page-table handle
+* @param qwStartVa - range start virtual address
+* @param qwStartPhysical - range start physical address
+* @param qwEndVa - range end virtual address
+* @param ePageType - page-type to use (1GB/2MB/4KB)
+* @param ePagePermission - page permission to set in pages
+* @param eMemType - memory cache type to set in pages
+* @return TRUE on success, else FALSE
+*/
+BOOLEAN
+paging64_MapRangeUsingPageType(
+	INOUT PPAGING64_PT_HANDLE ptPageTable,
+	INOUT const UINT64 qwStartVa,
+	INOUT const UINT64 qwStartPhysical,
+	IN const UINT64 qwEndVa,
+	IN const PAGE_TYPE64 ePageType,
+	IN const PAGE_PERMISSION ePagePermission,
+	IN const IA32_PAT_MEMTYPE eMemType
 );
 
 #pragma pack(pop)

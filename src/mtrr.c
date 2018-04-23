@@ -314,3 +314,43 @@ lblCleanup:
 	}
 	return bSuccess;
 }
+
+VOID
+MTRR_DisableMtrr(
+	VOID
+)
+{
+	UINT32 i;
+	IA32_MTRRCAP tMtrrCap;
+	IA32_MTRR_DEF_TYPE tMtrrDef;
+	IA32_MTRR_PHYSBASE tMtrrPhysBase0;
+	IA32_MTRR_PHYSMASK tMtrrPhysMask0;
+
+	if (MTRR_IsMtrrSupported())
+	{
+		tMtrrPhysBase0.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_PHYSBASE0);
+		tMtrrPhysMask0.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_PHYSMASK0);
+		tMtrrDef.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRR_DEF_TYPE);
+		tMtrrCap.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_MTRRCAP);
+
+		// Effectively disable MTRR by disabling fixed MTRRs, setting the first variable
+		// MTRR cover all memory from 0 to MAXPHYADDR with memory type MTRR_MEMTYPE_WB,
+		// and make the rest invalid.
+		// If we disable MTRR by setting IA32_MTRR_DEF_TYPE.E = 0: the CPU will apply the UC
+		// memory type to all physical memory, which will negate anything we put in PAT
+		tMtrrPhysBase0.Base = 0;
+		tMtrrPhysBase0.Type = MTRR_MEMTYPE_WB;
+		tMtrrPhysMask0.Valid = TRUE;
+		tMtrrPhysMask0.Mask = MAXPHYADDR >> 12;
+		tMtrrDef.Fe = FALSE;
+
+		ASM64_Wrmsr(MSR_CODE_IA32_MTRR_PHYSBASE0, tMtrrPhysBase0.qwValue);
+		ASM64_Wrmsr(MSR_CODE_IA32_MTRR_PHYSMASK0, tMtrrPhysMask0.qwValue);
+		for (i = 1; i < tMtrrCap.Vcnt; i++)
+		{
+			ASM64_Wrmsr(MSR_CODE_IA32_MTRR_PHYSBASE0 + 2 * i, 0);
+			ASM64_Wrmsr(MSR_CODE_IA32_MTRR_PHYSMASK0 + 2 * i, 0);
+		}
+		ASM64_Wrmsr(MSR_CODE_IA32_MTRR_DEF_TYPE, tMtrrDef.qwValue);
+	}
+}

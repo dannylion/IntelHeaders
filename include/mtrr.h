@@ -88,6 +88,16 @@ MTRR_GetMemTypeForPhysicalAddress(
 	OUT PMTRR_MEMTYPE peMemType
 );
 
+/**
+* Effectively disable MTRR by disabling fixed MTRRs, setting the first variable MTRR
+* cover all memory from 0 to MAXPHYADDR with memory type MTRR_MEMTYPE_WB, and make the
+* rest invalid
+*/
+VOID
+MTRR_DisableMtrr(
+	VOID
+);
+
 #pragma pack(pop)
 #pragma warning(pop)
 #endif /* __INTEL_MTRR_H__ */
