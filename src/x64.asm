@@ -21,8 +21,8 @@
 ; OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 ; SOFTWARE.
 ;
-; @file		x64.asm
-; @section	Define functions that perform specific opcodes in assembly
+; @file        x64.asm
+; @section    Define functions that perform specific opcodes in assembly
 ;--
 
 .CODE
@@ -30,684 +30,684 @@
 ; VOID
 ; __stdcall
 ; LOCK_SpinlockAcquire(
-; 	IN PSPINLOCK ptLock
+;     IN PSPINLOCK ptLock
 ; );
 LOCK_SpinlockAcquire PROC
-	push rax
-	push rbx
-	mov rbx, 1
+    push rax
+    push rbx
+    mov rbx, 1
 
 l_spin:
-	xor rax, rax
-	cmpxchg byte ptr [rcx], bl
-	pause
-	jnz l_spin
+    xor rax, rax
+    cmpxchg byte ptr [rcx], bl
+    pause
+    jnz l_spin
 
-	pop rbx
-	pop rax
-	ret
+    pop rbx
+    pop rax
+    ret
 LOCK_SpinlockAcquire ENDP
 
 ; VOID
 ; __stdcall
 ; LOCK_SpinlockRelease(
-; 	IN PSPINLOCK ptLock
+;     IN PSPINLOCK ptLock
 ; );
 LOCK_SpinlockRelease PROC
-	mov byte ptr [rcx], 0
-	ret
+    mov byte ptr [rcx], 0
+    ret
 LOCK_SpinlockRelease ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_Rdmsr(
-; 	IN const UINT32 dwMsrCode
+;     IN const UINT32 dwMsrCode
 ; );
 ASM64_Rdmsr PROC
-	push rbx
-	
-	rdmsr ; rcx = dwMsrCode
-	mov rbx, rdx
-	shl rbx, 32
-	add rbx, rax ; rbx = edx:eax
-	
-	mov rax, rbx
-	pop rbx
-	ret
+    push rbx
+    
+    rdmsr ; rcx = dwMsrCode
+    mov rbx, rdx
+    shl rbx, 32
+    add rbx, rax ; rbx = edx:eax
+    
+    mov rax, rbx
+    pop rbx
+    ret
 ASM64_Rdmsr ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Wrmsr(
-; 	IN const UINT32 dwMsrCode,
-; 	IN const UINT64 qwValue
+;     IN const UINT32 dwMsrCode,
+;     IN const UINT64 qwValue
 ; );
 ASM64_Wrmsr PROC
-	push rax
-	
-	mov eax, edx ; eax = (UINT32)qwValue
-	shr rdx, 32
-	wrmsr ; rcx = dwMsrCode, edx:eax = qwValue
+    push rax
+    
+    mov eax, edx ; eax = (UINT32)qwValue
+    shr rdx, 32
+    wrmsr ; rcx = dwMsrCode, edx:eax = qwValue
 
-	pop rax
-	ret
+    pop rax
+    ret
 ASM64_Wrmsr ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Cpuid(
-; 	OUT UINT32 adwRegs[4],
-; 	IN const UINT32 dwFunction,
-; 	IN const UINT32 dwSubFunction
+;     OUT UINT32 adwRegs[4],
+;     IN const UINT32 dwFunction,
+;     IN const UINT32 dwSubFunction
 ; );
 ASM64_Cpuid PROC
-	push rax
-	push rbx
-	push r9
-	
-	mov r9, rcx ; r9 = adwRegs
-	mov rax, rdx ; rax = dwFunction
-	mov rcx, r8 ; rcx = dwSubFunction
-	cpuid
+    push rax
+    push rbx
+    push r9
+    
+    mov r9, rcx ; r9 = adwRegs
+    mov rax, rdx ; rax = dwFunction
+    mov rcx, r8 ; rcx = dwSubFunction
+    cpuid
 
-	; adwRegs = { EAX, EBX, ECX, EDX }
-	mov dword ptr [r9 + 0], eax
-	mov dword ptr [r9 + 4], ebx
-	mov dword ptr [r9 + 8], ecx
-	mov dword ptr [r9 + 12], edx
+    ; adwRegs = { EAX, EBX, ECX, EDX }
+    mov dword ptr [r9 + 0], eax
+    mov dword ptr [r9 + 4], ebx
+    mov dword ptr [r9 + 8], ecx
+    mov dword ptr [r9 + 12], edx
 
-	pop r9
-	pop rbx
-	pop rax
-	ret
+    pop r9
+    pop rbx
+    pop rax
+    ret
 ASM64_Cpuid ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadCr0(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadCr0 PROC
-	mov rax, cr0
-	ret
+    mov rax, cr0
+    ret
 ASM64_ReadCr0 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadCr2(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadCr2 PROC
-	mov rax, cr2
-	ret
+    mov rax, cr2
+    ret
 ASM64_ReadCr2 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadCr3(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadCr3 PROC
-	mov rax, cr3
-	ret
+    mov rax, cr3
+    ret
 ASM64_ReadCr3 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadCr4(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadCr4 PROC
-	mov rax, cr4
-	ret
+    mov rax, cr4
+    ret
 ASM64_ReadCr4 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadCr8(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadCr8 PROC
-	mov rax, cr8
-	ret
+    mov rax, cr8
+    ret
 ASM64_ReadCr8 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadRflags(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadRflags PROC
-	pushfq
-	mov rax, [rsp]
-	popfq
-	ret
+    pushfq
+    mov rax, [rsp]
+    popfq
+    ret
 ASM64_ReadRflags ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteRflags(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteRflags PROC
-	push rcx
-	popfq
-	ret
+    push rcx
+    popfq
+    ret
 ASM64_WriteRflags ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Lgdt(
-; 	IN const PUINT64 pqwValue
+;     IN const PUINT64 pqwValue
 ; );
 ASM64_Lgdt PROC
-	lgdt fword ptr [rcx]
-	ret
+    lgdt fword ptr [rcx]
+    ret
 ASM64_Lgdt ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Sgdt(
-; 	OUT PUINT64 pqwValue
+;     OUT PUINT64 pqwValue
 ; );
 ASM64_Sgdt PROC
-	sgdt fword ptr [rcx]
-	ret
+    sgdt fword ptr [rcx]
+    ret
 ASM64_Sgdt ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Lidt(
-; 	IN const PUINT64 pqwValue
+;     IN const PUINT64 pqwValue
 ; );
 ASM64_Lidt PROC
-	lidt fword ptr [rcx]
-	ret
+    lidt fword ptr [rcx]
+    ret
 ASM64_Lidt ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Sidt(
-; 	OUT PUINT64 pqwValue
+;     OUT PUINT64 pqwValue
 ; );
 ASM64_Sidt PROC
-	sidt fword ptr [rcx]
-	ret
+    sidt fword ptr [rcx]
+    ret
 ASM64_Sidt ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Lldt(
-; 	IN const PUINT16 pwValue
+;     IN const PUINT16 pwValue
 ; );
 ASM64_Lldt PROC
-	lldt word ptr [rcx]
-	ret
+    lldt word ptr [rcx]
+    ret
 ASM64_Lldt ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_Sldt(
-; 	VOID
+;     VOID
 ; );
 ASM64_Sldt PROC
-	sldt ax
-	ret
+    sldt ax
+    ret
 ASM64_Sldt ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_Ltr(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_Ltr PROC
-	ltr cx
-	ret
+    ltr cx
+    ret
 ASM64_Ltr ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_Str(
-; 	VOID
+;     VOID
 ; );
 ASM64_Str PROC
-	str ax
-	ret
+    str ax
+    ret
 ASM64_Str ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteCr0(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteCr0 PROC
-	mov cr0, rcx
-	ret
+    mov cr0, rcx
+    ret
 ASM64_WriteCr0 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteCr2(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteCr2 PROC
-	mov cr2, rcx
-	ret
+    mov cr2, rcx
+    ret
 ASM64_WriteCr2 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteCr3(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteCr3 PROC
-	mov cr3, rcx
-	ret
+    mov cr3, rcx
+    ret
 ASM64_WriteCr3 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteCr4(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteCr4 PROC
-	mov cr4, rcx
-	ret
+    mov cr4, rcx
+    ret
 ASM64_WriteCr4 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteCr8(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteCr8 PROC
-	mov cr8, rcx
-	ret
+    mov cr8, rcx
+    ret
 ASM64_WriteCr8 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteCS(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_WriteCS PROC
-	mov cs, cx
-	ret
+    mov cs, cx
+    ret
 ASM64_WriteCS ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteSS(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_WriteSS PROC
-	mov ss, cx
-	ret
+    mov ss, cx
+    ret
 ASM64_WriteSS ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDS(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_WriteDS PROC
-	mov ds, cx
-	ret
+    mov ds, cx
+    ret
 ASM64_WriteDS ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteES(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_WriteES PROC
-	mov es, cx
-	ret
+    mov es, cx
+    ret
 ASM64_WriteES ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteFS(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_WriteFS PROC
-	mov fs, cx
-	ret
+    mov fs, cx
+    ret
 ASM64_WriteFS ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteGS(
-; 	IN const UINT16 wValue
+;     IN const UINT16 wValue
 ; );
 ASM64_WriteGS PROC
-	mov gs, cx
-	ret
+    mov gs, cx
+    ret
 ASM64_WriteGS ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_ReadCS(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadCS PROC
-	mov ax, cs
-	ret
+    mov ax, cs
+    ret
 ASM64_ReadCS ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_ReadSS(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadSS PROC
-	mov ax, ss
-	ret
+    mov ax, ss
+    ret
 ASM64_ReadSS ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_ReadDS(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDS PROC
-	mov ax, ds
-	ret
+    mov ax, ds
+    ret
 ASM64_ReadDS ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_ReadES(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadES PROC
-	mov ax, es
-	ret
+    mov ax, es
+    ret
 ASM64_ReadES ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_ReadFS(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadFS PROC
-	mov ax, fs
-	ret
+    mov ax, fs
+    ret
 ASM64_ReadFS ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_ReadGS(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadGS PROC
-	mov ax, gs
-	ret
+    mov ax, gs
+    ret
 ASM64_ReadGS ENDP
 
 ; BOOLEAN
 ; __stdcall
 ; ASM64_ReadSegmentLimit(
-; 	IN const UINT16 wSegmentSelector,
-; 	OUT PUINT32 pdwSegmentLimit
+;     IN const UINT16 wSegmentSelector,
+;     OUT PUINT32 pdwSegmentLimit
 ; );
 ASM64_ReadSegmentLimit PROC
-	and ecx, 0FFFFh
-	lsl ecx, ecx
-	jz l_success
-	xor rax, rax
-	ret
+    and ecx, 0FFFFh
+    lsl ecx, ecx
+    jz l_success
+    xor rax, rax
+    ret
 l_success:
-	mov dword ptr [rdx], ecx
-	mov rax, 1
-	ret
+    mov dword ptr [rdx], ecx
+    mov rax, 1
+    ret
 ASM64_ReadSegmentLimit ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadDr0(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDr0 PROC
-	mov rax, dr0
-	ret
+    mov rax, dr0
+    ret
 ASM64_ReadDr0 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadDr1(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDr1 PROC
-	mov rax, dr1
-	ret
+    mov rax, dr1
+    ret
 ASM64_ReadDr1 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadDr2(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDr2 PROC
-	mov rax, dr2
-	ret
+    mov rax, dr2
+    ret
 ASM64_ReadDr2 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadDr3(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDr3 PROC
-	mov rax, dr3
-	ret
+    mov rax, dr3
+    ret
 ASM64_ReadDr3 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadDr6(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDr6 PROC
-	mov rax, dr0
-	ret
+    mov rax, dr0
+    ret
 ASM64_ReadDr6 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_ReadDr7(
-; 	VOID
+;     VOID
 ; );
 ASM64_ReadDr7 PROC
-	mov rax, dr7
-	ret
+    mov rax, dr7
+    ret
 ASM64_ReadDr7 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDr0(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteDr0 PROC
-	mov dr0, rcx
-	ret
+    mov dr0, rcx
+    ret
 ASM64_WriteDr0 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDr1(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteDr1 PROC
-	mov dr1, rcx
-	ret
+    mov dr1, rcx
+    ret
 ASM64_WriteDr1 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDr2(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteDr2 PROC
-	mov dr2, rcx
-	ret
+    mov dr2, rcx
+    ret
 ASM64_WriteDr2 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDr3(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteDr3 PROC
-	mov dr3, rcx
-	ret
+    mov dr3, rcx
+    ret
 ASM64_WriteDr3 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDr6(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteDr6 PROC
-	mov dr6, rcx
-	ret
+    mov dr6, rcx
+    ret
 ASM64_WriteDr6 ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_WriteDr7(
-; 	IN const UINT64 qwValue
+;     IN const UINT64 qwValue
 ; );
 ASM64_WriteDr7 PROC
-	mov dr7, rcx
-	ret
+    mov dr7, rcx
+    ret
 ASM64_WriteDr7 ENDP
 
 ; UINT64
 ; __stdcall
 ; ASM64_Lar(
-; 	IN const UINT16 wSegmentSelector
+;     IN const UINT16 wSegmentSelector
 ; );
 ASM64_Lar PROC
-	lar rax, rcx
-	ret
+    lar rax, rcx
+    ret
 ASM64_Lar ENDP
 
 ; UINT8
 ; __stdcall
 ; ASM64_IoReadByte(
-; 	IN const UINT16 wIoPort
+;     IN const UINT16 wIoPort
 ; );
 ASM64_IoReadByte PROC
-	push rdx
-	mov dx, cx
-	in al, dx
-	pop rdx
-	ret
+    push rdx
+    mov dx, cx
+    in al, dx
+    pop rdx
+    ret
 ASM64_IoReadByte ENDP
 
 ; UINT16
 ; __stdcall
 ; ASM64_IoReadWord(
-; 	IN const UINT16 wIoPort
+;     IN const UINT16 wIoPort
 ; );
 ASM64_IoReadWord PROC
-	push rdx
-	mov dx, cx
-	in ax, dx
-	pop rdx
-	ret
+    push rdx
+    mov dx, cx
+    in ax, dx
+    pop rdx
+    ret
 ASM64_IoReadWord ENDP
 
 ; UINT32
 ; __stdcall
 ; ASM64_IoReadDword(
-; 	IN const UINT16 wIoPort
+;     IN const UINT16 wIoPort
 ; );
 ASM64_IoReadDword PROC
-	push rdx
-	mov dx, cx
-	in eax, dx
-	pop rdx
-	ret
+    push rdx
+    mov dx, cx
+    in eax, dx
+    pop rdx
+    ret
 ASM64_IoReadDword ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_IoWriteByte(
-; 	IN const UINT8 cValue,
-; 	IN const UINT16 wIoPort
+;     IN const UINT8 cValue,
+;     IN const UINT16 wIoPort
 ; );
 ASM64_IoWriteByte PROC
-	push rax
-	mov rax, rcx
-	out dx, al
-	pop rax
-	ret
+    push rax
+    mov rax, rcx
+    out dx, al
+    pop rax
+    ret
 ASM64_IoWriteByte ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_IoWriteWord(
-; 	IN const UINT16 wValue,
-; 	IN const UINT16 wIoPort
+;     IN const UINT16 wValue,
+;     IN const UINT16 wIoPort
 ; );
 ASM64_IoWriteWord PROC
-	push rax
-	mov rax, rcx
-	out dx, ax
-	pop rax
-	ret
+    push rax
+    mov rax, rcx
+    out dx, ax
+    pop rax
+    ret
 ASM64_IoWriteWord ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_IoWriteDword(
-; 	IN const UINT32 dwValue,
-; 	IN const UINT16 wIoPort
+;     IN const UINT32 dwValue,
+;     IN const UINT16 wIoPort
 ; );
 ASM64_IoWriteDword PROC
-	push rax
-	mov rax, rcx
-	out dx, eax
-	pop rax
-	ret
+    push rax
+    mov rax, rcx
+    out dx, eax
+    pop rax
+    ret
 ASM64_IoWriteDword ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Invd(
-; 	VOID
+;     VOID
 ; );
 ASM64_Invd PROC
-	invd
-	ret
+    invd
+    ret
 ASM64_Invd ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_Wbinvd(
-; 	VOID
+;     VOID
 ; );
 ASM64_Wbinvd PROC
-	wbinvd
-	ret
+    wbinvd
+    ret
 ASM64_Wbinvd ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Invept(
-; 	IN const UINT32 dwInveptType, 
-; 	IN const ULONG_PTR qwInveptDescriptor
+;     IN const UINT32 dwInveptType, 
+;     IN const ULONG_PTR qwInveptDescriptor
 ; );
 ASM64_Invept PROC
-	; invept  ecx, oword ptr [rdx]
+    ; invept  ecx, oword ptr [rdx]
     db  66h, 0fh, 38h, 80h, 0ah
 
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -715,23 +715,23 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Invept ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Invvpid(
-; 	IN const UINT32 dwInvVpidType,
-; 	IN const ULONG_PTR qwInvVpidDescriptor
+;     IN const UINT32 dwInvVpidType,
+;     IN const ULONG_PTR qwInvVpidDescriptor
 ; );
 ASM64_Invvpid PROC
-	; invvpid  ecx, oword ptr [rdx]
+    ; invvpid  ecx, oword ptr [rdx]
     db  66h, 0fh, 38h, 81h, 0ah
 
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -739,21 +739,21 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Invvpid ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmcall(
-; 	IN const UINT32 dwHypercallNumber,
-; 	IN PVOID ptContext
+;     IN const UINT32 dwHypercallNumber,
+;     IN PVOID ptContext
 ; );
 ASM64_Vmcall PROC
-	vmcall
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmcall
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -761,20 +761,20 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmcall ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmclear(
-; 	IN const UINT64 qwVmcsPhysicalAddress
+;     IN const UINT64 qwVmcsPhysicalAddress
 ; );
 ASM64_Vmclear PROC
-	vmclear qword ptr [rcx]
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmclear qword ptr [rcx]
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -782,21 +782,21 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmclear ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmfunc(
-; 	IN const UINT32 dwVmFuncNumber
+;     IN const UINT32 dwVmFuncNumber
 ; );
 ASM64_Vmfunc PROC
-	mov eax, ecx
-	db  0fh, 01h, 212, 0ah	; vmfunc
-	jz l_VtxFailValid		; if (ZF) jmp
-    jc l_VtxFailInvalid		; if (CF) jmp
-    xor rax, rax			; return VTX_SUCCESS
-	ret
+    mov eax, ecx
+    db  0fh, 01h, 212, 0ah    ; vmfunc
+    jz l_VtxFailValid        ; if (ZF) jmp
+    jc l_VtxFailInvalid        ; if (CF) jmp
+    xor rax, rax            ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -804,21 +804,21 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmfunc ENDP
 
 ; DECLSPEC_NORETURN
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmlaunch(
-; 	VOID
+;     VOID
 ; );
 ASM64_Vmlaunch PROC
-	vmlaunch
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmlaunch
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -826,21 +826,21 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmlaunch ENDP
 
 ; DECLSPEC_NORETURN
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmresume(
-; 	VOID
+;     VOID
 ; );
 ASM64_Vmresume PROC
-	vmresume
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmresume
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -848,20 +848,20 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmresume ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmptrld(
-; 	IN const PUINT64 pqwVmcsPhysicalAddress
+;     IN const PUINT64 pqwVmcsPhysicalAddress
 ; );
 ASM64_Vmptrld PROC
-	vmptrld qword ptr [rcx]
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmptrld qword ptr [rcx]
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -869,20 +869,20 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmptrld ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmptrst(
-; 	OUT PUINT64 pqwVmcsPhysicalAddress
+;     OUT PUINT64 pqwVmcsPhysicalAddress
 ; );
 ASM64_Vmptrst PROC
-	vmptrst qword ptr [rcx]
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmptrst qword ptr [rcx]
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -890,21 +890,21 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmptrst ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmread(
-; 	IN const ULONG_PTR ulVmcsField,
-; 	OUT PUINT64 pqwValue
+;     IN const ULONG_PTR ulVmcsField,
+;     OUT PUINT64 pqwValue
 ; );
 ASM64_Vmread PROC
-	vmread qword ptr [rdx], rcx
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmread qword ptr [rdx], rcx
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -912,21 +912,21 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmread ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmwrite(
-; 	IN const ULONG_PTR ulVmcsField,
-; 	IN const UINT64 qwValue
+;     IN const ULONG_PTR ulVmcsField,
+;     IN const UINT64 qwValue
 ; );
 ASM64_Vmwrite PROC
-	vmwrite rcx, rdx
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmwrite rcx, rdx
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -934,20 +934,20 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmwrite ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmxoff(
-; 	VOID
+;     VOID
 ; );
 ASM64_Vmxoff PROC
-	vmxoff
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmxoff
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -955,20 +955,20 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmxoff ENDP
 
 ; VTX_RC
 ; __stdcall
 ; ASM64_Vmxon(
-; 	IN const PUINT64 pqwVmxonRegionPhysicalAddress
+;     IN const PUINT64 pqwVmxonRegionPhysicalAddress
 ; );
 ASM64_Vmxon PROC
-	vmxon qword ptr [rcx]
-	jz l_VtxFailValid	; if (ZF) jmp
-    jc l_VtxFailInvalid	; if (CF) jmp
-    xor rax, rax		; return VTX_SUCCESS
-	ret
+    vmxon qword ptr [rcx]
+    jz l_VtxFailValid    ; if (ZF) jmp
+    jc l_VtxFailInvalid    ; if (CF) jmp
+    xor rax, rax        ; return VTX_SUCCESS
+    ret
     
 l_VtxFailInvalid:
     mov rax, 2 ; return VTX_FAIL_INVALID
@@ -976,13 +976,13 @@ l_VtxFailInvalid:
 
 l_VtxFailValid:
     mov rax, 1 ; return VTX_FAIL_VALID
-	ret
+    ret
 ASM64_Vmxon ENDP
 
 ; VOID
 ; __stdcall
 ; ASM64_CaptureContext(
-; 	OUT PCONTEXT ptContext
+;     OUT PCONTEXT ptContext
 ; );
 ASM64_CaptureContext PROC
     pushfq
@@ -1025,19 +1025,19 @@ ASM64_CaptureContext ENDP
 ; VOID
 ; __cdecl
 ; ASM64_RestoreContext(
-; 	IN const PCONTEXT ptContext
+;     IN const PCONTEXT ptContext
 ; );
 ASM64_RestoreContext PROC
     mov     ax, [rcx+42h]
-    mov     [rsp+20h], ax	; ss selector
+    mov     [rsp+20h], ax    ; ss selector
     mov     rax, [rcx+98h]
-    mov     [rsp+18h], rax	; rsp
+    mov     [rsp+18h], rax    ; rsp
     mov     eax, [rcx+44h]
-    mov     [rsp+10h], eax	; rflags
+    mov     [rsp+10h], eax    ; rflags
     mov     ax, [rcx+38h]
-    mov     [rsp+8], ax		; cs selector
+    mov     [rsp+8], ax        ; cs selector
     mov     rax, [rcx+0F8h]
-    mov     [rsp], rax		; rip
+    mov     [rsp], rax        ; rip
 
     mov     rax, [rcx+78h]
     mov     rdx, [rcx+88h]
@@ -1057,17 +1057,17 @@ ASM64_RestoreContext PROC
     mov     r15, [rcx+0F0h]
     mov     rcx, [rcx+80h]
 
-    iretq					; pop rip, cs, rflags, rsp, ss in that order
+    iretq                    ; pop rip, cs, rflags, rsp, ss in that order
 ASM64_RestoreContext ENDP
 
 ; DECLSPEC_NORETURN
 ; VTX_RC
 ; __cdecl
 ; ShvAsmVmresume(
-; 	IN const PCONTEXT ptContext
+;     IN const PCONTEXT ptContext
 ; );
 ASM64_RestoreContextAndVmresume PROC
-	mov     rax, [rcx+78h]
+    mov     rax, [rcx+78h]
     mov     rdx, [rcx+88h]
     mov     r8, [rcx+0B8h]
     mov     r9, [rcx+0C0h]
@@ -1082,8 +1082,8 @@ ASM64_RestoreContextAndVmresume PROC
     mov     r14, [rcx+0E8h]
     mov     r15, [rcx+0F0h]
     mov     rcx, [rcx+80h]
-	vmresume
-	ret
+    vmresume
+    ret
 ASM64_RestoreContextAndVmresume ENDP
 
 END

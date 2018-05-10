@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		VT-x.c
-* @section	Intel VT-x structures, constants and utility functions and macros
+* @file        VT-x.c
+* @section    Intel VT-x structures, constants and utility functions and macros
 */
 
 #include "ntdatatypes.h"
@@ -33,68 +33,68 @@
 // Use X-Macros to define the VM instruction error messages array
 static LPCSTR g_aszVmInstructionErrorMessages[VM_INSTRUCTION_ERROR_MAX] = {
 #define X(EnumName,EnumValue,ErrorMsg) ErrorMsg,
-	VM_INSTRUCTION_ERRORS
+    VM_INSTRUCTION_ERRORS
 #undef X
 };
 
 LPCSTR
 VTX_GetVmInstructionErrorMsg(
-	IN const VM_INSTRUCTION_ERROR eVmError
+    IN const VM_INSTRUCTION_ERROR eVmError
 )
 {
-	if (VM_INSTRUCTION_ERROR_MAX <= eVmError)
-	{
-		return "Unknown error";
-	}
+    if (VM_INSTRUCTION_ERROR_MAX <= eVmError)
+    {
+        return "Unknown error";
+    }
 
-	return g_aszVmInstructionErrorMessages[eVmError - 1];
+    return g_aszVmInstructionErrorMessages[eVmError - 1];
 }
 
 VOID
 VTX_AdjustCr0(
-	OUT PCR0_REG ptCr0
+    OUT PCR0_REG ptCr0
 )
 {
-	LARGE_INTEGER tFixed0;
-	LARGE_INTEGER tFixed1;
+    LARGE_INTEGER tFixed0;
+    LARGE_INTEGER tFixed1;
 
-	NT_ASSERT(NULL != ptCr0);
+    NT_ASSERT(NULL != ptCr0);
 
-	tFixed0.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR0_FIXED0);
-	tFixed1.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR0_FIXED1);
+    tFixed0.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR0_FIXED0);
+    tFixed1.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR0_FIXED1);
 
-	ptCr0->dwValue &= tFixed1.LowPart;
-	ptCr0->dwValue |= tFixed0.LowPart;
+    ptCr0->dwValue &= tFixed1.LowPart;
+    ptCr0->dwValue |= tFixed0.LowPart;
 }
 
 VOID
 VTX_AdjustCr4(
-	OUT PCR4_REG ptCr4
+    OUT PCR4_REG ptCr4
 )
 {
-	LARGE_INTEGER tFixed0;
-	LARGE_INTEGER tFixed1;
+    LARGE_INTEGER tFixed0;
+    LARGE_INTEGER tFixed1;
 
-	NT_ASSERT(NULL != ptCr4);
+    NT_ASSERT(NULL != ptCr4);
 
-	tFixed0.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR4_FIXED0);
-	tFixed1.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR4_FIXED1);
+    tFixed0.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR4_FIXED0);
+    tFixed1.QuadPart = ASM64_Rdmsr(MSR_CODE_IA32_VMX_CR4_FIXED1);
 
-	ptCr4->dwValue &= tFixed1.LowPart;
-	ptCr4->dwValue |= tFixed0.LowPart;
+    ptCr4->dwValue &= tFixed1.LowPart;
+    ptCr4->dwValue |= tFixed0.LowPart;
 }
 
 VOID
 VTX_AdjustCtl(
-	IN	const UINT32	dwAdjustMsrCode,
-	OUT	PUINT32			pdwCtlValue
+    IN    const UINT32    dwAdjustMsrCode,
+    OUT    PUINT32            pdwCtlValue
 )
 {
-	LARGE_INTEGER tAdjustMsr;
+    LARGE_INTEGER tAdjustMsr;
 
-	NT_ASSERT(NULL != pdwCtlValue);
+    NT_ASSERT(NULL != pdwCtlValue);
 
-	tAdjustMsr.QuadPart = ASM64_Rdmsr(dwAdjustMsrCode);
-	*pdwCtlValue &= tAdjustMsr.HighPart;
-	*pdwCtlValue |= tAdjustMsr.LowPart;
+    tAdjustMsr.QuadPart = ASM64_Rdmsr(dwAdjustMsrCode);
+    *pdwCtlValue &= tAdjustMsr.HighPart;
+    *pdwCtlValue |= tAdjustMsr.LowPart;
 }

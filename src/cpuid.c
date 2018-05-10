@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		cpuid.h
-* @section	CPUID structures and functions (https://en.wikipedia.org/wiki/CPUID)
+* @file        cpuid.h
+* @section    CPUID structures and functions (https://en.wikipedia.org/wiki/CPUID)
 */
 
 #include "ntdatatypes.h"
@@ -33,68 +33,68 @@
 
 UINT8
 CPUID_GetMaxPhyAddrBits(
-	VOID
+    VOID
 )
 {
-	CPUID_EX_MAXFUNC tCpuidExMaxFunc;
-	CPUID_BASIC_FEATURES tCpuidBasicFeatures;
-	CPUID_EX_MAXADDR tCpuidMaxAddrInfo;
-	
-	ASM64_Cpuid(
-		(UINT32 *)&tCpuidExMaxFunc,
-		(UINT32)CPUID_FUNCTION_EX_MAXFUNC,
-		0);
+    CPUID_EX_MAXFUNC tCpuidExMaxFunc;
+    CPUID_BASIC_FEATURES tCpuidBasicFeatures;
+    CPUID_EX_MAXADDR tCpuidMaxAddrInfo;
+    
+    ASM64_Cpuid(
+        (UINT32 *)&tCpuidExMaxFunc,
+        (UINT32)CPUID_FUNCTION_EX_MAXFUNC,
+        0);
 
-	// Check if MAXPHYADDR from CPUID is not supported
-	if (CPUID_FUNCTION_EX_MAXADDR > tCpuidExMaxFunc.dwMaxExFunc)
-	{
-		// 4.1.4 Enumeration of Paging Features by CPUID
-		// Default MAXPHYADDR with PAE is 36, and without is 32
-		ASM64_Cpuid(
-			(UINT32 *)&tCpuidBasicFeatures,
-			(UINT32)CPUID_FUNCTION_BASIC_FEATURES,
-			0);
-		return ((tCpuidBasicFeatures.Pae) ? 36 : 32);
-	}
+    // Check if MAXPHYADDR from CPUID is not supported
+    if (CPUID_FUNCTION_EX_MAXADDR > tCpuidExMaxFunc.dwMaxExFunc)
+    {
+        // 4.1.4 Enumeration of Paging Features by CPUID
+        // Default MAXPHYADDR with PAE is 36, and without is 32
+        ASM64_Cpuid(
+            (UINT32 *)&tCpuidBasicFeatures,
+            (UINT32)CPUID_FUNCTION_BASIC_FEATURES,
+            0);
+        return ((tCpuidBasicFeatures.Pae) ? 36 : 32);
+    }
 
-	ASM64_Cpuid(
-		(UINT32 *)&tCpuidMaxAddrInfo,
-		(UINT32)CPUID_FUNCTION_EX_MAXADDR,
-		0);
-	return (UINT8)tCpuidMaxAddrInfo.MaxPhysAddr;
+    ASM64_Cpuid(
+        (UINT32 *)&tCpuidMaxAddrInfo,
+        (UINT32)CPUID_FUNCTION_EX_MAXADDR,
+        0);
+    return (UINT8)tCpuidMaxAddrInfo.MaxPhysAddr;
 }
 
 UINT64
 CPUID_GetMaxPhyAddr(
-	VOID
+    VOID
 )
 {
-	const UINT64 qwMaxPhyAddrBits = CPUID_GetMaxPhyAddrBits();
-	UINT64 qwMaxPhyAddr = (1ULL << qwMaxPhyAddrBits) - 1ULL;
-	return qwMaxPhyAddr;
+    const UINT64 qwMaxPhyAddrBits = CPUID_GetMaxPhyAddrBits();
+    UINT64 qwMaxPhyAddr = (1ULL << qwMaxPhyAddrBits) - 1ULL;
+    return qwMaxPhyAddr;
 }
 
 BOOLEAN
 CPUID_CheckOneGbPageSupport(
-	VOID
+    VOID
 )
 {
-	CPUID_EX_MAXFUNC tCpuidExMaxFunc;
-	CPUID_EX_FEATURES tCpuidExFeatures;
+    CPUID_EX_MAXFUNC tCpuidExMaxFunc;
+    CPUID_EX_FEATURES tCpuidExFeatures;
 
-	ASM64_Cpuid(
-		(UINT32 *)&tCpuidExMaxFunc,
-		(UINT32)CPUID_FUNCTION_EX_MAXFUNC,
-		0);
+    ASM64_Cpuid(
+        (UINT32 *)&tCpuidExMaxFunc,
+        (UINT32)CPUID_FUNCTION_EX_MAXFUNC,
+        0);
 
-	if (CPUID_FUNCTION_EX_FEATURES > tCpuidExMaxFunc.dwMaxExFunc)
-	{
-		return FALSE;
-	}
+    if (CPUID_FUNCTION_EX_FEATURES > tCpuidExMaxFunc.dwMaxExFunc)
+    {
+        return FALSE;
+    }
 
-	ASM64_Cpuid(
-		(UINT32 *)&tCpuidExFeatures,
-		(UINT32)CPUID_FUNCTION_EX_FEATURES,
-		0);
-	return (BOOLEAN)tCpuidExFeatures.OneGbPages;
+    ASM64_Cpuid(
+        (UINT32 *)&tCpuidExFeatures,
+        (UINT32)CPUID_FUNCTION_EX_FEATURES,
+        0);
+    return (BOOLEAN)tCpuidExFeatures.OneGbPages;
 }

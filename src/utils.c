@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		utils.c
-* @section	Basic utility functions that have nothing to do with any Intel mechanisms
+* @file        utils.c
+* @section    Basic utility functions that have nothing to do with any Intel mechanisms
 */
 
 #include "ntdatatypes.h"
@@ -37,161 +37,161 @@
 void*
 __cdecl
 memcpy(
-	void* pvDst,
-	void const* pvSrc,
-	size_t cbSize
+    void* pvDst,
+    void const* pvSrc,
+    size_t cbSize
 )
 {
-	PUINT8 pcSrc = NULL;
-	PUINT8 pcDst = NULL;
-	PULONG_PTR pulSrc = (PULONG_PTR)pvSrc;
-	PULONG_PTR pulDst = (PULONG_PTR)pvDst;
-	UINTN i = 0;
-	UINTN nIterCount = 0;
+    PUINT8 pcSrc = NULL;
+    PUINT8 pcDst = NULL;
+    PULONG_PTR pulSrc = (PULONG_PTR)pvSrc;
+    PULONG_PTR pulDst = (PULONG_PTR)pvDst;
+    UINTN i = 0;
+    UINTN nIterCount = 0;
 
-	if (	(NULL == pvDst)
-		||	(NULL == pvSrc)
-		||	(0 == cbSize))
-	{
-		// Invalid parameters
-		return NULL;
-	}
+    if (    (NULL == pvDst)
+        ||    (NULL == pvSrc)
+        ||    (0 == cbSize))
+    {
+        // Invalid parameters
+        return NULL;
+    }
 
-	// Copy bytes in ULONG_PTR increments to make things a bit faster
-	nIterCount = (cbSize / sizeof(ULONG_PTR));
-	for (i = 0; i < nIterCount; i++)
-	{
-		pulDst[i] = pulSrc[i];
-	}
+    // Copy bytes in ULONG_PTR increments to make things a bit faster
+    nIterCount = (cbSize / sizeof(ULONG_PTR));
+    for (i = 0; i < nIterCount; i++)
+    {
+        pulDst[i] = pulSrc[i];
+    }
 
-	// Copy the remaining bytes as regular chars
-	pcSrc = (PUINT8)((ULONG_PTR)pvSrc + i * sizeof(ULONG_PTR));
-	pcDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
-	nIterCount = (cbSize % sizeof(ULONG_PTR));
-	for (i = 0; i < nIterCount; i++)
-	{
-		pcDst[i] = pcSrc[i];
-	}
+    // Copy the remaining bytes as regular chars
+    pcSrc = (PUINT8)((ULONG_PTR)pvSrc + i * sizeof(ULONG_PTR));
+    pcDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
+    nIterCount = (cbSize % sizeof(ULONG_PTR));
+    for (i = 0; i < nIterCount; i++)
+    {
+        pcDst[i] = pcSrc[i];
+    }
 
-	return pvDst;
+    return pvDst;
 }
 
 #pragma function(memset)
 void *
 __cdecl
 memset(
-	void* pvDst,
-	int iValue,
-	size_t cbSize
+    void* pvDst,
+    int iValue,
+    size_t cbSize
 )
 {
-	UINT8 ucValue = (UINT8)iValue;
-	PUINT8 pucDst = NULL;
-	PULONG_PTR pqwDst = (PULONG_PTR)pvDst;
-	ULONG_PTR qwValue = 0;
-	PUINT8 pucValue = (PUINT8)&qwValue;
-	ULONG_PTR i = 0;
+    UINT8 ucValue = (UINT8)iValue;
+    PUINT8 pucDst = NULL;
+    PULONG_PTR pqwDst = (PULONG_PTR)pvDst;
+    ULONG_PTR qwValue = 0;
+    PUINT8 pucValue = (PUINT8)&qwValue;
+    ULONG_PTR i = 0;
 
-	if (	(NULL == pvDst)
-		||	(0 == cbSize))
-	{
-		// Invalid parameters
-		return NULL;
-	}
+    if (    (NULL == pvDst)
+        ||    (0 == cbSize))
+    {
+        // Invalid parameters
+        return NULL;
+    }
 
-	// Build a ULONG_PTR with all bytes set to ucValue
-	for (i = 0; i < sizeof(qwValue); i++)
-	{
-		pucValue[i] = ucValue;
-	}
+    // Build a ULONG_PTR with all bytes set to ucValue
+    for (i = 0; i < sizeof(qwValue); i++)
+    {
+        pucValue[i] = ucValue;
+    }
 
-	// Set bytes in ULONG_PTR increments to make things a bit faster
-	for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
-	{
-		pqwDst[i] = qwValue;
-	}
+    // Set bytes in ULONG_PTR increments to make things a bit faster
+    for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
+    {
+        pqwDst[i] = qwValue;
+    }
 
-	// Set the remaining bytes as regular chars
-	pucDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
-	for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
-	{
-		pucDst[i] = ucValue;
-	}
+    // Set the remaining bytes as regular chars
+    pucDst = (PUINT8)((ULONG_PTR)pvDst + i * sizeof(ULONG_PTR));
+    for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
+    {
+        pucDst[i] = ucValue;
+    }
 
-	return pvDst;
+    return pvDst;
 }
 
 BOOLEAN
 MemCopy(
-	OUT PVOID pvDst,
-	IN const PVOID pvSrc,
-	IN const UINT64 cbSize
+    OUT PVOID pvDst,
+    IN const PVOID pvSrc,
+    IN const UINT64 cbSize
 )
 {
-	return (pvDst == memcpy(pvDst, pvSrc, cbSize));
+    return (pvDst == memcpy(pvDst, pvSrc, cbSize));
 }
 
 BOOLEAN
 MemFill(
-	OUT PVOID pvDst,
-	IN const char cChar,
-	IN const UINT64 cbSize
+    OUT PVOID pvDst,
+    IN const char cChar,
+    IN const UINT64 cbSize
 )
 {
-	return (pvDst == memset(pvDst, cChar, cbSize));
+    return (pvDst == memset(pvDst, cChar, cbSize));
 }
 
 BOOLEAN
 MemZero(
-	OUT PVOID pvDst,
-	IN const UINT64 cbSize
+    OUT PVOID pvDst,
+    IN const UINT64 cbSize
 )
 {
-	return (pvDst == memset(pvDst, 0, cbSize));
+    return (pvDst == memset(pvDst, 0, cbSize));
 }
 
 BOOLEAN
 MemEqual(
-	IN const PVOID pvBuffer1,
-	IN const PVOID pvBuffer2,
-	IN const UINT64 cbSize
+    IN const PVOID pvBuffer1,
+    IN const PVOID pvBuffer2,
+    IN const UINT64 cbSize
 )
 {
-	BOOLEAN bSuccess = FALSE;
-	PULONG_PTR pqwBuffer1 = (PULONG_PTR)pvBuffer1;
-	PULONG_PTR pqwBuffer2 = (PULONG_PTR)pvBuffer2;
-	PUINT8 pucBuffer1 = NULL;
-	PUINT8 pucBuffer2 = NULL;
-	ULONG_PTR i = 0;
+    BOOLEAN bSuccess = FALSE;
+    PULONG_PTR pqwBuffer1 = (PULONG_PTR)pvBuffer1;
+    PULONG_PTR pqwBuffer2 = (PULONG_PTR)pvBuffer2;
+    PUINT8 pucBuffer1 = NULL;
+    PUINT8 pucBuffer2 = NULL;
+    ULONG_PTR i = 0;
 
-	if (	(NULL == pvBuffer1)
-		||	(NULL == pvBuffer2)
-		||	(0 == cbSize))
-	{
-		// Invalid parameters
-		return NULL;
-	}
+    if (    (NULL == pvBuffer1)
+        ||    (NULL == pvBuffer2)
+        ||    (0 == cbSize))
+    {
+        // Invalid parameters
+        return NULL;
+    }
 
-	for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
-	{
-		if (pqwBuffer1[i] != pqwBuffer2[i])
-		{
-			goto lblCleanup;
-		}
-	}
+    for (i = 0; i < (cbSize / sizeof(ULONG_PTR)); i++)
+    {
+        if (pqwBuffer1[i] != pqwBuffer2[i])
+        {
+            goto lblCleanup;
+        }
+    }
 
-	// Set the remaining bytes as regular chars
-	pucBuffer1 = (PUINT8)((ULONG_PTR)pvBuffer1 + i * sizeof(ULONG_PTR));
-	pucBuffer2 = (PUINT8)((ULONG_PTR)pvBuffer2 + i * sizeof(ULONG_PTR));
-	for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
-	{
-		if (pucBuffer1[i] != pucBuffer2[i])
-		{
-			goto lblCleanup;
-		}
-	}
+    // Set the remaining bytes as regular chars
+    pucBuffer1 = (PUINT8)((ULONG_PTR)pvBuffer1 + i * sizeof(ULONG_PTR));
+    pucBuffer2 = (PUINT8)((ULONG_PTR)pvBuffer2 + i * sizeof(ULONG_PTR));
+    for (i = 0; i < (cbSize % sizeof(ULONG_PTR)); i++)
+    {
+        if (pucBuffer1[i] != pucBuffer2[i])
+        {
+            goto lblCleanup;
+        }
+    }
 
-	bSuccess = TRUE;
+    bSuccess = TRUE;
 lblCleanup:
-	return bSuccess;
+    return bSuccess;
 }

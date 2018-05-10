@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		intrinsics.h
-* @section	Define functions that perform specific opcodes in assembly
+* @file        intrinsics.h
+* @section    Define functions that perform specific opcodes in assembly
 */
 
 #ifndef __INTRINSICS_H__
@@ -40,7 +40,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_Rdmsr(
-	IN const UINT32 dwMsrCode
+    IN const UINT32 dwMsrCode
 );
 
 /**
@@ -53,8 +53,8 @@ __forceinline
 VOID
 __stdcall
 ASM64_Wrmsr(
-	IN const UINT32 dwMsrCode,
-	IN const UINT64 qwValue
+    IN const UINT32 dwMsrCode,
+    IN const UINT64 qwValue
 );
 
 /**
@@ -68,9 +68,9 @@ __forceinline
 VOID
 __stdcall
 ASM64_Cpuid(
-	OUT UINT32 adwRegs[4],
-	IN const UINT32 dwFunction,
-	IN const UINT32 dwSubFunction
+    OUT UINT32 adwRegs[4],
+    IN const UINT32 dwFunction,
+    IN const UINT32 dwSubFunction
 );
 
 /**
@@ -82,7 +82,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadCr0(
-	VOID
+    VOID
 );
 
 /**
@@ -94,7 +94,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadCr2(
-	VOID
+    VOID
 );
 
 /**
@@ -106,7 +106,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadCr3(
-	VOID
+    VOID
 );
 
 /**
@@ -118,7 +118,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadCr4(
-	VOID
+    VOID
 );
 
 /**
@@ -130,7 +130,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadCr8(
-	VOID
+    VOID
 );
 
 /*
@@ -142,7 +142,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadRflags(
-	VOID
+    VOID
 );
 
 /*
@@ -154,7 +154,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteRflags(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -166,7 +166,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_Lgdt(
-	IN const PUINT64 pqwValue
+    IN const PUINT64 pqwValue
 );
 
 /**
@@ -178,7 +178,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_Sgdt(
-	OUT PUINT64 pqwValue
+    OUT PUINT64 pqwValue
 );
 
 /**
@@ -190,7 +190,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_Lidt(
-	IN const PUINT64 pqwValue
+    IN const PUINT64 pqwValue
 );
 
 /**
@@ -202,7 +202,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_Sidt(
-	OUT PUINT64 pqwValue
+    OUT PUINT64 pqwValue
 );
 
 /**
@@ -214,7 +214,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_Lldt(
-	IN const PUINT16 pwValue
+    IN const PUINT16 pwValue
 );
 
 /**
@@ -226,7 +226,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_Sldt(
-	VOID
+    VOID
 );
 
 /**
@@ -238,7 +238,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_Ltr(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -250,7 +250,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_Str(
-	VOID
+    VOID
 );
 
 /**
@@ -262,7 +262,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteCr0(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -274,7 +274,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteCr2(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -286,7 +286,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteCr3(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -298,7 +298,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteCr4(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -310,7 +310,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteCr8(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -322,7 +322,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteCS(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -334,7 +334,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteSS(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -346,7 +346,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDS(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -358,7 +358,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteES(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -370,7 +370,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteFS(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -382,7 +382,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteGS(
-	IN const UINT16 wValue
+    IN const UINT16 wValue
 );
 
 /**
@@ -394,7 +394,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_ReadCS(
-	VOID
+    VOID
 );
 
 /**
@@ -406,7 +406,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_ReadSS(
-	VOID
+    VOID
 );
 
 /**
@@ -418,7 +418,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_ReadDS(
-	VOID
+    VOID
 );
 
 /**
@@ -430,7 +430,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_ReadES(
-	VOID
+    VOID
 );
 
 /**
@@ -442,7 +442,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_ReadFS(
-	VOID
+    VOID
 );
 
 /**
@@ -454,7 +454,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_ReadGS(
-	VOID
+    VOID
 );
 
 /**
@@ -468,8 +468,8 @@ __forceinline
 BOOLEAN
 __stdcall
 ASM64_ReadSegmentLimit(
-	IN const UINT16 wSegmentSelector,
-	OUT PUINT32 pdwSegmentLimit
+    IN const UINT16 wSegmentSelector,
+    OUT PUINT32 pdwSegmentLimit
 );
 
 /**
@@ -481,7 +481,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadDr0(
-	VOID
+    VOID
 );
 
 /**
@@ -493,7 +493,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadDr1(
-	VOID
+    VOID
 );
 
 /**
@@ -505,7 +505,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadDr2(
-	VOID
+    VOID
 );
 
 /**
@@ -517,7 +517,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadDr3(
-	VOID
+    VOID
 );
 
 /**
@@ -529,7 +529,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadDr6(
-	VOID
+    VOID
 );
 
 /**
@@ -541,7 +541,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_ReadDr7(
-	VOID
+    VOID
 );
 
 /**
@@ -553,7 +553,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDr0(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -565,7 +565,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDr1(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -577,7 +577,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDr2(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -589,7 +589,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDr3(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -601,7 +601,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDr6(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -613,7 +613,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_WriteDr7(
-	IN const UINT64 qwValue
+    IN const UINT64 qwValue
 );
 
 /**
@@ -626,7 +626,7 @@ __forceinline
 UINT64
 __stdcall
 ASM64_Lar(
-	IN const UINT16 wSegmentSelector
+    IN const UINT16 wSegmentSelector
 );
 
 /**
@@ -639,7 +639,7 @@ __forceinline
 UINT8
 __stdcall
 ASM64_IoReadByte(
-	IN const UINT16 wIoPort
+    IN const UINT16 wIoPort
 );
 
 /**
@@ -652,7 +652,7 @@ __forceinline
 UINT16
 __stdcall
 ASM64_IoReadWord(
-	IN const UINT16 wIoPort
+    IN const UINT16 wIoPort
 );
 
 /**
@@ -665,7 +665,7 @@ __forceinline
 UINT32
 __stdcall
 ASM64_IoReadDword(
-	IN const UINT16 wIoPort
+    IN const UINT16 wIoPort
 );
 
 /**
@@ -678,8 +678,8 @@ __forceinline
 VOID
 __stdcall
 ASM64_IoWriteByte(
-	IN const UINT8 cValue,
-	IN const UINT16 wIoPort
+    IN const UINT8 cValue,
+    IN const UINT16 wIoPort
 );
 
 /**
@@ -692,8 +692,8 @@ __forceinline
 VOID
 __stdcall
 ASM64_IoWriteWord(
-	IN const UINT16 wValue,
-	IN const UINT16 wIoPort
+    IN const UINT16 wValue,
+    IN const UINT16 wIoPort
 );
 
 /**
@@ -706,8 +706,8 @@ __forceinline
 VOID
 __stdcall
 ASM64_IoWriteDword(
-	IN const UINT32 dwValue,
-	IN const UINT16 wIoPort
+    IN const UINT32 dwValue,
+    IN const UINT16 wIoPort
 );
 
 /**
@@ -718,7 +718,7 @@ __forceinline
 VOID
 __stdcall
 ASM64_Invd(
-	VOID
+    VOID
 );
 
 /**
@@ -729,15 +729,15 @@ __forceinline
 VOID
 __stdcall
 ASM64_Wbinvd(
-	VOID
+    VOID
 );
 
 //! Vol 3C, 30.2 CONVENTIONS
 typedef enum _VTX_RC
 {
-	VTX_SUCCESS = 0,
-	VTX_FAIL_VALID = 1,
-	VTX_FAIL_INVALID = 2,
+    VTX_SUCCESS = 0,
+    VTX_FAIL_VALID = 1,
+    VTX_FAIL_INVALID = 2,
 } VTX_RC, *PVTX_RC;
 
 //! Vol 3C, 30.3 VMX INSTRUCTIONS
@@ -745,19 +745,19 @@ typedef enum _VTX_RC
 // IA32_VMX_EPT_VPID_CAP MSR
 typedef enum _INVEPT_TYPE
 {
-	// Invalidates all mappings associated with bits 51:12 of the EPT pointer(EPTP)
-	// specified in the INVEPT descriptor.It may invalidate other mappings as well
-	INVEPT_TYPE_SINGLE_CONTEXT = 1,
+    // Invalidates all mappings associated with bits 51:12 of the EPT pointer(EPTP)
+    // specified in the INVEPT descriptor.It may invalidate other mappings as well
+    INVEPT_TYPE_SINGLE_CONTEXT = 1,
 
-	// Invalidates mappings associated with all EPTPs
-	INVEPT_TYPE_GLOBAL = 2,
+    // Invalidates mappings associated with all EPTPs
+    INVEPT_TYPE_GLOBAL = 2,
 } INVEPT_TYPE, *PINVEPT_TYPE;
 
 //! Vol 3C, Figure 30-1. INVEPT Descriptor
 typedef struct _INVEPT_DESCRIPTOR
 {
-	UINT64 qwEptPointer;	//!< 0-63
-	UINT64 Reserved0;		//!< 64-127
+    UINT64 qwEptPointer;    //!< 0-63
+    UINT64 Reserved0;        //!< 64-127
 } INVEPT_DESCRIPTOR, *PINVEPT_DESCRIPTOR;
 
 /**
@@ -771,39 +771,39 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Invept(
-	IN const INVEPT_TYPE eInveptType,
-	IN const PINVEPT_DESCRIPTOR ptInveptDescriptor
+    IN const INVEPT_TYPE eInveptType,
+    IN const PINVEPT_DESCRIPTOR ptInveptDescriptor
 );
 
 typedef enum _INVVPID_TYPE
 {
-	// Invalidates mappings for the linear address and VPID specified in the 
-	// INVVPID descriptor.In some cases, it may invalidate mappings for
-	// other linear addresses (or other VPIDs) as well
-	INVVPID_TYPE_INDIVIDUAL = 0,
+    // Invalidates mappings for the linear address and VPID specified in the 
+    // INVVPID descriptor.In some cases, it may invalidate mappings for
+    // other linear addresses (or other VPIDs) as well
+    INVVPID_TYPE_INDIVIDUAL = 0,
 
-	// Invalidates all mappings tagged with the VPID specified in the INVVPID 
-	// descriptor.In some cases, it may invalidate mappings for other VPIDs as
-	// well
-	INVVPID_TYPE_SINGLE_CONTEXT = 1,
+    // Invalidates all mappings tagged with the VPID specified in the INVVPID 
+    // descriptor.In some cases, it may invalidate mappings for other VPIDs as
+    // well
+    INVVPID_TYPE_SINGLE_CONTEXT = 1,
 
-	// Invalidates all mappings tagged with all VPIDs except VPID 0000H. 
-	// In some cases, it may invalidate translations with VPID 0000H as well
-	INVVPID_TYPE_ALL_CONTEXTS = 2,
+    // Invalidates all mappings tagged with all VPIDs except VPID 0000H. 
+    // In some cases, it may invalidate translations with VPID 0000H as well
+    INVVPID_TYPE_ALL_CONTEXTS = 2,
 
-	// Invalidates all mappings tagged with the VPID specified in the INVVPID 
-	// descriptor except global translations.In some cases, it may invalidate
-	// global translations(and mappings with other VPIDs) as well
-	INVVPID_TYPE_GLOBAL = 3,
+    // Invalidates all mappings tagged with the VPID specified in the INVVPID 
+    // descriptor except global translations.In some cases, it may invalidate
+    // global translations(and mappings with other VPIDs) as well
+    INVVPID_TYPE_GLOBAL = 3,
 } INVVPID_TYPE, *PINVVPID_TYPE;
 
 //! Vol 3C, Figure 30-2. INVVPID Descriptor
 typedef struct _INVVPID_DESCRIPTOR
 {
-	UINT16 wVpid;			//!< 0-15
-	UINT16 Reserved0;		//!< 16-31
-	UINT32 Reserved1;		//!< 32-63
-	UINT64 qwLinearAddress;	//!< 64-127
+    UINT16 wVpid;            //!< 0-15
+    UINT16 Reserved0;        //!< 16-31
+    UINT32 Reserved1;        //!< 32-63
+    UINT64 qwLinearAddress;    //!< 64-127
 } INVVPID_DESCRIPTOR, *PINVVPID_DESCRIPTOR;
 
 /**
@@ -817,8 +817,8 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Invvpid(
-	IN const INVVPID_TYPE eInvVpidType,
-	IN const PINVVPID_DESCRIPTOR ptInvVpidDescriptor
+    IN const INVVPID_TYPE eInvVpidType,
+    IN const PINVVPID_DESCRIPTOR ptInvVpidDescriptor
 );
 
 /**
@@ -833,8 +833,8 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmcall(
-	IN const UINT32 dwHypercallNumber,
-	IN PVOID ptContext
+    IN const UINT32 dwHypercallNumber,
+    IN PVOID ptContext
 );
 
 /**
@@ -847,7 +847,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmclear(
-	IN const PUINT64 pqwVmcsPhysicalAddress
+    IN const PUINT64 pqwVmcsPhysicalAddress
 );
 
 /**
@@ -861,13 +861,13 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmfunc(
-	IN const UINT32 dwVmFuncNumber
+    IN const UINT32 dwVmFuncNumber
 );
 
 /**
 * Perform VMLAUNCH opcode
-* @return	On success, this function will not return but "jump" to
-*			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
+* @return    On success, this function will not return but "jump" to
+*            VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
 */
 extern
 __forceinline
@@ -875,13 +875,13 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmlaunch(
-	VOID
+    VOID
 );
 
 /**
 * Perform VMRESUME opcode
-* @return	On success, this function will not return but "jump" to
-*			VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
+* @return    On success, this function will not return but "jump" to
+*            VMCS_FIELD_GUEST_RIP, otherwise see VTX_RC
 */
 extern
 __forceinline
@@ -889,7 +889,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmresume(
-	VOID
+    VOID
 );
 
 /**
@@ -902,7 +902,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmptrld(
-	IN const PUINT64 pqwVmcsPhysicalAddress
+    IN const PUINT64 pqwVmcsPhysicalAddress
 );
 
 /**
@@ -915,7 +915,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmptrst(
-	OUT PUINT64 pqwVmcsPhysicalAddress
+    OUT PUINT64 pqwVmcsPhysicalAddress
 );
 
 /**
@@ -929,61 +929,61 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread(
-	IN const ULONG_PTR ulVmcsField,
-	OUT PULONG_PTR pulValue
+    IN const ULONG_PTR ulVmcsField,
+    OUT PULONG_PTR pulValue
 );
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread16(
-	IN const ULONG_PTR ulVmcsField,
-	OUT PUINT16 pwValue
+    IN const ULONG_PTR ulVmcsField,
+    OUT PUINT16 pwValue
 )
 {
-	VTX_RC eRc = VTX_FAIL_INVALID;
-	UINT64 qwValue = 0;
+    VTX_RC eRc = VTX_FAIL_INVALID;
+    UINT64 qwValue = 0;
 
-	if (NULL == pwValue)
-	{
-		return eRc;
-	}
+    if (NULL == pwValue)
+    {
+        return eRc;
+    }
 
-	eRc = ASM64_Vmread(ulVmcsField, &qwValue);
-	*pwValue = (UINT16)qwValue;
-	return eRc;
+    eRc = ASM64_Vmread(ulVmcsField, &qwValue);
+    *pwValue = (UINT16)qwValue;
+    return eRc;
 }
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread32(
-	IN const ULONG_PTR ulVmcsField,
-	OUT PUINT32 pdwValue
+    IN const ULONG_PTR ulVmcsField,
+    OUT PUINT32 pdwValue
 )
 {
-	VTX_RC eRc = VTX_FAIL_INVALID;
-	UINT64 qwValue = 0;
+    VTX_RC eRc = VTX_FAIL_INVALID;
+    UINT64 qwValue = 0;
 
-	if (NULL == pdwValue)
-	{
-		return eRc;
-	}
+    if (NULL == pdwValue)
+    {
+        return eRc;
+    }
 
-	eRc = ASM64_Vmread(ulVmcsField, &qwValue);
-	*pdwValue = (UINT32)qwValue;
-	return eRc;
+    eRc = ASM64_Vmread(ulVmcsField, &qwValue);
+    *pdwValue = (UINT32)qwValue;
+    return eRc;
 }
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmread64(
-	IN const ULONG_PTR ulVmcsField,
-	OUT PUINT64 pqwValue
+    IN const ULONG_PTR ulVmcsField,
+    OUT PUINT64 pqwValue
 )
 {
-	return ASM64_Vmread(ulVmcsField, (PULONG_PTR)pqwValue);
+    return ASM64_Vmread(ulVmcsField, (PULONG_PTR)pqwValue);
 }
 
 /**
@@ -997,41 +997,41 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite(
-	IN const ULONG_PTR ulVmcsField,
-	IN const ULONG_PTR ulValue
+    IN const ULONG_PTR ulVmcsField,
+    IN const ULONG_PTR ulValue
 );
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite16(
-	IN const ULONG_PTR ulVmcsField,
-	IN const UINT16 wValue
+    IN const ULONG_PTR ulVmcsField,
+    IN const UINT16 wValue
 )
 {
-	return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)wValue);
+    return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)wValue);
 }
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite32(
-	IN const ULONG_PTR ulVmcsField,
-	IN const UINT32 dwValue
+    IN const ULONG_PTR ulVmcsField,
+    IN const UINT32 dwValue
 )
 {
-	return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)dwValue);
+    return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)dwValue);
 }
 
 __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmwrite64(
-	IN const ULONG_PTR ulVmcsField,
-	IN const UINT64 qwValue
+    IN const ULONG_PTR ulVmcsField,
+    IN const UINT64 qwValue
 )
 {
-	return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)qwValue);
+    return ASM64_Vmwrite(ulVmcsField, (ULONG_PTR)qwValue);
 }
 
 /**
@@ -1043,7 +1043,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmxoff(
-	VOID
+    VOID
 );
 
 /**
@@ -1056,7 +1056,7 @@ __forceinline
 VTX_RC
 __stdcall
 ASM64_Vmxon(
-	IN const PUINT64 pqwVmxonRegionPhysicalAddress
+    IN const PUINT64 pqwVmxonRegionPhysicalAddress
 );
 
 /**
@@ -1068,7 +1068,7 @@ extern
 VOID
 __stdcall
 ASM64_CaptureContext(
-	OUT PCONTEXT ptContext
+    OUT PCONTEXT ptContext
 );
 
 /**
@@ -1081,7 +1081,7 @@ extern
 VOID
 __cdecl
 ASM64_RestoreContext(
-	IN const PCONTEXT ptContext
+    IN const PCONTEXT ptContext
 );
 
 /**
@@ -1095,7 +1095,7 @@ extern
 VTX_RC
 __cdecl
 ASM64_RestoreContextAndVmresume(
-	IN const PCONTEXT ptContext
+    IN const PCONTEXT ptContext
 );
 
 #endif /* __INTRINSICS_H__ */

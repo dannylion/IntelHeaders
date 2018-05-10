@@ -21,9 +21,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		paging64.h
-* @section	Intel x64 Page Tables structures and constants
-*			See Intel's: Software Developers Manual Vol 3A, Section 4.5 IA-32E PAGING
+* @file        paging64.h
+* @section    Intel x64 Page Tables structures and constants
+*            See Intel's: Software Developers Manual Vol 3A, Section 4.5 IA-32E PAGING
 */
 
 #ifndef __INTEL_PAGING64_H__
@@ -41,17 +41,17 @@
 #pragma warning( disable : 4201)
 #pragma pack(push, 1)
 
-#define PAGING64_PML4E_COUNT	512
-#define PAGING64_PDPTE_COUNT	512
-#define PAGING64_PDE_COUNT		512
-#define PAGING64_PTE_COUNT		512
+#define PAGING64_PML4E_COUNT    512
+#define PAGING64_PDPTE_COUNT    512
+#define PAGING64_PDE_COUNT        512
+#define PAGING64_PTE_COUNT        512
 
 // Every table in the page-tables is exactly this size
 #define PAGING64_TABLE_SIZE (512 * 8)
 
-#define PAGE_SIZE_4KB	PAGE_SIZE
-#define PAGE_SIZE_2MB	(0x1000 * 512)
-#define PAGE_SIZE_1GB	(0x1000 * 512 * 512)
+#define PAGE_SIZE_4KB    PAGE_SIZE
+#define PAGE_SIZE_2MB    (0x1000 * 512)
+#define PAGE_SIZE_1GB    (0x1000 * 512 * 512)
 
 #define PAGE_SHIFT_1GB 30L
 #define PAGE_SHIFT_2MB 21L
@@ -100,189 +100,189 @@
 //! Vol 3A, Table 3-1. Code- and Data-Segment Types
 typedef enum _PAGE_PERMISSION
 {
-	PAGE_WRITE = 1 << 0, // Set Rw bit in page-table entry
-	PAGE_EXECUTE = 1 << 1, // If this flag isn't set, try to set NX bit
-	PAGE_SUPERVISOR	= 1 << 2, // Access allowed only from (CPL < 3)
+    PAGE_WRITE = 1 << 0, // Set Rw bit in page-table entry
+    PAGE_EXECUTE = 1 << 1, // If this flag isn't set, try to set NX bit
+    PAGE_SUPERVISOR    = 1 << 2, // Access allowed only from (CPL < 3)
 
-	// These are combinations of the previous flags
-	PAGE_NOACCESS = 0,
-	PAGE_READONLY = 0,
-	PAGE_READWRITE = PAGE_WRITE,
-	PAGE_EXECUTE_READ = PAGE_EXECUTE,
-	PAGE_EXECUTE_READWRITE = PAGE_EXECUTE | PAGE_WRITE,
-	PAGE_SUPERVISOR_READONLY = PAGE_SUPERVISOR,
-	PAGE_SUPERVISOR_READWRITE = PAGE_SUPERVISOR | PAGE_WRITE,
-	PAGE_SUPERVISOR_EXECUTE_READ = PAGE_SUPERVISOR | PAGE_EXECUTE,
-	PAGE_SUPERVISOR_EXECUTE_READWRITE = PAGE_SUPERVISOR | PAGE_EXECUTE | PAGE_WRITE,
+    // These are combinations of the previous flags
+    PAGE_NOACCESS = 0,
+    PAGE_READONLY = 0,
+    PAGE_READWRITE = PAGE_WRITE,
+    PAGE_EXECUTE_READ = PAGE_EXECUTE,
+    PAGE_EXECUTE_READWRITE = PAGE_EXECUTE | PAGE_WRITE,
+    PAGE_SUPERVISOR_READONLY = PAGE_SUPERVISOR,
+    PAGE_SUPERVISOR_READWRITE = PAGE_SUPERVISOR | PAGE_WRITE,
+    PAGE_SUPERVISOR_EXECUTE_READ = PAGE_SUPERVISOR | PAGE_EXECUTE,
+    PAGE_SUPERVISOR_EXECUTE_READWRITE = PAGE_SUPERVISOR | PAGE_EXECUTE | PAGE_WRITE,
 } PAGE_PERMISSION, *PPAGE_PERMISSION;
 
 typedef union _VA_ADDRESS64
 {
-	UINT64 qwValue;
+    UINT64 qwValue;
 
  //! Figure 4-8. Linear-Address Translation to a 4-KByte Page using IA-32e Paging
-	struct {
-		UINT64 Offset : 12;		//!< 0-11
-		UINT64 PteIndex : 9;	//!< 12-20
-		UINT64 PdeIndex : 9;	//!< 21-29
-		UINT64 PdpteIndex : 9;	//!< 30-38
-		UINT64 Pml4eIndex : 9;	//!< 39-47
-		UINT64 Reserved0 : 16;	//!< 48-63
-	} FourKb;
+    struct {
+        UINT64 Offset : 12;     //!< 0-11
+        UINT64 PteIndex : 9;    //!< 12-20
+        UINT64 PdeIndex : 9;    //!< 21-29
+        UINT64 PdpteIndex : 9;  //!< 30-38
+        UINT64 Pml4eIndex : 9;  //!< 39-47
+        UINT64 Reserved0 : 16;  //!< 48-63
+    } FourKb;
  //! Figure 4-9. Linear-Address Translation to a 2-MByte Page using IA-32e Paging
-	struct {
-		UINT64 Offset : 21;		//!< 0-20
-		UINT64 PdeIndex : 9;	//!< 21-29
-		UINT64 PdpteIndex : 9;	//!< 30-38
-		UINT64 Pml4eIndex : 9;	//!< 39-47
-		UINT64 Reserved0 : 16;	//!< 48-63
-	} TwoMb;
+    struct {
+        UINT64 Offset : 21;     //!< 0-20
+        UINT64 PdeIndex : 9;    //!< 21-29
+        UINT64 PdpteIndex : 9;  //!< 30-38
+        UINT64 Pml4eIndex : 9;  //!< 39-47
+        UINT64 Reserved0 : 16;  //!< 48-63
+    } TwoMb;
  //! Figure 4-10. Linear-Address Translation to a 1-GByte Page using IA-32e Paging
-	struct {
-		UINT64 Offset : 30;		//!< 0-29
-		UINT64 PdpteIndex : 9;	//!< 30-38
-		UINT64 Pml4eIndex : 9;	//!< 39-47
-		UINT64 Reserved0 : 16;	//!< 48-63
-	} OneGb;
+    struct {
+        UINT64 Offset : 30;     //!< 0-29
+        UINT64 PdpteIndex : 9;  //!< 30-38
+        UINT64 Pml4eIndex : 9;  //!< 39-47
+        UINT64 Reserved0 : 16;  //!< 48-63
+    } OneGb;
 } VA_ADDRESS64, *PVA_ADDRESS64;
 C_ASSERT(sizeof(UINT64) == sizeof(VA_ADDRESS64));
 
 //! Vol 3A, Table 4-14. Format of an IA-32e PML4 Entry (PML4E) that References a Page-Directory-Pointer Table
 typedef union _PML4E64
 {
-	UINT64 qwValue;
-	struct {
-		UINT64 Present : 1;			//!< 0 Present
-		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-		UINT64 Pwt : 1;				//!< 3 Page-level write-through
-		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-		UINT64 Ignored0 : 1;		//!< 6 
-		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0
-		UINT64 Ignored1 : 4;		//!< 8-11
-		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-		UINT64 Ignored2 : 11;		//!< 52-62
-		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
-	};
+    UINT64 qwValue;
+    struct {
+        UINT64 Present : 1;     //!< 0      Present
+        UINT64 Rw : 1;          //!< 1      Read/write; if 0, writes are not allowed
+        UINT64 Us : 1;          //!< 2      User/supervisor; if 0, user-mode access isn't allowed
+        UINT64 Pwt : 1;         //!< 3      Page-level write-through
+        UINT64 Pcd : 1;         //!< 4      Page-level cache disable
+        UINT64 Access : 1;      //!< 5      Accessed; indicates whether software has accessed the page
+        UINT64 Ignored0 : 1;    //!< 6 
+        UINT64 PageSize : 1;    //!< 7      Page-Size; must be 0
+        UINT64 Ignored1 : 4;    //!< 8-11
+        UINT64 Addr : 40;       //!< 12-51  Physical address that the entry points to
+        UINT64 Ignored2 : 11;   //!< 52-62
+        UINT64 Nx : 1;          //!< 63 If  IA32_EFER.NXE = 1, execute-disable
+    };
 } PML4E64, *PPML4E64;
 C_ASSERT(sizeof(UINT64) == sizeof(PML4E64));
 
 //! Vol 3A, Table 4-15. Format of an IA-32e Page-Directory-Pointer-Table Entry (PDPTE) that Maps a 1-GByte Page
 typedef union _PDPTE1G64
 {
-	UINT64 qwValue;
-	struct {
-		UINT64 Present : 1;			//!< 0 Present
-		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-		UINT64 Pwt : 1;				//!< 3 Page-level write-through
-		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-		UINT64 PageSize : 1;		//!< 7 Page-Size; Must be 1 for 1GB pages
-		UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
-		UINT64 Ignored0 : 3;		//!< 9-11
-		UINT64 Pat : 1;				//!< 12 Page Attribute Table;
-		UINT64 Reserved0 : 17;		//!< 13-29
-		UINT64 Addr : 22;			//!< 30-51 Physical address that the entry points to
-		UINT64 Ignored1 : 7;		//!< 52-58
-		UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
-									//!< protection key of the page
-		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
-	};
+    UINT64 qwValue;
+    struct {
+        UINT64 Present : 1;     //!< 0      Present
+        UINT64 Rw : 1;          //!< 1      Read/write; if 0, writes are not allowed
+        UINT64 Us : 1;          //!< 2      User/supervisor; if 0, user-mode access isn't allowed
+        UINT64 Pwt : 1;         //!< 3      Page-level write-through
+        UINT64 Pcd : 1;         //!< 4      Page-level cache disable
+        UINT64 Access : 1;      //!< 5      Accessed; indicates whether software has accessed the page
+        UINT64 Dirty : 1;       //!< 6      Dirty; indicates whether software has written to the page
+        UINT64 PageSize : 1;    //!< 7      Page-Size; Must be 1 for 1GB pages
+        UINT64 Global : 1;      //!< 8      Global; if CR4.PGE = 1, determines whether the translation is global
+        UINT64 Ignored0 : 3;    //!< 9-11
+        UINT64 Pat : 1;         //!< 12     Page Attribute Table;
+        UINT64 Reserved0 : 17;  //!< 13-29
+        UINT64 Addr : 22;       //!< 30-51  Physical address that the entry points to
+        UINT64 Ignored1 : 7;    //!< 52-58
+        UINT64 Protkey : 4;     //!< 59-62  Protection key; if CR4.PKE = 1, determines the 
+                                //!<        protection key of the page
+        UINT64 Nx : 1;          //!< 63     If IA32_EFER.NXE = 1, execute-disable
+    };
 } PDPTE1G64, *PPDPTE1G64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDPTE1G64));
 
 //! Vol 3A, Table 4-16. Format of an IA-32e Page-Directory-Pointer-Table Entry (PDPTE) that References a Page Directory
 typedef union _PDPTE64
 {
-	UINT64 qwValue;
-	struct {
-		UINT64 Present : 1;			//!< 0 Present
-		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-		UINT64 Pwt : 1;				//!< 3 Page-level write-through
-		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0 to refernce PDE
-		UINT64 Reserved1 : 4;		//!< 8-11
-		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-		UINT64 Reserved2 : 11;		//!< 52-62
-		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
-	};
+    UINT64 qwValue;
+    struct {
+        UINT64 Present : 1;     //!< 0      Present
+        UINT64 Rw : 1;          //!< 1      Read/write; if 0, writes are not allowed
+        UINT64 Us : 1;          //!< 2      User/supervisor; if 0, user-mode access isn't allowed
+        UINT64 Pwt : 1;         //!< 3      Page-level write-through
+        UINT64 Pcd : 1;         //!< 4      Page-level cache disable
+        UINT64 Access : 1;      //!< 5      Accessed; indicates whether software has accessed the page
+        UINT64 Dirty : 1;       //!< 6      Dirty; indicates whether software has written to the page
+        UINT64 PageSize : 1;    //!< 7      Page-Size; must be 0 to refernce PDE
+        UINT64 Reserved1 : 4;   //!< 8-11
+        UINT64 Addr : 40;       //!< 12-51  Physical address that the entry points to
+        UINT64 Reserved2 : 11;  //!< 52-62
+        UINT64 Nx : 1;          //!< 63     If IA32_EFER.NXE = 1, execute-disable
+    };
 } PDPTE64, *PPDPTE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDPTE64));
 
 //! Vol 3A, Table 4-17. Format of an IA-32e Page-Directory Entry that Maps a 2-MByte Page
 typedef union _PDE2MB64
 {
-	UINT64 qwValue;
-	struct {
-		UINT64 Present : 1;			//!< 0 Present
-		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-		UINT64 Pwt : 1;				//!< 3 Page-level write-through
-		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 1 for 2MB pages
-		UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
-		UINT64 Ignored0 : 3;		//!< 9-11
-		UINT64 Pat : 1;				//!< 12 Page Attribute Table;
-		UINT64 Reserved0 : 8;		//!< 13-20
-		UINT64 Addr : 31;			//!< 21-51 Physical address that the entry points to
-		UINT64 Ignored1 : 7;		//!< 52-58
-		UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
-									//!< protection key of the page
-		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
-	};
+    UINT64 qwValue;
+    struct {
+        UINT64 Present : 1;     //!< 0      Present
+        UINT64 Rw : 1;          //!< 1      Read/write; if 0, writes are not allowed
+        UINT64 Us : 1;          //!< 2      User/supervisor; if 0, user-mode access isn't allowed
+        UINT64 Pwt : 1;         //!< 3      Page-level write-through
+        UINT64 Pcd : 1;         //!< 4      Page-level cache disable
+        UINT64 Access : 1;      //!< 5      Accessed; indicates whether software has accessed the page
+        UINT64 Dirty : 1;       //!< 6      Dirty; indicates whether software has written to the page
+        UINT64 PageSize : 1;    //!< 7      Page-Size; must be 1 for 2MB pages
+        UINT64 Global : 1;      //!< 8      Global; if CR4.PGE = 1, determines whether the translation is global
+        UINT64 Ignored0 : 3;    //!< 9-11
+        UINT64 Pat : 1;         //!< 12     Page Attribute Table;
+        UINT64 Reserved0 : 8;   //!< 13-20
+        UINT64 Addr : 31;       //!< 21-51  Physical address that the entry points to
+        UINT64 Ignored1 : 7;    //!< 52-58
+        UINT64 Protkey : 4;     //!< 59-62  Protection key; if CR4.PKE = 1, determines the 
+                                //!<        protection key of the page
+        UINT64 Nx : 1;          //!< 63     If IA32_EFER.NXE = 1, execute-disable
+    };
 } PDE2MB64, *PPDE2MB64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDE2MB64));
 
 //! Vol 3A, Table 4-18. Format of an IA-32e Page-Directory Entry that References a Page Table
 typedef union _PDE64
 {
-	UINT64 qwValue;
-	struct {
-		UINT64 Present : 1;			//!< 0 Present
-		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-		UINT64 Pwt : 1;				//!< 3 Page-level write-through
-		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-		UINT64 Reserved0 : 1;		//!< 6
-		UINT64 PageSize : 1;		//!< 7 Page-Size; must be 0 to reference PTE
-		UINT64 Reserved1 : 4;		//!< 8-11
-		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-		UINT64 Reserved2 : 11;		//!< 52-62
-		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
-	};
+    UINT64 qwValue;
+    struct {
+        UINT64 Present : 1;     //!< 0      Present
+        UINT64 Rw : 1;          //!< 1      Read/write; if 0, writes are not allowed
+        UINT64 Us : 1;          //!< 2      User/supervisor; if 0, user-mode access isn't allowed
+        UINT64 Pwt : 1;         //!< 3      Page-level write-through
+        UINT64 Pcd : 1;         //!< 4      Page-level cache disable
+        UINT64 Access : 1;      //!< 5      Accessed; indicates whether software has accessed the page
+        UINT64 Reserved0 : 1;   //!< 6
+        UINT64 PageSize : 1;    //!< 7      Page-Size; must be 0 to reference PTE
+        UINT64 Reserved1 : 4;   //!< 8-11
+        UINT64 Addr : 40;       //!< 12-51  Physical address that the entry points to
+        UINT64 Reserved2 : 11;  //!< 52-62
+        UINT64 Nx : 1;          //!< 63     If IA32_EFER.NXE = 1, execute-disable
+    };
 } PDE64, *PPDE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PDE64));
 
 //! Vol 3A, Table 4-19. Format of an IA-32e Page-Table Entry that Maps a 4-KByte Page
 typedef union _PTE64
 {
-	UINT64 qwValue;
-	struct {
-		UINT64 Present : 1;			//!< 0 Present
-		UINT64 Rw : 1;				//!< 1 Read/write; if 0, writes are not allowed
-		UINT64 Us : 1;				//!< 2 User/supervisor; if 0, user-mode access isn't allowed
-		UINT64 Pwt : 1;				//!< 3 Page-level write-through
-		UINT64 Pcd : 1;				//!< 4 Page-level cache disable
-		UINT64 Access : 1;			//!< 5 Accessed; indicates whether software has accessed the page
-		UINT64 Dirty : 1;			//!< 6 Dirty; indicates whether software has written to the page
-		UINT64 Pat : 1;				//!< 7 Page Attribute Table;
-		UINT64 Global : 1;			//!< 8 Global; if CR4.PGE = 1, determines whether the translation is global
-		UINT64 Ignored0 : 3;		//!< 9-11
-		UINT64 Addr : 40;			//!< 12-51 Physical address that the entry points to
-		UINT64 Ignored1 : 7;		//!< 52-58
-		UINT64 Protkey : 4;			//!< 59-62 Protection key; if CR4.PKE = 1, determines the 
-									//!< protection key of the page
-		UINT64 Nx : 1;				//!< 63 If IA32_EFER.NXE = 1, execute-disable
-	};
+    UINT64 qwValue;
+    struct {
+        UINT64 Present : 1;     //!< 0      Present
+        UINT64 Rw : 1;          //!< 1      Read/write; if 0, writes are not allowed
+        UINT64 Us : 1;          //!< 2      User/supervisor; if 0, user-mode access isn't allowed
+        UINT64 Pwt : 1;         //!< 3      Page-level write-through
+        UINT64 Pcd : 1;         //!< 4      Page-level cache disable
+        UINT64 Access : 1;      //!< 5      Accessed; indicates whether software has accessed the page
+        UINT64 Dirty : 1;       //!< 6      Dirty; indicates whether software has written to the page
+        UINT64 Pat : 1;         //!< 7      Page Attribute Table;
+        UINT64 Global : 1;      //!< 8      Global; if CR4.PGE = 1, determines whether the translation is global
+        UINT64 Ignored0 : 3;    //!< 9-11
+        UINT64 Addr : 40;       //!< 12-51  Physical address that the entry points to
+        UINT64 Ignored1 : 7;    //!< 52-58
+        UINT64 Protkey : 4;     //!< 59-62  Protection key; if CR4.PKE = 1, determines the 
+                                //!<        protection key of the page
+        UINT64 Nx : 1;          //!< 63     If IA32_EFER.NXE = 1, execute-disable
+    };
 } PTE64, *PPTE64;
 C_ASSERT(sizeof(UINT64) == sizeof(PTE64));
 
@@ -293,9 +293,9 @@ C_ASSERT(sizeof(UINT64) == sizeof(PTE64));
 // All available page types
 typedef enum _PAGE_TYPE64
 {
-	PAGE_TYPE_4KB = 0,
-	PAGE_TYPE_2MB,
-	PAGE_TYPE_1GB,	
+    PAGE_TYPE_4KB = 0,
+    PAGE_TYPE_2MB,
+    PAGE_TYPE_1GB,    
 } PAGE_TYPE64, *PPAGE_TYPE64;
 
 // Static page-table structure - 
@@ -306,10 +306,10 @@ typedef enum _PAGE_TYPE64
 // This page table can point to a max of 512GB and it's size is ~1GB
 typedef struct _PAGING64_STATIC_TABLE
 {
-	DECLSPEC_ALIGN(PAGE_SIZE) PML4E64 atPml4[PAGING64_PML4E_COUNT];
-	DECLSPEC_ALIGN(PAGE_SIZE) PDPTE64 atPdpt[PAGING64_PDPTE_COUNT];
-	DECLSPEC_ALIGN(PAGE_SIZE) PDE64 atPd[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT];
-	DECLSPEC_ALIGN(PAGE_SIZE) PTE64 atPt[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
+    DECLSPEC_ALIGN(PAGE_SIZE) PML4E64 atPml4[PAGING64_PML4E_COUNT];
+    DECLSPEC_ALIGN(PAGE_SIZE) PDPTE64 atPdpt[PAGING64_PDPTE_COUNT];
+    DECLSPEC_ALIGN(PAGE_SIZE) PDE64 atPd[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT];
+    DECLSPEC_ALIGN(PAGE_SIZE) PTE64 atPt[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT][PAGING64_PTE_COUNT];
 } PAGING64_STATIC_TABLE, *PPAGING64_STATIC_TABLE;
 C_ASSERT(1075847168 == sizeof(PAGING64_STATIC_TABLE));
 
@@ -323,13 +323,13 @@ C_ASSERT(1075847168 == sizeof(PAGING64_STATIC_TABLE));
 * @return TRUE on success, else FALSE
 */
 typedef BOOLEAN(*PAGING64_PHYSICAL_TO_VIRTUAL_PFN)(
-	IN const UINT64 qwPhysicalAddress,
-	OUT PUINT64 pqwVirtualAddress
+    IN const UINT64 qwPhysicalAddress,
+    OUT PUINT64 pqwVirtualAddress
 );
 BOOLEAN
 PAGING64_UefiPhysicalToVirtual(
-	IN const UINT64 qwPhysicalAddress,
-	OUT PUINT64 pqwVirtualAddress
+    IN const UINT64 qwPhysicalAddress,
+    OUT PUINT64 pqwVirtualAddress
 );
 
 /**
@@ -338,7 +338,7 @@ PAGING64_UefiPhysicalToVirtual(
 */
 BOOLEAN
 PAGING64_IsIa32ePagingEnabled(
-	VOID
+    VOID
 );
 
 /**
@@ -349,7 +349,7 @@ PAGING64_IsIa32ePagingEnabled(
 typedef
 PVOID
 (*PAGING64_HEAP_ALLOC_PFN)(
-	IN const UINTN cbSize
+    IN const UINTN cbSize
 );
 
 /**
@@ -359,7 +359,7 @@ PVOID
 typedef
 VOID
 (*PAGING64_HEAP_FREE_PFN)(
-	IN const PVOID pvBuffer
+    IN const PVOID pvBuffer
 );
 
 // Everything we need to access/manipulate a page table
@@ -368,43 +368,43 @@ VOID
 // NOTE: The only reason this structure is 'public' is to accommodate 
 typedef struct _PAGING64_PT_HANDLE
 {
-	PPML4E64 patPml4;					// Virtual address of PML4 table
-	UINT64 qwPml4PhysicalAddress;		// Physical address of PML4 table
-	BOOL bOneGbSupported;				// 1GB pages are supported by processor
-	BOOL bNxBitSupported;				// NX bit is supported by processor
-	BOOL bMtrrSupported;				// MTRR is supported by processor
-	BOOL bPatSupported;					// PAT is supported by processor
-	UINT8 acPatMemTypes[8];				// PAT memory types per index from IA32_PAT MSR
-	PLOG_HANDLE ptLog;					// Log handle
-	BOOL bIsReadOnly;					// When set forbid editing the page-table
-	BOOL bIsStatic;						// When set page-table uses a static buffer (see PAGING64_STATIC_TABLE)
-	
-	// Members used to edit the page-tables
-	SPINLOCK tEditLock;					// Lock the table during changes to it
-	PAGE_TYPE64 eMinPageType;			// Page-Table doesn't contain entries to pages 
-										// below this size
-	UINT64 qwMaxVirtualAddress;			// Max virtual address that can be mapped 
-										// with page-table
+    PPML4E64 patPml4;               // Virtual address of PML4 table
+    UINT64 qwPml4PhysicalAddress;   // Physical address of PML4 table
+    BOOL bOneGbSupported;           // 1GB pages are supported by processor
+    BOOL bNxBitSupported;           // NX bit is supported by processor
+    BOOL bMtrrSupported;            // MTRR is supported by processor
+    BOOL bPatSupported;             // PAT is supported by processor
+    UINT8 acPatMemTypes[8];         // PAT memory types per index from IA32_PAT MSR
+    PLOG_HANDLE ptLog;              // Log handle
+    BOOL bIsReadOnly;               // When set forbid editing the page-table
+    BOOL bIsStatic;                 // When set page-table uses a static buffer (see PAGING64_STATIC_TABLE)
+    
+    // Members used to edit the page-tables
+    SPINLOCK tEditLock;             // Lock the table during changes to it
+    PAGE_TYPE64 eMinPageType;       // Page-Table doesn't contain entries to pages 
+                                    // below this size
+    UINT64 qwMaxVirtualAddress;     // Max virtual address that can be mapped 
+                                    // with page-table
 
-	// Function pointer to a function that converts physical addresses to virtual
-	PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual;
+    // Function pointer to a function that converts physical addresses to virtual
+    PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual;
 
-	// NOTE: We use these members to edit dynamic page-tables (bIsReadOnly=FALSE && bIsStatic=FALSE)
-	// Function pointers to allocate/free memory from a heap
-	PAGING64_HEAP_ALLOC_PFN pfnAlloc;
-	PAGING64_HEAP_FREE_PFN pfnFree;
+    // NOTE: We use these members to edit dynamic page-tables (bIsReadOnly=FALSE && bIsStatic=FALSE)
+    // Function pointers to allocate/free memory from a heap
+    PAGING64_HEAP_ALLOC_PFN pfnAlloc;
+    PAGING64_HEAP_FREE_PFN pfnFree;
 
-	// NOTE: We use these members to edit static page-tables (bIsReadOnly=FALSE && bIsStatic=TRUE)
-	UINT64 qwStaticPdptPhysicalAddress;		// Physical address of PDPT
-	UINT64 qwStaticPdArrayPhysicalAddress;	// Physical address of 1st PD in PD tables array
-	UINT64 qwStaticPtArrayPhysicalAddress;	// Physical address of 1st PT in PT tables array
-	PPDPTE64 patStaticPdpt;					// Virtual address of PDPT table
+    // NOTE: We use these members to edit static page-tables (bIsReadOnly=FALSE && bIsStatic=TRUE)
+    UINT64 qwStaticPdptPhysicalAddress;     // Physical address of PDPT
+    UINT64 qwStaticPdArrayPhysicalAddress;  // Physical address of 1st PD in PD tables array
+    UINT64 qwStaticPtArrayPhysicalAddress;  // Physical address of 1st PT in PT tables array
+    PPDPTE64 patStaticPdpt;                 // Virtual address of PDPT table
 
-	// Virtual address of 1st PD in PD tables array
-	PDE64(*patStaticPdArray)[PAGING64_PDPTE_COUNT];
+    // Virtual address of 1st PD in PD tables array
+    PDE64(*patStaticPdArray)[PAGING64_PDPTE_COUNT];
 
-	// Virtual address of 1st PT in PT tables array
-	PTE64(*patStaticPtArray)[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT];
+    // Virtual address of 1st PT in PT tables array
+    PTE64(*patStaticPtArray)[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT];
 } PAGING64_PT_HANDLE, *PPAGING64_PT_HANDLE;
 C_ASSERT(sizeof(PVOID) == FIELD_SIZE(PAGING64_PT_HANDLE, patStaticPdArray));
 C_ASSERT(sizeof(PVOID) == FIELD_SIZE(PAGING64_PT_HANDLE, patStaticPtArray));
@@ -423,12 +423,12 @@ C_ASSERT(0x200000 == sizeof(PTE64[PAGING64_PDPTE_COUNT][PAGING64_PDE_COUNT]));
 */
 BOOLEAN
 PAGING64_CreateStaticPageTable(
-	INOUT PPAGING64_STATIC_TABLE ptPageTable,
-	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const PLOG_HANDLE ptLog,
-	IN const UINT64 qwMaxVirtualAddress,
-	IN const PAGE_TYPE64 eMinPageType,
-	OUT PPAGING64_PT_HANDLE ptOutPageTable
+    INOUT PPAGING64_STATIC_TABLE ptPageTable,
+    IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
+    IN const PLOG_HANDLE ptLog,
+    IN const UINT64 qwMaxVirtualAddress,
+    IN const PAGE_TYPE64 eMinPageType,
+    OUT PPAGING64_PT_HANDLE ptOutPageTable
 );
 
 /**
@@ -443,11 +443,11 @@ PAGING64_CreateStaticPageTable(
 */
 BOOLEAN
 PAGING64_CreateDynamicPageTable(
-	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const PAGING64_HEAP_ALLOC_PFN pfnHeapAlloc,
-	IN const PAGING64_HEAP_FREE_PFN pfnHeapFree,
-	IN const PLOG_HANDLE ptLog,
-	OUT PPAGING64_PT_HANDLE ptOutPageTable
+    IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
+    IN const PAGING64_HEAP_ALLOC_PFN pfnHeapAlloc,
+    IN const PAGING64_HEAP_FREE_PFN pfnHeapFree,
+    IN const PLOG_HANDLE ptLog,
+    OUT PPAGING64_PT_HANDLE ptOutPageTable
 );
 
 /**
@@ -457,7 +457,7 @@ PAGING64_CreateDynamicPageTable(
 */
 VOID
 PAGING64_DestroyDynamicPageTable(
-	INOUT PPAGING64_PT_HANDLE ptPageTable
+    INOUT PPAGING64_PT_HANDLE ptPageTable
 );
 
 /**
@@ -470,10 +470,10 @@ PAGING64_DestroyDynamicPageTable(
 */
 BOOLEAN
 PAGING64_OpenPageTableHandle(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const UINT64 qwPml4PhysicalAddress,
-	IN const PLOG_HANDLE ptLog
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
+    IN const UINT64 qwPml4PhysicalAddress,
+    IN const PLOG_HANDLE ptLog
 );
 
 /**
@@ -488,12 +488,12 @@ PAGING64_OpenPageTableHandle(
 */
 BOOLEAN
 PAGING64_VirtualToPhysical(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	OUT PUINT64 pqwPhysicalAddress,
-	OUT PPAGE_TYPE64 pePageType,
-	OUT PPAGE_PERMISSION pePagePermissions,
-	OUT PIA32_PAT_MEMTYPE peMemType
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    OUT PUINT64 pqwPhysicalAddress,
+    OUT PPAGE_TYPE64 pePageType,
+    OUT PPAGE_PERMISSION pePagePermissions,
+    OUT PIA32_PAT_MEMTYPE peMemType
 );
 
 
@@ -511,13 +511,13 @@ PAGING64_VirtualToPhysical(
 */
 BOOLEAN
 PAGING64_VirtualToPhysicalFromCR3(
-	IN const UINT64 qwVirtualAddress,
-	IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
-	IN const PLOG_HANDLE ptLog,
-	OUT PUINT64 pqwPhysicalAddress,
-	OUT PPAGE_TYPE64 pePageType,
-	OUT PPAGE_PERMISSION pePagePermissions,
-	OUT PIA32_PAT_MEMTYPE peMemType
+    IN const UINT64 qwVirtualAddress,
+    IN const PAGING64_PHYSICAL_TO_VIRTUAL_PFN pfnPhysicalToVirtual,
+    IN const PLOG_HANDLE ptLog,
+    OUT PUINT64 pqwPhysicalAddress,
+    OUT PPAGE_TYPE64 pePageType,
+    OUT PPAGE_PERMISSION pePagePermissions,
+    OUT PIA32_PAT_MEMTYPE peMemType
 );
 
 /**
@@ -527,9 +527,9 @@ PAGING64_VirtualToPhysicalFromCR3(
 */
 BOOLEAN
 PAGING64_IsVirtualMapped(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 cbSize
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 cbSize
 );
 
 /**
@@ -541,9 +541,9 @@ PAGING64_IsVirtualMapped(
 */
 VOID
 PAGING64_UnmapVirtual(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 cbSize
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 cbSize
 );
 
 /**
@@ -559,12 +559,12 @@ PAGING64_UnmapVirtual(
 */
 BOOLEAN
 PAGING64_MapPhysicalToVirtual(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwPhysicalAddress,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 cbSize,
-	IN const PAGE_PERMISSION ePagePermission,
-	IN const IA32_PAT_MEMTYPE eMemType
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwPhysicalAddress,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 cbSize,
+    IN const PAGE_PERMISSION ePagePermission,
+    IN const IA32_PAT_MEMTYPE eMemType
 );
 
 /**
@@ -576,8 +576,8 @@ PAGING64_MapPhysicalToVirtual(
 */
 BOOLEAN
 PAGING64_CopyPageTable(
-	INOUT PPAGING64_PT_HANDLE phDstPageTable,
-	IN const PPAGING64_PT_HANDLE phSrcPageTable
+    INOUT PPAGING64_PT_HANDLE phDstPageTable,
+    IN const PPAGING64_PT_HANDLE phSrcPageTable
 );
 
 #pragma pack(pop)

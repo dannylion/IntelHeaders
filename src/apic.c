@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		apic.c
-* @section	Advanced Programmable Interrupt Controller (APIC) 
+* @file        apic.c
+* @section    Advanced Programmable Interrupt Controller (APIC) 
 */
 
 #include "ntdatatypes.h"
@@ -35,108 +35,108 @@ typedef VOID(*APIC_callback_t)(VOID * pvContext);
 
 UINT64
 apic_GetBase(
-	VOID
+    VOID
 )
 {
-	UINT64 qwApicPhysicalAddr = 0;
-	IA32_APIC_BASE tApicBase;
-	
-	tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
-	qwApicPhysicalAddr = tApicBase.ApicBase << 12;
+    UINT64 qwApicPhysicalAddr = 0;
+    IA32_APIC_BASE tApicBase;
+    
+    tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
+    qwApicPhysicalAddr = tApicBase.ApicBase << 12;
 
-	// NOTE: We assume we have a 1:1 mapping of physical to virtual addresses
-	return qwApicPhysicalAddr;
+    // NOTE: We assume we have a 1:1 mapping of physical to virtual addresses
+    return qwApicPhysicalAddr;
 }
 
 BOOLEAN
 apic_IsApicEnabled(
-	VOID
+    VOID
 )
 {
-	IA32_APIC_BASE tApicBase;
-	tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
-	return (	tApicBase.Bsp
-			&&	tApicBase.ApicGlobalEnable);
+    IA32_APIC_BASE tApicBase;
+    tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
+    return (    tApicBase.Bsp
+            &&    tApicBase.ApicGlobalEnable);
 }
 
 // See edk2\EdkCompatibilityPkg\Foundation\Library\EdkIIGlueLib\Library\BaseTimerLibLocalApic\X86TimerLib.c line 161
 // TODO: Not tested!
 VOID
 APIC_DelayMicroSeconds(
-	INT32 dwMicroSeconds
+    INT32 dwMicroSeconds
 )
 {
-	UINT64 qwApicBase = apic_GetBase();
-	PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
-	INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
-	INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwMicroSeconds) / 1000000);
-	INT64 qwTicks = (*pdwTmcct) - qwDelayTicks;
+    UINT64 qwApicBase = apic_GetBase();
+    PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
+    INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
+    INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwMicroSeconds) / 1000000);
+    INT64 qwTicks = (*pdwTmcct) - qwDelayTicks;
 
-	// Wait until time out
-	while (((*pdwTmcct) - qwTicks) >= 0) {};
+    // Wait until time out
+    while (((*pdwTmcct) - qwTicks) >= 0) {};
 }
 
 // TODO: Not tested!
 VOID
 APIC_DelayNanoSeconds(
-	INT32 dwNanoSeconds
+    INT32 dwNanoSeconds
 )
 {
-	UINT64 qwApicBase = apic_GetBase();
-	PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
-	INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
-	INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwNanoSeconds) / 1000000000);
-	INT64 qwTicks = (*pdwTmcct) - qwDelayTicks;
+    UINT64 qwApicBase = apic_GetBase();
+    PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
+    INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
+    INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwNanoSeconds) / 1000000000);
+    INT64 qwTicks = (*pdwTmcct) - qwDelayTicks;
 
-	// Wait until time out
-	while (((*pdwTmcct) - qwTicks) >= 0) {};
+    // Wait until time out
+    while (((*pdwTmcct) - qwTicks) >= 0) {};
 }
 
 // See edk2\UefiCpuPkg\Library\BaseXApicLib\BaseXApicLib.c line 512
 // TODO: Not tested!
 BOOLEAN
 APIC_InitSipiSipiAllAps(
-	UINT8 cVector
+    UINT8 cVector
 )
 {
-	UINT64 qwApicBase = apic_GetBase();
-	APIC_ICR0_REG tIcr0;
-	PAPIC_ICR0_REG ptIcr0 = (PAPIC_ICR0_REG)(qwApicBase + APIC_REG_OFFSET_ICR0);
+    UINT64 qwApicBase = apic_GetBase();
+    APIC_ICR0_REG tIcr0;
+    PAPIC_ICR0_REG ptIcr0 = (PAPIC_ICR0_REG)(qwApicBase + APIC_REG_OFFSET_ICR0);
 
-	if (!apic_IsApicEnabled())
-	{
-		return FALSE;
-	}
+    if (!apic_IsApicEnabled())
+    {
+        return FALSE;
+    }
 
-	// Load ICR encoding for broadcast INIT IPI to all APs
-	tIcr0.DeliveryMode = APIC_ICR_DELIVERY_MODE_INIT;
-	tIcr0.DestinationMode = 0; // Physical
-	tIcr0.DeliveryStatus = 0; // Idle
-	tIcr0.Level = 1; // Assert
-	tIcr0.DestinationShortHand = APIC_ICR_DESTINATION_SHORTHAND_ALL_NOT_SELF;
+    // Load ICR encoding for broadcast INIT IPI to all APs
+    tIcr0.DeliveryMode = APIC_ICR_DELIVERY_MODE_INIT;
+    tIcr0.DestinationMode = 0; // Physical
+    tIcr0.DeliveryStatus = 0; // Idle
+    tIcr0.Level = 1; // Assert
+    tIcr0.DestinationShortHand = APIC_ICR_DESTINATION_SHORTHAND_ALL_NOT_SELF;
 
-	// Broadcast INIT IPI to all APs
-	ptIcr0->dwValue = tIcr0.dwValue;
-	
-	// 10-millisecond delay loop (10ms = 10000us)
-	APIC_DelayMicroSeconds(10000);
+    // Broadcast INIT IPI to all APs
+    ptIcr0->dwValue = tIcr0.dwValue;
+    
+    // 10-millisecond delay loop (10ms = 10000us)
+    APIC_DelayMicroSeconds(10000);
 
-	// Load ICR encoding for broadcast SIPI IP to all APs
-	tIcr0.Vector = cVector;
-	tIcr0.DeliveryMode = APIC_ICR_DELIVERY_MODE_INIT;
-	tIcr0.DestinationMode = 0; // Physical
-	tIcr0.DeliveryStatus = 0; // Idle
-	tIcr0.Level = 1; // Assert
-	tIcr0.DestinationShortHand = APIC_ICR_DESTINATION_SHORTHAND_ALL_NOT_SELF;
-	
-	// Broadcast first SIPI IPI to all APs
-	ptIcr0->dwValue = tIcr0.dwValue;
+    // Load ICR encoding for broadcast SIPI IP to all APs
+    tIcr0.Vector = cVector;
+    tIcr0.DeliveryMode = APIC_ICR_DELIVERY_MODE_INIT;
+    tIcr0.DestinationMode = 0; // Physical
+    tIcr0.DeliveryStatus = 0; // Idle
+    tIcr0.Level = 1; // Assert
+    tIcr0.DestinationShortHand = APIC_ICR_DESTINATION_SHORTHAND_ALL_NOT_SELF;
+    
+    // Broadcast first SIPI IPI to all APs
+    ptIcr0->dwValue = tIcr0.dwValue;
 
-	// 200-microsecond delay
-	APIC_DelayMicroSeconds(200);
-	
-	// Broadcast second SIPI IPI to all APs
-	ptIcr0->dwValue = tIcr0.dwValue;
+    // 200-microsecond delay
+    APIC_DelayMicroSeconds(200);
+    
+    // Broadcast second SIPI IPI to all APs
+    ptIcr0->dwValue = tIcr0.dwValue;
 
-	return TRUE;
+    return TRUE;
 }

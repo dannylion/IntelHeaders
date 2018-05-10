@@ -21,9 +21,9 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		paging64.h
-* @section	Intel x64 Page Tables structures and constants
-*			See Intel's: Software Developers Manual Vol 3A, Section 4.5 IA-32E PAGING
+* @file        paging64.h
+* @section    Intel x64 Page Tables structures and constants
+*            See Intel's: Software Developers Manual Vol 3A, Section 4.5 IA-32E PAGING
 */
 
 #ifndef __INTEL_PAGING64_INTERNAL_H__
@@ -50,7 +50,7 @@
 STATIC
 BOOLEAN
 paging64_VerifyPageTableHandle(
-	IN const PPAGING64_PT_HANDLE ptPageTable
+    IN const PPAGING64_PT_HANDLE ptPageTable
 );
 
 /**
@@ -62,7 +62,7 @@ STATIC
 __inline
 UINT64
 paging64_PageSizeByType(
-	IN const PAGE_TYPE64 ePageType
+    IN const PAGE_TYPE64 ePageType
 );
 
 /**
@@ -75,8 +75,8 @@ STATIC
 __inline
 UINT64
 paging64_AlignByPageType(
-	IN const PAGE_TYPE64 ePageType,
-	IN const UINT64 qwAddress
+    IN const PAGE_TYPE64 ePageType,
+    IN const UINT64 qwAddress
 );
 
 /**
@@ -90,9 +90,9 @@ STATIC
 __inline
 UINT64
 paging64_AddressAndSizeToSpanPagesByPageType(
-	IN const PAGE_TYPE64 ePageType,
-	IN const UINT64 qwAddress,
-	IN const UINT64 cbSize
+    IN const PAGE_TYPE64 ePageType,
+    IN const UINT64 qwAddress,
+    IN const UINT64 cbSize
 );
 
 //! Vol 3A, 11.12.1 Detecting Support for the PAT Feature
@@ -103,7 +103,7 @@ paging64_AddressAndSizeToSpanPagesByPageType(
 STATIC
 BOOLEAN
 paging64_IsPatSupported(
-	VOID
+    VOID
 );
 
 /**
@@ -117,10 +117,10 @@ paging64_IsPatSupported(
 STATIC
 BOOLEAN
 paging64_GetMappedEntryAtVirtualAddress(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	OUT PVOID *ppvEntry,
-	OUT PPAGE_TYPE64 pePageType
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    OUT PVOID *ppvEntry,
+    OUT PPAGE_TYPE64 pePageType
 );
 
 /**
@@ -132,8 +132,8 @@ paging64_GetMappedEntryAtVirtualAddress(
 STATIC
 PAGE_PERMISSION
 paging64_GetPagePermissions(
-	IN const PVOID pvEntry,
-	IN const PAGE_TYPE64 ePageType
+    IN const PVOID pvEntry,
+    IN const PAGE_TYPE64 ePageType
 );
 
 /**
@@ -148,11 +148,11 @@ paging64_GetPagePermissions(
 STATIC
 BOOLEAN
 paging64_GetPageMemoryType(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwPhysicalAddress,
-	IN const PVOID pvEntry,
-	IN const PAGE_TYPE64 ePageType,
-	OUT PIA32_PAT_MEMTYPE peMemType
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwPhysicalAddress,
+    IN const PVOID pvEntry,
+    IN const PAGE_TYPE64 ePageType,
+    OUT PIA32_PAT_MEMTYPE peMemType
 );
 
 /**
@@ -163,7 +163,7 @@ paging64_GetPageMemoryType(
 STATIC
 BOOLEAN
 paging64_IsPdptTableEmpty(
-	IN const PPDPTE64 patPdpt
+    IN const PPDPTE64 patPdpt
 );
 
 /**
@@ -174,7 +174,7 @@ paging64_IsPdptTableEmpty(
 STATIC
 BOOLEAN
 paging64_IsPdTableEmpty(
-	IN const PPDE64 patPd
+    IN const PPDE64 patPd
 );
 
 /**
@@ -185,7 +185,7 @@ paging64_IsPdTableEmpty(
 STATIC
 BOOLEAN
 paging64_IsPtTableEmpty(
-	IN const PPTE64 patPt
+    IN const PPTE64 patPt
 );
 
 /**
@@ -197,8 +197,8 @@ paging64_IsPtTableEmpty(
 STATIC
 VOID
 paging64_CollectGarbageFromPdTable(
-	IN PPAGING64_PT_HANDLE ptPageTable,
-	IN PPDE64 patPd
+    IN PPAGING64_PT_HANDLE ptPageTable,
+    IN PPDE64 patPd
 );
 
 /**
@@ -210,8 +210,8 @@ paging64_CollectGarbageFromPdTable(
 STATIC
 VOID
 paging64_CollectGarbageFromPdptTable(
-	IN PPAGING64_PT_HANDLE ptPageTable,
-	IN PPDPTE64 patPdpt
+    IN PPAGING64_PT_HANDLE ptPageTable,
+    IN PPDPTE64 patPdpt
 );
 
 /**
@@ -223,8 +223,8 @@ paging64_CollectGarbageFromPdptTable(
 STATIC
 VOID
 paging64_CollectGarabageFromPml4Table(
-	IN PPAGING64_PT_HANDLE ptPageTable,
-	IN PPML4E64 patPml4
+    IN PPAGING64_PT_HANDLE ptPageTable,
+    IN PPML4E64 patPml4
 );
 
 /**
@@ -235,8 +235,8 @@ paging64_CollectGarabageFromPml4Table(
 STATIC
 VOID
 paging64_UnmapPage(
-	INOUT PVOID pvEntry,
-	IN const PAGE_TYPE64 ePageType
+    INOUT PVOID pvEntry,
+    IN const PAGE_TYPE64 ePageType
 );
 
 /**
@@ -251,11 +251,11 @@ paging64_UnmapPage(
 STATIC
 BOOLEAN
 paging64_GetPatFlagsForMemType(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const IA32_PAT_MEMTYPE eMemType,
-	OUT PBOOLEAN pbPwtFlag,
-	OUT PBOOLEAN pbPcdFlag,
-	OUT PBOOLEAN pbPatFlag
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const IA32_PAT_MEMTYPE eMemType,
+    OUT PBOOLEAN pbPwtFlag,
+    OUT PBOOLEAN pbPcdFlag,
+    OUT PBOOLEAN pbPatFlag
 );
 
 /**
@@ -271,11 +271,11 @@ paging64_GetPatFlagsForMemType(
 STATIC
 BOOLEAN
 paging64_GetPdpte(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const VA_ADDRESS64 tVa,
-	IN const PPML4E64 ptPml4e,
-	OUT PUINT64 pqwPdptPhysicalAddress,
-	OUT PPDPTE64 *pptPdpte
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const VA_ADDRESS64 tVa,
+    IN const PPML4E64 ptPml4e,
+    OUT PUINT64 pqwPdptPhysicalAddress,
+    OUT PPDPTE64 *pptPdpte
 );
 
 /**
@@ -291,11 +291,11 @@ paging64_GetPdpte(
 STATIC
 BOOLEAN
 paging64_GetPde(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const VA_ADDRESS64 tVa,
-	IN const PPDPTE64 ptPdpte,
-	OUT PUINT64 pqwPdPhysicalAddress,
-	OUT PPDE64 *pptPde
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const VA_ADDRESS64 tVa,
+    IN const PPDPTE64 ptPdpte,
+    OUT PUINT64 pqwPdPhysicalAddress,
+    OUT PPDE64 *pptPde
 );
 
 /**
@@ -311,11 +311,11 @@ paging64_GetPde(
 STATIC
 BOOLEAN
 paging64_GetPte(
-	IN const PPAGING64_PT_HANDLE ptPageTable,
-	IN const VA_ADDRESS64 tVa,
-	IN const PPDE64 ptPde,
-	OUT PUINT64 pqwPtPhysicalAddress,
-	OUT PPTE64 *pptPte
+    IN const PPAGING64_PT_HANDLE ptPageTable,
+    IN const VA_ADDRESS64 tVa,
+    IN const PPDE64 ptPde,
+    OUT PUINT64 pqwPtPhysicalAddress,
+    OUT PPTE64 *pptPte
 );
 
 /**
@@ -333,13 +333,13 @@ paging64_GetPte(
 STATIC
 BOOLEAN
 paging64_SetPdpte1gb(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddressToMap,
-	IN const PAGE_PERMISSION ePagePermission,
-	IN const BOOLEAN bPwtFlag,
-	IN const BOOLEAN bPcdFlag,
-	IN const BOOLEAN bPatFlag
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 qwPhysicalAddressToMap,
+    IN const PAGE_PERMISSION ePagePermission,
+    IN const BOOLEAN bPwtFlag,
+    IN const BOOLEAN bPcdFlag,
+    IN const BOOLEAN bPatFlag
 );
 
 /**
@@ -357,13 +357,13 @@ paging64_SetPdpte1gb(
 STATIC
 BOOLEAN
 paging64_SetPde2mb(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddressToMap,
-	IN const PAGE_PERMISSION ePagePermission,
-	IN const BOOLEAN bPwtFlag,
-	IN const BOOLEAN bPcdFlag,
-	IN const BOOLEAN bPatFlag
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 qwPhysicalAddressToMap,
+    IN const PAGE_PERMISSION ePagePermission,
+    IN const BOOLEAN bPwtFlag,
+    IN const BOOLEAN bPcdFlag,
+    IN const BOOLEAN bPatFlag
 );
 
 /**
@@ -381,13 +381,13 @@ paging64_SetPde2mb(
 STATIC
 BOOLEAN
 paging64_SetPte(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddressToMap,
-	IN const PAGE_PERMISSION ePagePermission,
-	IN const BOOLEAN bPwtFlag,
-	IN const BOOLEAN bPcdFlag,
-	IN const BOOLEAN bPatFlag
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 qwPhysicalAddressToMap,
+    IN const PAGE_PERMISSION ePagePermission,
+    IN const BOOLEAN bPwtFlag,
+    IN const BOOLEAN bPcdFlag,
+    IN const BOOLEAN bPatFlag
 );
 
 /**
@@ -403,12 +403,12 @@ paging64_SetPte(
 STATIC
 BOOLEAN
 paging64_MapPage(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	IN const UINT64 qwVirtualAddress,
-	IN const UINT64 qwPhysicalAddress,
-	IN const PAGE_TYPE64 ePageType,
-	IN const PAGE_PERMISSION ePagePermission,
-	IN const IA32_PAT_MEMTYPE eMemType
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    IN const UINT64 qwVirtualAddress,
+    IN const UINT64 qwPhysicalAddress,
+    IN const PAGE_TYPE64 ePageType,
+    IN const PAGE_PERMISSION ePagePermission,
+    IN const IA32_PAT_MEMTYPE eMemType
 );
 
 /**
@@ -419,8 +419,8 @@ paging64_MapPage(
 STATIC
 VOID
 paging64_DestroyPdTable(
-	IN PPAGING64_PT_HANDLE ptPageTable,
-	IN PPDE64 patPd
+    IN PPAGING64_PT_HANDLE ptPageTable,
+    IN PPDE64 patPd
 );
 
 /**
@@ -431,8 +431,8 @@ paging64_DestroyPdTable(
 STATIC
 VOID
 paging64_DestroyPdptTable(
-	IN PPAGING64_PT_HANDLE ptPageTable,
-	IN PPDPTE64 patPdpt
+    IN PPAGING64_PT_HANDLE ptPageTable,
+    IN PPDPTE64 patPdpt
 );
 
 /**
@@ -443,8 +443,8 @@ paging64_DestroyPdptTable(
 STATIC
 VOID
 paging64_DestroyPml4Table(
-	IN PPAGING64_PT_HANDLE ptPageTable,
-	IN PPML4E64 patPml4
+    IN PPAGING64_PT_HANDLE ptPageTable,
+    IN PPML4E64 patPml4
 );
 
 /**
@@ -461,13 +461,13 @@ paging64_DestroyPml4Table(
 */
 BOOLEAN
 paging64_MapRangeUsingPageType(
-	INOUT PPAGING64_PT_HANDLE ptPageTable,
-	INOUT const UINT64 qwStartVa,
-	INOUT const UINT64 qwStartPhysical,
-	IN const UINT64 qwEndVa,
-	IN const PAGE_TYPE64 ePageType,
-	IN const PAGE_PERMISSION ePagePermission,
-	IN const IA32_PAT_MEMTYPE eMemType
+    INOUT PPAGING64_PT_HANDLE ptPageTable,
+    INOUT const UINT64 qwStartVa,
+    INOUT const UINT64 qwStartPhysical,
+    IN const UINT64 qwEndVa,
+    IN const PAGE_TYPE64 ePageType,
+    IN const PAGE_PERMISSION ePagePermission,
+    IN const IA32_PAT_MEMTYPE eMemType
 );
 
 #pragma pack(pop)

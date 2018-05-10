@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		utils.h
-* @section	Basic utility functions that have nothing to do with any Intel mechanisms
+* @file        utils.h
+* @section    Basic utility functions that have nothing to do with any Intel mechanisms
 */
 
 #ifndef __INTEL_UTILS_H__
@@ -39,7 +39,7 @@ __forceinline
 VOID
 __stdcall
 LOCK_SpinlockAcquire(
-	IN PSPINLOCK ptLock
+    IN PSPINLOCK ptLock
 );
 
 /**
@@ -51,7 +51,7 @@ __forceinline
 VOID
 __stdcall
 LOCK_SpinlockRelease(
-	IN PSPINLOCK ptLock
+    IN PSPINLOCK ptLock
 );
 
 // HACK: Define intrinsic functions that visual studio might add implicitly
@@ -62,17 +62,17 @@ LOCK_SpinlockRelease(
 void*
 __cdecl
 memcpy(
-	void* pvDst,
-	void const* pvSrc,
-	size_t cbSize
+    void* pvDst,
+    void const* pvSrc,
+    size_t cbSize
 );
 
 void *
 __cdecl
 memset(
-	void*  pvDst,
-	int    cValue,
-	size_t cbSize
+    void*  pvDst,
+    int    cValue,
+    size_t cbSize
 );
 
 /**
@@ -84,9 +84,9 @@ memset(
 */
 BOOLEAN
 MemCopy(
-	OUT PVOID pvDst,
-	IN const PVOID pvSrc,
-	IN const UINT64 cbSize
+    OUT PVOID pvDst,
+    IN const PVOID pvSrc,
+    IN const UINT64 cbSize
 );
 
 /**
@@ -98,9 +98,9 @@ MemCopy(
 */
 BOOLEAN
 MemFill(
-	OUT PVOID pvDst,
-	IN const char cChar,
-	IN const UINT64 cbSize
+    OUT PVOID pvDst,
+    IN const char cChar,
+    IN const UINT64 cbSize
 );
 
 /**
@@ -111,8 +111,8 @@ MemFill(
 */
 BOOLEAN
 MemZero(
-	OUT PVOID pvDst,
-	IN const UINT64 cbSize
+    OUT PVOID pvDst,
+    IN const UINT64 cbSize
 );
 
 /**
@@ -124,9 +124,9 @@ MemZero(
 */
 BOOLEAN
 MemEqual(
-	IN const PVOID pvBuffer1,
-	IN const PVOID pvBuffer2,
-	IN const UINT64 cbSize
+    IN const PVOID pvBuffer1,
+    IN const PVOID pvBuffer2,
+    IN const UINT64 cbSize
 );
 
 #endif /* __INTEL_UTILS_H__ */

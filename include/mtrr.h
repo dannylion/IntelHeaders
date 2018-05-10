@@ -21,8 +21,8 @@
 * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 * SOFTWARE.
 *
-* @file		mtrr.h
-* @section	11.11 MEMORY TYPE RANGE REGISTERS (MTRRS)
+* @file        mtrr.h
+* @section    11.11 MEMORY TYPE RANGE REGISTERS (MTRRS)
 */
 
 #ifndef __INTEL_MTRR_H__
@@ -41,14 +41,14 @@
 //! Vol 3A, Table 11-8. Memory Types That Can Be Encoded in MTRRs
 typedef enum _MTRR_MEMTYPE
 {
-	MTRR_MEMTYPE_UC = 0,
-	MTRR_MEMTYPE_WC = 1,
-	// 2-3 Reserved
-	MTRR_MEMTYPE_WT = 4,
-	MTRR_MEMTYPE_WP = 5,
-	MTRR_MEMTYPE_WB = 6,
-	// 7-0xFF Reserved
-	MTRR_MEMTYPE_INVALID = 0xFF
+    MTRR_MEMTYPE_UC = 0,
+    MTRR_MEMTYPE_WC = 1,
+    // 2-3 Reserved
+    MTRR_MEMTYPE_WT = 4,
+    MTRR_MEMTYPE_WP = 5,
+    MTRR_MEMTYPE_WB = 6,
+    // 7-0xFF Reserved
+    MTRR_MEMTYPE_INVALID = 0xFF
 } MTRR_MEMTYPE, *PMTRR_MEMTYPE;
 
 /**
@@ -57,7 +57,7 @@ typedef enum _MTRR_MEMTYPE
  */
 BOOLEAN
 MTRR_IsMtrrSupported(
-	VOID
+    VOID
 );
 
 /**
@@ -69,9 +69,9 @@ MTRR_IsMtrrSupported(
 */
 BOOLEAN
 MTRR_GetSmmRange(
-	OUT PUINT64 pqwSmmRangeStart,
-	OUT PUINT64 pqwSmmRangeEnd,
-	OUT PMTRR_MEMTYPE peSmmMemType
+    OUT PUINT64 pqwSmmRangeStart,
+    OUT PUINT64 pqwSmmRangeEnd,
+    OUT PMTRR_MEMTYPE peSmmMemType
 );
 
 /**
@@ -83,9 +83,9 @@ MTRR_GetSmmRange(
 */
 BOOLEAN
 MTRR_GetMemTypeForPhysicalAddress(
-	IN const UINT64 qwPhysicalAddress,
-	IN const BOOLEAN bInSmm,
-	OUT PMTRR_MEMTYPE peMemType
+    IN const UINT64 qwPhysicalAddress,
+    IN const BOOLEAN bInSmm,
+    OUT PMTRR_MEMTYPE peMemType
 );
 
 /**
@@ -95,7 +95,7 @@ MTRR_GetMemTypeForPhysicalAddress(
 */
 VOID
 MTRR_DisableMtrr(
-	VOID
+    VOID
 );
 
 #pragma pack(pop)
