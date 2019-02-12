@@ -3,5 +3,5 @@ Project Contributors
 Danny Li-on @ Viral Security Group
 Or Avner @ Viral Security Group
 Lev Aronsky @ Viral Security Group
-https://github.com/sherief
+Sherief Farouk (https://github.com/sherief)
 
