@@ -37,7 +37,8 @@
 #pragma warning(disable : 4201)
 #pragma pack(push, 1)
 
-//! Vol 3A, Table 35-2. IA-32 Architectural MSRs 
+//! Vol 3A, Table 35-2. IA-32 Architectural MSRs
+//! IA32_BD_PROCHOT https://larry1301.wordpress.com/2015/12/14/macbook-cpu-throttling-motherboard-thermal-sensor-and-bd-prochot-msr/
 typedef enum _MSR_CODE
 {
     MSR_CODE_IA32_P5_MC_ADDR = 0,
