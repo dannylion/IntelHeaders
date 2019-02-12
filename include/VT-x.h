@@ -271,7 +271,7 @@ typedef enum _VMCS_FIELD_ENCODING
     VMCS_FIELD_HOST_RIP = 0x00006c16,
 } VMCS_FIELD_ENCODING, *PVMCS_FIELD_ENCODING;
 
-//! Vol 3C, Table I-1. Basic Exit Reasons
+//! Vol 3C, Table C-1. Basic Exit Reasons
 typedef enum _VMEXIT_REASON
 {
     VMEXIT_REASON_EXCEPTION_NMI = 0,

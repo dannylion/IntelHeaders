@@ -38,3 +38,4 @@
 *.tlog
 *.log
 *.lastbuildstate
+*.ipch
