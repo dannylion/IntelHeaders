@@ -70,7 +70,7 @@ APIC_tempDisableLocalApic(
     VOID
 ) {
     UINT64 qwApicBase = apic_getBase();
-    PAPIC_SVR_REG ptSivr = qwApicBase + APIC_REG_OFFSET_SVR;
+    PAPIC_SVR_REG ptSivr = (PAPIC_SVR_REG)(qwApicBase + APIC_REG_OFFSET_SVR);
     ptSivr->EnableApic = 0;
 }
 
@@ -83,7 +83,7 @@ APIC_renableLocalApic(
     VOID
 ) {
     UINT64 qwApicBase = apic_getBase();
-    PAPIC_SVR_REG ptSivr = qwApicBase + APIC_REG_OFFSET_SVR;
+    PAPIC_SVR_REG ptSivr = (PAPIC_SVR_REG)(qwApicBase + APIC_REG_OFFSET_SVR);
     ptSivr->EnableApic = 1;
 }
 
@@ -93,7 +93,7 @@ apic_isLocalApicEnabled(
 ) {
     IA32_APIC_BASE tApicBase;
     tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
-    return tApicBase.ApicGlobalEnable;
+    return (BOOLEAN)tApicBase.ApicGlobalEnable;
 }
 
 // See edk2\EdkCompatibilityPkg\Foundation\Library\EdkIIGlueLib\Library\BaseTimerLibLocalApic\X86TimerLib.c line 161
@@ -106,7 +106,7 @@ APIC_delayMicroSeconds(
     UINT64 qwApicBase = apic_getBase();
     PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
     INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
-    INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwMicroSeconds) / 1000000);
+    INT64 qwDelayTicks = (((INT64)ptTdcr->DivValue * (INT64)dwMicroSeconds) / 1000000);
     INT64 qwTicks = (*pdwTmcct) - qwDelayTicks;
 
     // Wait until time out
@@ -122,7 +122,7 @@ APIC_delayNanoSeconds(
     UINT64 qwApicBase = apic_getBase();
     PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
     INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
-    INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwNanoSeconds) / 1000000000);
+    INT64 qwDelayTicks = (((INT64)ptTdcr->DivValue * (INT64)dwNanoSeconds) / 1000000000);
     INT64 qwTicks = (*pdwTmcct) - qwDelayTicks;
 
     // Wait until time out
@@ -145,7 +145,7 @@ APIC_initSipiSipiAllAps(
     }
 
     // Load ICR encoding for broadcast INIT IPI to all APs
-    tIcr0.DeliveryMode = APIC_ICR_DELIVERY_MODE_INIT;
+    tIcr0.DeliveryMode = APIC_DELIVERY_MODE_INIT;
     tIcr0.DestinationMode = 0; // Physical
     tIcr0.DeliveryStatus = 0; // Idle
     tIcr0.Level = 1; // Assert
@@ -159,7 +159,7 @@ APIC_initSipiSipiAllAps(
 
     // Load ICR encoding for broadcast SIPI IP to all APs
     tIcr0.Vector = cVector;
-    tIcr0.DeliveryMode = APIC_ICR_DELIVERY_MODE_INIT;
+    tIcr0.DeliveryMode = APIC_DELIVERY_MODE_INIT;
     tIcr0.DestinationMode = 0; // Physical
     tIcr0.DeliveryStatus = 0; // Idle
     tIcr0.Level = 1; // Assert

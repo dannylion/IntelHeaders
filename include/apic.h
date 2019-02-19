@@ -182,15 +182,15 @@ C_ASSERT(sizeof(UINT32) == sizeof(APIC_VER_REG));
 
 //! Vol 3A, Figure 10-8. Local Vector Table (LVT)
 typedef enum _APIC_DELIVERY_MODE {
-    APIC_INT_DELIVERY_MODE_FIXED = 0,       // Delivers the interrupt in the vector
+    APIC_DELIVERY_MODE_FIXED = 0,           // Delivers the interrupt in the vector
     APIC_DELIVERY_MODE_LOWEST_PRIORITY = 1, // Same as fixed but lowest priority
-    APIC_INT_DELIVERY_MODE_SMI = 2,         // Delivers an SMI interrupt (vector must be 0)
+    APIC_DELIVERY_MODE_SMI = 2,             // Delivers an SMI interrupt (vector must be 0)
     // 3 is reserved
-    APIC_INT_DELIVERY_MODE_NMI = 4,         // Delivers an NMI interrupt (vector is ignored)
-    APIC_INT_DELIVERY_MODE_INIT = 5,        // Delivers an INIT request (vector must be 0)
+    APIC_DELIVERY_MODE_NMI = 4,             // Delivers an NMI interrupt (vector is ignored)
+    APIC_DELIVERY_MODE_INIT = 5,            // Delivers an INIT request (vector must be 0)
                                             // Not supported by CMCI, THERMAL and PMI)
     // 6 is reserved
-    APIC_INT_DELIVERY_MODE_EXT = 7,         // Respond as if interrupt is external. 
+    APIC_DELIVERY_MODE_EXT = 7,             // Respond as if interrupt is external. 
                                             // Not supported by CMCI, THERMAL and PMI.
                                             // Only 1 core may use this at a time.
 } APIC_DELIVERY_MODE, *PAPIC_DELIVERY_MODE;
@@ -300,7 +300,7 @@ typedef union _APIC_LVT_PMI_REG {
         UINT32 Reserved2 : 15;      //!< 17-31
     };
 } APIC_LVT_PMI_REG, *PAPIC_LVT_PMI_REG;
-C_ASSERT(sizeof(UINT32) == sizeof(APIC_LVT_THERMAL_REG));
+C_ASSERT(sizeof(UINT32) == sizeof(APIC_LVT_PMI_REG));
 
 // APIC_REG_OFFSET_LVT_THERMAL
 typedef union _APIC_LVT_THERMAL_REG {
@@ -341,7 +341,7 @@ typedef union _APIC_ESR_REG {
         UINT32 RecvIllegalVector : 1;   //!< 6  Message received has bad vector
         UINT32 IllegalRegAddr : 1;      //!< 7  Reserved on Pentium. Software
                                         //      accessed a reserved xAPIC register
-        UINT32 Reserved0 : 24;          //!< 8-31
+        UINT32 Reserved1 : 24;          //!< 8-31
     };
 } APIC_ESR_REG, *PAPIC_ESR_REG;
 C_ASSERT(sizeof(UINT32) == sizeof(APIC_ESR_REG));
