@@ -34,10 +34,9 @@
 typedef VOID(*APIC_callback_t)(VOID * pvContext);
 
 UINT64
-apic_GetBase(
+apic_getBase(
     VOID
-)
-{
+) {
     UINT64 qwApicPhysicalAddr = 0;
     IA32_APIC_BASE tApicBase;
     
@@ -48,25 +47,63 @@ apic_GetBase(
     return qwApicPhysicalAddr;
 }
 
-BOOLEAN
-apic_IsApicEnabled(
+//! Vol 3A, 10.4.3 Enabling or Disabling the Local APIC
+/**
+* Disable LAPIC until next reset by clearing the enable flag in IA32_APIC_BASE
+*/
+VOID
+apic_disableLocalApic(
     VOID
-)
-{
+) {
     IA32_APIC_BASE tApicBase;
     tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
-    return (    tApicBase.Bsp
-            &&    tApicBase.ApicGlobalEnable);
+    tApicBase.ApicGlobalEnable = FALSE;
+    ASM64_Wrmsr(MSR_CODE_IA32_APIC_BASE, tApicBase.qwValue);
+}
+
+//! Vol 3A, 10.4.3 Enabling or Disabling the Local APIC
+/**
+* Temporarily disable LAPIC by clearing the enable flag in APIC SVR register
+*/
+VOID
+APIC_tempDisableLocalApic(
+    VOID
+) {
+    UINT64 qwApicBase = apic_getBase();
+    PAPIC_SVR_REG ptSivr = qwApicBase + APIC_REG_OFFSET_SVR;
+    ptSivr->EnableApic = 0;
+}
+
+//! Vol 3A, 10.4.3 Enabling or Disabling the Local APIC
+/**
+* Re-Enable LAPIC by setting the enable flag in APIC SVR register
+*/
+VOID
+APIC_renableLocalApic(
+    VOID
+) {
+    UINT64 qwApicBase = apic_getBase();
+    PAPIC_SVR_REG ptSivr = qwApicBase + APIC_REG_OFFSET_SVR;
+    ptSivr->EnableApic = 1;
+}
+
+BOOLEAN
+apic_isLocalApicEnabled(
+    VOID
+) {
+    IA32_APIC_BASE tApicBase;
+    tApicBase.qwValue = ASM64_Rdmsr(MSR_CODE_IA32_APIC_BASE);
+    return tApicBase.ApicGlobalEnable;
 }
 
 // See edk2\EdkCompatibilityPkg\Foundation\Library\EdkIIGlueLib\Library\BaseTimerLibLocalApic\X86TimerLib.c line 161
 // TODO: Not tested!
 VOID
-APIC_DelayMicroSeconds(
+APIC_delayMicroSeconds(
     INT32 dwMicroSeconds
 )
 {
-    UINT64 qwApicBase = apic_GetBase();
+    UINT64 qwApicBase = apic_getBase();
     PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
     INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
     INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwMicroSeconds) / 1000000);
@@ -78,11 +115,11 @@ APIC_DelayMicroSeconds(
 
 // TODO: Not tested!
 VOID
-APIC_DelayNanoSeconds(
+APIC_delayNanoSeconds(
     INT32 dwNanoSeconds
 )
 {
-    UINT64 qwApicBase = apic_GetBase();
+    UINT64 qwApicBase = apic_getBase();
     PAPIC_TDCR_REG ptTdcr = (PAPIC_TDCR_REG)(qwApicBase + APIC_REG_OFFSET_TDCR);
     INT32 *pdwTmcct = (INT32 *)(qwApicBase + APIC_REG_OFFSET_TMCCT);
     INT64 qwDelayTicks = (((INT64)ptTdcr->Frequency * (INT64)dwNanoSeconds) / 1000000000);
@@ -95,16 +132,15 @@ APIC_DelayNanoSeconds(
 // See edk2\UefiCpuPkg\Library\BaseXApicLib\BaseXApicLib.c line 512
 // TODO: Not tested!
 BOOLEAN
-APIC_InitSipiSipiAllAps(
+APIC_initSipiSipiAllAps(
     UINT8 cVector
 )
 {
-    UINT64 qwApicBase = apic_GetBase();
+    UINT64 qwApicBase = apic_getBase();
     APIC_ICR0_REG tIcr0;
     PAPIC_ICR0_REG ptIcr0 = (PAPIC_ICR0_REG)(qwApicBase + APIC_REG_OFFSET_ICR0);
 
-    if (!apic_IsApicEnabled())
-    {
+    if (!apic_isLocalApicEnabled()) {
         return FALSE;
     }
 
@@ -119,7 +155,7 @@ APIC_InitSipiSipiAllAps(
     ptIcr0->dwValue = tIcr0.dwValue;
     
     // 10-millisecond delay loop (10ms = 10000us)
-    APIC_DelayMicroSeconds(10000);
+    APIC_delayMicroSeconds(10000);
 
     // Load ICR encoding for broadcast SIPI IP to all APs
     tIcr0.Vector = cVector;
@@ -133,7 +169,7 @@ APIC_InitSipiSipiAllAps(
     ptIcr0->dwValue = tIcr0.dwValue;
 
     // 200-microsecond delay
-    APIC_DelayMicroSeconds(200);
+    APIC_delayMicroSeconds(200);
     
     // Broadcast second SIPI IPI to all APs
     ptIcr0->dwValue = tIcr0.dwValue;
