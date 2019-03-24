@@ -118,8 +118,8 @@
     <ClInclude Include="include\cpuid.h" />
     <ClInclude Include="include\cr64.h" />
     <ClInclude Include="include\dr64.h" />
-    <ClInclude Include="include\faults.h" />
     <ClInclude Include="include\gdt64.h" />
+    <ClInclude Include="include\idt.h" />
     <ClInclude Include="include\intrinsics64.h" />
     <ClInclude Include="include\log.h" />
     <ClInclude Include="include\msr64.h" />
@@ -127,9 +127,11 @@
     <ClInclude Include="include\ntdatatypes.h" />
     <ClInclude Include="include\paging64.h" />
     <ClInclude Include="include\smm.h" />
+    <ClInclude Include="include\tss.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="include\VT-x.h" />
     <ClInclude Include="include\VT-d.h" />
+    <ClInclude Include="include\xstate.h" />
     <ClInclude Include="src\paging64_internal.h" />
   </ItemGroup>
   <ItemGroup>

@@ -320,6 +320,14 @@ typedef union _LARGE_INTEGER {
     LONGLONG QuadPart;
 } LARGE_INTEGER, *PLARGE_INTEGER;
 
+typedef union _ULARGE_INTEGER {
+    struct {
+        ULONG LowPart;
+        ULONG HighPart;
+    };
+    ULONGLONG QuadPart;
+} ULARGE_INTEGER, *PULARGE_INTEGER;
+
 typedef unsigned char BOOLEAN;
 typedef BOOLEAN *PBOOLEAN;
 typedef unsigned int BOOL;

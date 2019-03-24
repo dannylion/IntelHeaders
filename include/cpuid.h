@@ -37,7 +37,7 @@
 #pragma warning( disable : 4201)
 #pragma pack(push, 1)
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
 typedef enum _CPUID_FUNCTION
 {
     // Basic CPUID Information
@@ -70,7 +70,7 @@ typedef enum _CPUID_FUNCTION
     // Processor Extended State Enumeration Main Leaf (EAX = 0DH, ECX = 0)
     // Processor Extended State Enumeration Sub-leaf (EAX = 0DH, ECX = 1)
     // Processor Extended State Enumeration Sub-leaves (EAX = 0DH, ECX = n, n > 1)
-    CPUID_FUNCTION_PROC_STATE_EX = 0xD,
+    CPUID_FUNCTION_XSTATE = 0xD,
 
     // Platform QoS Monitoring Enumeration Sub-leaf (EAX = 0FH, ECX = 0)
     // L3 Cache QoS Monitoring Capability Enumeration Sub-leaf (EAX = 0FH, ECX = 1)
@@ -109,7 +109,7 @@ typedef enum _CPUID_FUNCTION
     CPUID_FUNCTION_EX_MAXADDR = 0x80000008,
 } CPUID_FUNCTION, *PCPUID_FUNCTION;
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
 typedef struct _CPUID_REGISTERS
 {
     UINT32 dwEax;
@@ -118,7 +118,7 @@ typedef struct _CPUID_REGISTERS
     UINT32 dwEdx;
 } CPUID_REGISTERS, *PCPUID_REGISTERS;
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
 typedef struct _CPUID_BASIC_VENDOR
 {
     UINT32 dwMaxBasicInfo;
@@ -135,10 +135,10 @@ typedef enum _CPUID_PROCESSOR_TYPE
     CPUID_PROCESSOR_TYPE_INTEL_RESERVED = 3,
 } CPUID_PROCESSOR_TYPE, *PCPUID_PROCESSOR_TYPE;
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
 //! Vol 2A, Figure 3-6. Version Information Returned by CPUID in EAX
-//! Vol 2A, Table 3-19. Feature Information Returned in the ECX Register
-//! Vol 2A, Table 3-20. More on Feature Information Returned in the EDX Register
+//! Vol 2A, Table 3-10. Feature Information Returned in the ECX Register
+//! Vol 2A, Table 3-11. More on Feature Information Returned in the EDX Register
 // https://en.wikipedia.org/wiki/CPUID#EAX=1:_Processor_Info_and_Feature_Bits
 typedef struct _CPUID_BASIC_FEATURES
 {
@@ -179,10 +179,10 @@ typedef struct _CPUID_BASIC_FEATURES
     UINT32 X2apic : 1;          //!< ECX 21     x2APIC support
     UINT32 Movbe : 1;           //!< ECX 22     MOVBE instruction (big-endian)
     UINT32 Popcnt : 1;          //!< ECX 23     POPCNT instruction
-    UINT32 Tscdeadline : 1;     //!< ECX 24     APIC supports one-shot operation using a TSC deadline value
-    UINT32 Aes : 1;             //!< ECX 25     AES instruction set
-    UINT32 Xsave : 1;           //!< ECX 26     XSAVE, XRESTOR, XSETBV, XGETBV
-    UINT32 Osxsave : 1;         //!< ECX 27     XSAVE enabled by OS
+    UINT32 TscDeadline : 1;     //!< ECX 24     APIC supports one-shot operation using a TSC deadline value
+    UINT32 Aesni : 1;           //!< ECX 25     AESNI instruction set
+    UINT32 XSave : 1;           //!< ECX 26     XSAVE, XRESTOR, XSETBV, XGETBV and XCR0 register
+    UINT32 OSXSave : 1;         //!< ECX 27     XSAVE enabled by OS
     UINT32 Avx : 1;             //!< ECX 28     Advanced Vector Extensions
     UINT32 F16c : 1;            //!< ECX 29     F16C (half-precision) FP support
     UINT32 Rdrnd : 1;           //!< ECX 30     RDRAND (on-chip random number generator) support
@@ -222,7 +222,7 @@ typedef struct _CPUID_BASIC_FEATURES
 } CPUID_BASIC_FEATURES, *PCPUID_BASIC_FEATURES;
 C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_BASIC_FEATURES));
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
 // https://en.wikipedia.org/wiki/CPUID#EAX=7,_ECX=0:_Extended_Features
 typedef struct _CPUID_FEATURES_EX
 {
@@ -264,7 +264,7 @@ typedef struct _CPUID_FEATURES_EX
     UINT32 Avx512vbmi : 1;      //!< ECX 1      AVX-512 Vector Bit Manipulation Instructions
     UINT32 Umip : 1;            //!< ECX 2      User-mode Instruction Prevention
     UINT32 Pku : 1;             //!< ECX 3      Memory Protection Keys for User-mode pages
-    UINT32 Ospke : 1;           //!< ECX 4      PKU enabled by OS
+    UINT32 Ospke : 1;           //!< ECX 4      PKU enabled by OS (enable RDPKRU/WRPKRU instructions)
     UINT32 Reserved0 : 1;       //!< ECX 5      0
     UINT32 Avx512vbmi2 : 1;     //!< ECX 6      AVX-512 Vector Bit Manipulation Instructions 2
     UINT32 Reserved1 : 1;       //!< ECX 7      0
@@ -292,10 +292,60 @@ typedef struct _CPUID_FEATURES_EX
 } CPUID_FEATURES_EX, *PCPUID_FEATURES_EX;
 C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_FEATURES_EX));
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
+// Processor Extended State Enumeration Main Leaf (EAX = 0DH, ECX = 0)
+typedef struct _CPUID_XSTATE0 {
+    UINT32 x87 : 1;         //!< EAX 0      x87 state
+    UINT32 Sse : 1;         //!< EAX 1      SSE state
+    UINT32 Avx : 1;         //!< EAX 2      AVX state
+    UINT32 Mpx : 2;         //!< EAX 3-4    MPX state
+    UINT32 Avx512 : 3;      //!< EAX 5-7    AVX-512 state
+    UINT32 Ia32Xss0 : 1;    //!< EAX 8      Used for IA32_XSS
+    UINT32 Pkru : 1;        //!< EAX 9      PKRU state
+    UINT32 Reserved0 : 3;   //!< EAX 10-12  0
+    UINT32 Ia32Xss1 : 1;    //!< EAX 13     Used for IA32_XSS
+    UINT32 Reserved1 : 18;  //!< EAX 14-31  0
+    UINT32 Xcr0MaxSize;     //!< EBX        Maximum size required by enabled features in XCR0
+    UINT32 Xcr0LowMask;     //!< ECX        Supported bits of the low 32 bits of XCR0
+    UINT32 Xcr0HighMask;    //!< EDX        Supported bits of the high 32 bits of XCR0
+} CPUID_XSTATE0, *PCPUID_XSTATE0;
+C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_XSTATE0));
+
+// Processor Extended State Enumeration Sub-leaf (EAX = 0DH, ECX = 1)
+typedef struct _CPUID_XSTATE1 {
+    UINT32 XSaveOpt : 1;    //!< EAX 0      XSAVEOPT is available
+    UINT32 XSavec : 1;      //!< EAX 1      Supports XSAVEC and the compacted form of XRSTOR if set
+    UINT32 XGetbv : 1;      //!< EAX 2      Supports XGETBV with ECX = 1 if set
+    UINT32 XSaves : 1;      //!< EAX 3      Supports XSAVES/XRSTORS and IA32_XSS if set
+    UINT32 Reserved0 : 28;  //!< EAX 4-31   0
+    UINT32 XSaveSize;       //!< EBX        The size in bytes of the XSAVE area
+                            //              containing all states enabled by XCRO|IA32_XSS
+    UINT32 Ia32XssLow;      //!< ECX        Supported bits of the low 32 bits of the IA32_XSS MSR
+    UINT32 Ia32XssHigh;     //!< EDX        Supported bits of the high 32 bits of the IA32_XSS MSR
+} CPUID_XSTATE1, *PCPUID_XSTATE1;
+C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_XSTATE1));
+
+// Processor Extended State Enumeration Sub-leaves (EAX = 0DH, ECX = n, n > 1)
+typedef struct _CPUID_XSTATEN {
+    UINT32 Size;                //!< EAX        Size of the save area for an extended state
+                                //              feature associated with a valid sub-leaf index
+    UINT32 Offset;              //!< EBX        Offset of this extended state component save area
+    UINT32 Ia32XssSupport : 1;  //!< ECX 0      Set if the bit n (corresponding to the sub-leaf index)
+                                //              is supported in the IA32_XSS MSR; it is clear
+                                //              if bit n is instead supported in XCR0
+    UINT32 Compact : 1;         //!< ECX 1      Set if, when the compacted format of an 
+                                //              XSAVE area is used, this extended state component
+                                //              located on the next 64 - byte boundary following
+                                //              the preceding state component(otherwise, it is located
+                                //              immediately following the preceding state component).
+    UINT32 Reserved0 : 30;      //!< ECX 2-31   0
+    UINT32 Reserved1;           //!< EDX        0 if field is invalid, otherwise it's reserved
+} CPUID_XSTATEN, *PCPUID_XSTATEN;
+C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_XSTATEN));
+
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
 // https://en.wikipedia.org/wiki/CPUID#EAX=80000001h:_Extended_Processor_Info_and_Feature_Bits
-typedef struct _CPUID_EX_FEATURES
-{
+typedef struct _CPUID_EX_FEATURES {
     UINT32 Reserved0;           //!< EAX 0-31
     UINT32 Reserved1;           //!< EBX 0-31
     UINT32 LahfLm : 1;          //!< ECX 0      LAHF/SAHF in long mode
@@ -326,7 +376,7 @@ typedef struct _CPUID_EX_FEATURES
     UINT32 Reserved5 : 1;       //!< ECX 25     0
     UINT32 Dbx : 1;             //!< ECX 26     Data breakpoint extensions
     UINT32 Perftsc : 1;         //!< ECX 27     Performance TSC
-    UINT32 Pcxi2i : 1;          //!< ECX 28     L2I perf counter extensions
+    UINT32 Pcxi2i : 1;          //!< ECX 28     L2I performance counter extensions
     UINT32 Reserved6 : 3;       //!< ECX 29-31
     UINT32 Fpu : 1;             //!< EDX 0      Onboard x87 FPU
     UINT32 Vme : 1;             //!< EDX 1      Virtual mode extensions (VIF)
@@ -363,9 +413,8 @@ typedef struct _CPUID_EX_FEATURES
 } CPUID_EX_FEATURES, *PCPUID_EX_FEATURES;
 C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_EX_FEATURES));
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
-typedef struct _CPUID_EX_MAXFUNC
-{
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
+typedef struct _CPUID_EX_MAXFUNC {
     UINT32 dwMaxExFunc; //!< EAX
     UINT32 dwReserved0; //!< EBX
     UINT32 dwReserved1; //!< ECX
@@ -373,9 +422,8 @@ typedef struct _CPUID_EX_MAXFUNC
 } CPUID_EX_MAXFUNC, *PCPUID_EX_MAXFUNC;
 C_ASSERT(sizeof(CPUID_REGISTERS) == sizeof(CPUID_EX_MAXFUNC));
 
-//! Vol 2A, Table 3-17. Information Returned by CPUID Instruction
-typedef struct _CPUID_EX_MAXADDR
-{
+//! Vol 2A, Table 3-8. Information Returned by CPUID Instruction
+typedef struct _CPUID_EX_MAXADDR {
     UINT32 MaxPhysAddr : 8;     //!< EAX 0-7
     UINT32 MaxLinearAddr : 8;   //!< EAX 8-15
     UINT32 Reserved0 : 16;      //!< EAX 16-31

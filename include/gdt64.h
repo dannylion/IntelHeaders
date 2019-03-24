@@ -38,21 +38,16 @@
 #pragma pack(push, 1)
 
 //! Vol 3A, 3.4.2 Segment Selectors
-#define MAX_DESCRIPTORS_COUNT 8192
+#define GDT_MAX_DESCRIPTORS_COUNT 8192
 
 //! Vol 3A, Figure 2-6. Memory Management Registers
-typedef struct _GDTR64
-{
+typedef struct _GDTR64 {
     UINT16 Limit;    //!< 0-15
     UINT64 Base;    //!< 16-79
 } GDTR64, *PGDTR64;
 
-typedef GDTR64 IDTR64;
-typedef PGDTR64 PIDTR64;
-
 //! Vol 3A, Figure 3-6. Segment Selector
-typedef union _SEGMENT_SELECTOR
-{
+typedef union _SEGMENT_SELECTOR {
     UINT16 wValue;
     struct {
         UINT16 Rpl : 2;     //!< 0-1    Request privilege level
@@ -63,8 +58,7 @@ typedef union _SEGMENT_SELECTOR
 C_ASSERT(sizeof(UINT16) == sizeof(SEGMENT_SELECTOR));
 
 //! Vol 3A, Figure 3-8. Segment Descriptor
-typedef union _SEGMENT_DESCRIPTOR
-{
+typedef union _SEGMENT_DESCRIPTOR {
     UINT64 qwValue;
     struct {
         UINT64 LimitLow : 16;   //!< 0-15   Segment size bits 0:15
@@ -96,8 +90,7 @@ C_ASSERT(sizeof(UINT64) == sizeof(SEGMENT_DESCRIPTOR));
 // R (readable) - code segment can be read
 // C (conforming) - A transfer into a nonconforming segment at a different privilege level 
 //                    results in #GP fault, unless a call gate or task gate is used
-typedef enum _SEGMENT_TYPE
-{
+typedef enum _SEGMENT_TYPE {
     SEGMENT_TYPE_DATA_READ_ONLY = 0,
     SEGMENT_TYPE_DATA_A = 1,
     SEGMENT_TYPE_DATA_W = 2,
@@ -117,8 +110,7 @@ typedef enum _SEGMENT_TYPE
 } SEGMENT_TYPE, *PSEGMENT_TYPE;
 
 //! Vol 3A, Table 3-2. System-Segment and Gate-Descriptor Types
-typedef enum _SYSTEM_SEGMENT_TYPE
-{
+typedef enum _SYSTEM_SEGMENT_TYPE {
     // 0 Reserved
     SYSTEM_SEGMENT_TYPE_16BIT_TSS_AVAILABLE = 1,
     SYSTEM_SEGMENT_TYPE_LDT = 2,
@@ -137,26 +129,12 @@ typedef enum _SYSTEM_SEGMENT_TYPE
     SYSTEM_SEGMENT_TYPE_32BIT_TRAP_GATE = 15,
 } SYSTEM_SEGMENT_TYPE, *PSYSTEM_SEGMENT_TYPE;
 
-typedef struct _GDT_TABLE
-{
-    SEGMENT_DESCRIPTOR atDescriptors[MAX_DESCRIPTORS_COUNT];
+typedef struct _GDT_TABLE {
+    SEGMENT_DESCRIPTOR atDescriptors[GDT_MAX_DESCRIPTORS_COUNT];
 } GDT_TABLE, *PGDT_TABLE;
 
 typedef GDT_TABLE IDT_TABLE;
 typedef PGDT_TABLE PIDT_TABLE;
-
-// Vol 3A, Figure 7-11. 64-Bit TSS Format
-typedef struct _TSS64
-{
-    UINT32 Reserved0;
-    UINT64 Rsp0;        // Stack pointers (RSP) for privilege levels 0-2
-    UINT64 Rsp1;
-    UINT64 Rsp2;
-    UINT64 Ist[8];      // interrupt stack table (IST) pointers
-    UINT64 Reserved1;
-    UINT16 Reserved2;
-    UINT16 IoMapBase;   // Offset to the I/O permission bitmap from the TSS base
-} TSS64, *PTSS64;
 
 #pragma pack(pop)
 #pragma warning(pop)
